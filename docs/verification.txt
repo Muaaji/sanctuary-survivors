@@ -1,0 +1,42 @@
+PASS catalog: 45 abilities, 16 passives, 10 recipes, 84 linked talents
+PASS seven classes have one correct starter and reset all run state
+PASS inventory caps and class isolation are enforced by acquisition APIs
+PASS vitality scales additively, caps at 5 and does not leak across runs
+PASS all 45 abilities, with their class capstone, execute finite combat frames
+PASS every talent prerequisite, minimum level and single capstone is enforced
+PASS multiple-level XP burst keeps all normal choices and awards talent points
+PASS ten common ultimates require rank five and one passive then appear at the next level
+PASS all class spells evolve with an associated talent and retain their slot
+PASS knowledge records shown choices, acquisitions and unknowns without revealing all candidates
+PASS poison stacking refreshes one source, caps at three; bosses resist hard control
+PASS chest flow queues multiple pickups without losing upgrades
+PASS secondary trail effects expire instead of recursively sustaining themselves
+PASS all maps drawn safely even when loaded: regression for legacy w2s TDZ
+PASS end condition requires the final boss rather than only the timer
+PASS all 21 capstone identifiers have concrete effect handlers
+PASS retry hides death, victory and reward panels before hero selection
+PASS level-up guarantees class, common weapon and passive, with cap-aware fallback
+PASS camera covers every map edge and also handles viewports bigger than a map
+PASS fast projectiles hit crossed targets, including point-blank enemies
+PASS melee combos switch target after a kill instead of wasting later strikes
+PASS heat snapshots each run, scales enemies and remains finite at large levels
+PASS acts lock heat until completion and retry snapshots contracts and destination
+PASS act records and heat unlocks belong exclusively to the selected class
+PASS attributes affect melee, ranged, attack cadence, crit damage and mana upgrades
+PASS mana starvation delays magic casts and regeneration resumes them
+PASS armor reduces damage and class dodge prevents a hit
+
+27 suites passed. All 45 abilities and 84 talent definitions exercised.
+STRESS amazon {"time":900,"kills":3254,"state":"win","bosses":["butcher","insectQueen","summoner","spiderDemon","archdemon"],"areas":2,"bullets":5}
+STRESS sorceress {"time":900,"kills":3119,"state":"win","bosses":["butcher","insectQueen","summoner","spiderDemon","archdemon"],"areas":4,"bullets":24}
+STRESS necromancer {"time":900,"kills":3085,"state":"win","bosses":["butcher","insectQueen","summoner","spiderDemon","archdemon"],"areas":2,"bullets":28}
+STRESS paladin {"time":900,"kills":2538,"state":"win","bosses":["butcher","insectQueen","summoner","spiderDemon","archdemon"],"areas":2,"bullets":65}
+STRESS barbarian {"time":900,"kills":3210,"state":"win","bosses":["butcher","insectQueen","summoner","spiderDemon","archdemon"],"areas":3,"bullets":14}
+STRESS druid {"time":900,"kills":3238,"state":"win","bosses":["butcher","insectQueen","summoner","spiderDemon","archdemon"],"areas":9,"bullets":9}
+STRESS assassin {"time":900,"kills":3249,"state":"win","bosses":["butcher","insectQueen","summoner","spiderDemon","archdemon"],"areas":3,"bullets":7}
+BALANCE {"rank":1,"scenario":"boss","amazon":37,"sorceress":24,"necromancer":23,"paladin":32,"barbarian":36,"druid":24,"assassin":34}
+BALANCE {"rank":1,"scenario":"crowd","amazon":37,"sorceress":90,"necromancer":23,"paladin":32,"barbarian":74,"druid":71,"assassin":34}
+BALANCE {"rank":4,"scenario":"boss","amazon":170,"sorceress":131,"necromancer":135,"paladin":119,"barbarian":129,"druid":119,"assassin":152}
+BALANCE {"rank":4,"scenario":"crowd","amazon":313,"sorceress":403,"necromancer":260,"paladin":231,"barbarian":307,"druid":329,"assassin":303}
+BALANCE {"rank":8,"scenario":"boss","amazon":189,"sorceress":147,"necromancer":169,"paladin":137,"barbarian":147,"druid":131,"assassin":175}
+BALANCE {"rank":8,"scenario":"crowd","amazon":355,"sorceress":452,"necromancer":312,"paladin":265,"barbarian":350,"druid":378,"assassin":354}

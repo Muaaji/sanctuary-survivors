@@ -1,0 +1,35 @@
+PASS catalog: 45 abilities, 16 passives, 10 recipes, 84 linked talents
+PASS seven classes have one correct starter and reset all run state
+PASS inventory caps and class isolation are enforced by acquisition APIs
+PASS vitality scales additively, caps at 5 and does not leak across runs
+PASS all 45 abilities, with their class capstone, execute finite combat frames
+PASS every talent prerequisite, minimum level and single capstone is enforced
+PASS multiple-level XP burst keeps all normal choices and awards talent points
+PASS ten common ultimates require rank five and one passive then appear at the next level
+PASS all class spells evolve with an associated talent and retain their slot
+PASS knowledge records shown choices, acquisitions and unknowns without revealing all candidates
+PASS poison stacking refreshes one source, caps at three; bosses resist hard control
+PASS chest flow queues multiple pickups without losing upgrades
+PASS secondary trail effects expire instead of recursively sustaining themselves
+PASS all maps drawn safely even when loaded: regression for legacy w2s TDZ
+PASS end condition requires the final boss rather than only the timer
+PASS all 21 capstone identifiers have concrete effect handlers
+PASS retry hides death, victory and reward panels before hero selection
+PASS level-up guarantees class, common weapon and passive, with cap-aware fallback
+PASS camera covers every map edge and also handles viewports bigger than a map
+PASS fast projectiles hit crossed targets, including point-blank enemies
+PASS melee combos switch target after a kill instead of wasting later strikes
+PASS heat snapshots each run, scales enemies and remains finite at large levels
+PASS acts lock heat until completion and retry snapshots contracts and destination
+PASS act records and heat unlocks belong exclusively to the selected class
+PASS attributes affect melee, ranged, attack cadence, crit damage and mana upgrades
+PASS mana starvation delays magic casts and regeneration resumes them
+PASS armor reduces damage and class dodge prevents a hit
+
+27 suites passed. All 45 abilities and 84 talent definitions exercised.
+BALANCE {"rank":1,"scenario":"boss","amazon":40,"sorceress":25,"necromancer":22,"paladin":35,"barbarian":36,"druid":23,"assassin":35}
+BALANCE {"rank":1,"scenario":"crowd","amazon":38,"sorceress":90,"necromancer":22,"paladin":33,"barbarian":71,"druid":68,"assassin":34}
+BALANCE {"rank":3,"scenario":"boss","amazon":142,"sorceress":112,"necromancer":112,"paladin":101,"barbarian":108,"druid":98,"assassin":126}
+BALANCE {"rank":3,"scenario":"crowd","amazon":141,"sorceress":214,"necromancer":112,"paladin":99,"barbarian":163,"druid":175,"assassin":130}
+BALANCE {"rank":5,"scenario":"boss","amazon":187,"sorceress":150,"necromancer":169,"paladin":140,"barbarian":149,"druid":134,"assassin":174}
+BALANCE {"rank":5,"scenario":"crowd","amazon":354,"sorceress":446,"necromancer":310,"paladin":271,"barbarian":352,"druid":381,"assassin":351}

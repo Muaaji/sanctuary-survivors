@@ -1,0 +1,46 @@
+PASS catalog: 45 abilities, 16 passives, 10 recipes, 84 linked talents
+PASS seven classes have one correct starter and reset all run state
+PASS inventory caps and class isolation are enforced by acquisition APIs
+PASS vitality scales additively, caps at 5 and does not leak across runs
+PASS all 45 abilities, with their class capstone, execute finite combat frames
+PASS every talent prerequisite, minimum level and single capstone is enforced
+PASS multiple-level XP burst keeps all normal choices and awards talent points
+PASS ten common ultimates require rank five and one passive then appear at the next level
+PASS all class spells evolve with an associated talent and retain their slot
+PASS knowledge records shown choices, acquisitions and unknowns without revealing all candidates
+PASS poison stacking refreshes one source, caps at three; bosses resist hard control
+PASS chest flow queues multiple pickups without losing upgrades
+PASS secondary trail effects expire instead of recursively sustaining themselves
+PASS all maps drawn safely even when loaded: regression for legacy w2s TDZ
+PASS end condition requires the final boss rather than only the timer
+PASS all 21 capstone identifiers have concrete effect handlers
+PASS retry hides death, victory and reward panels before hero selection
+PASS level-up guarantees class, common weapon and passive, with cap-aware fallback
+PASS camera covers every map edge and also handles viewports bigger than a map
+PASS fast projectiles hit crossed targets, including point-blank enemies
+PASS melee combos switch target after a kill instead of wasting later strikes
+PASS heat snapshots each run, scales enemies and remains finite at large levels
+PASS acts lock heat until completion and retry snapshots contracts and destination
+PASS act records and heat unlocks belong exclusively to the selected class
+PASS attributes affect melee, ranged, attack cadence, crit damage and mana upgrades
+PASS mana starvation delays magic casts and regeneration resumes them
+PASS armor reduces damage and class dodge prevents a hit
+PASS hero selection opens setup before starting; launch snapshots the selected hero and act
+PASS common weapons are all physical, mana-free and mechanically distinct
+MANA {"base":{"bySpell":{"sorceress_fireball":16,"sorceress_orb":11,"sorceress_chain":13},"casts":40,"waits":1534,"low":1402,"damage":1713.6000000089407},"invested":{"bySpell":{"sorceress_fireball":28,"sorceress_orb":18,"sorceress_chain":21},"casts":67,"waits":1154,"low":1124,"damage":2634.000000014901}}
+PASS a three-spell caster exhausts mana, keeps a basic attack, and benefits from mana investment
+
+30 suites passed. All 45 abilities and 84 talent definitions exercised.
+STRESS amazon {"time":900,"kills":2312,"state":"win","bosses":["butcher","insectQueen","summoner","spiderDemon","archdemon"],"areas":0,"bullets":60}
+STRESS sorceress {"time":900,"kills":2285,"state":"win","bosses":["butcher","insectQueen","summoner","spiderDemon","archdemon"],"areas":0,"bullets":73}
+STRESS necromancer {"time":900,"kills":2376,"state":"win","bosses":["butcher","insectQueen","summoner","spiderDemon","archdemon"],"areas":0,"bullets":74}
+STRESS paladin {"time":900,"kills":2217,"state":"win","bosses":["butcher","insectQueen","summoner","spiderDemon","archdemon"],"areas":0,"bullets":72}
+STRESS barbarian {"time":900,"kills":2969,"state":"win","bosses":["butcher","insectQueen","summoner","spiderDemon","archdemon"],"areas":2,"bullets":31}
+STRESS druid {"time":900,"kills":3082,"state":"win","bosses":["butcher","insectQueen","summoner","spiderDemon","archdemon"],"areas":1,"bullets":17}
+STRESS assassin {"time":900,"kills":2615,"state":"win","bosses":["butcher","insectQueen","summoner","spiderDemon","archdemon"],"areas":0,"bullets":40}
+BALANCE {"rank":1,"scenario":"boss","amazon":44,"sorceress":30,"necromancer":27,"paladin":39,"barbarian":43,"druid":32,"assassin":42}
+BALANCE {"rank":1,"scenario":"crowd","amazon":42,"sorceress":94,"necromancer":27,"paladin":37,"barbarian":79,"druid":93,"assassin":42}
+BALANCE {"rank":3,"scenario":"boss","amazon":119,"sorceress":86,"necromancer":91,"paladin":84,"barbarian":88,"druid":84,"assassin":102}
+BALANCE {"rank":3,"scenario":"crowd","amazon":116,"sorceress":188,"necromancer":88,"paladin":85,"barbarian":140,"druid":169,"assassin":102}
+BALANCE {"rank":5,"scenario":"boss","amazon":184,"sorceress":131,"necromancer":164,"paladin":133,"barbarian":138,"druid":127,"assassin":164}
+BALANCE {"rank":5,"scenario":"crowd","amazon":183,"sorceress":251,"necromancer":161,"paladin":135,"barbarian":209,"druid":225,"assassin":157}

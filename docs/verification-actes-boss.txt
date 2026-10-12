@@ -1,0 +1,74 @@
+PASS initial title draw is safe before the first run reset
+PASS catalog: 45 abilities, 16 passives, 10 recipes, 84 linked talents
+PASS seven classes have one correct starter and reset all run state
+PASS inventory caps and class isolation are enforced by acquisition APIs
+PASS vitality scales additively, caps at 5 and does not leak across runs
+PASS all 45 abilities, with their class capstone, execute finite combat frames
+PASS every talent prerequisite, minimum level and single capstone is enforced
+PASS multiple-level XP burst keeps all normal choices and awards talent points
+PASS ten common ultimates require rank five and one passive then appear at the next level
+PASS all class spells evolve with an associated talent and retain their slot
+PASS knowledge records shown choices, acquisitions and unknowns without revealing all candidates
+PASS poison stacking refreshes one source, caps at three; bosses resist hard control
+PASS chest flow queues multiple pickups without losing upgrades
+PASS secondary trail effects expire instead of recursively sustaining themselves
+PASS all maps drawn safely even when loaded: regression for legacy w2s TDZ
+PASS end condition requires the final boss rather than only the timer
+PASS all 21 capstone identifiers have concrete effect handlers
+PASS retry hides death, victory and reward panels before hero selection
+PASS level-up draws freely across eligible families, with cap-aware fallback
+PASS full spell and passive slots only offer owned upgrades
+PASS camera covers every map edge and also handles viewports bigger than a map
+PASS fast projectiles hit crossed targets, including point-blank enemies
+PASS melee combos switch target after a kill instead of wasting later strikes
+PASS heat snapshots each run, scales enemies and remains finite at large levels
+PASS acts lock heat until completion and retry snapshots contracts and destination
+PASS act records and heat unlocks belong exclusively to the selected class
+PASS attributes affect melee, ranged, attack cadence, crit damage and mana upgrades
+PASS mana starvation delays magic casts and regeneration resumes them
+PASS armor reduces damage and class dodge prevents a hit
+PASS hero selection opens setup before starting; launch snapshots the selected hero and act
+PASS common weapons are all physical, mana-free and mechanically distinct
+MANA {"base":{"bySpell":{"sorceress_fireball":34,"sorceress_orb":4,"sorceress_chain":5},"casts":43,"waits":3612,"low":1568,"damage":2176.800000021234},"invested":{"bySpell":{"sorceress_fireball":44,"sorceress_orb":8,"sorceress_chain":19},"casts":71,"waits":2189,"low":1186,"damage":3062.4000000320375}}
+PASS a three-spell caster exhausts mana, keeps a basic attack, and benefits from mana investment
+PASS active spells wait for input, aim at supplied coordinates, pay mana and respect cooldown
+PASS passives are free and auras drain mana only while toggled on, then stop at exhaustion
+PASS receiving an active pauses rewards for a unique non-reserved shortcut
+PASS automatic aim ignores cursor and can be toggled back to manual during play
+PASS base HP is reduced by 40 percent for all heroes and hearts heal only ten percent
+PASS weapon recipes use meaningful stat partners and class synergies grant actual damage
+PASS bosses have distinct telegraphed cycles, bounded summons and phase-two cadence
+PASS spell sheets exist for all 35 class skills and their declared aura modes
+PASS amplify damage affects physical attacks, not fireballs; skeletons require corpses
+HEALING 44 healing drops / 5000 monsters
+PASS healing drops are rare across a deterministic five-thousand-monster sample
+PASS attack speed accelerates weapons rather than caster spells
+PASS equipment: seven empty heroes, twelve slots, six rarities and real sprite files
+PASS equipment: two rings and two one-handed weapons belong to one hero and persist across runs
+PASS equipment: two-handed swaps are atomic at full capacity and offhand clears a two-hander
+PASS equipment: tab moves, unlock achievements and duplicates cannot lose or clone items
+PASS equipment: damage, HP, mana, armor, speed and cooldown affect actual combat and never heal by swapping
+PASS equipment: full stash keeps ground drops, and victory collects gear before stopping the run
+PASS equipment: merchant stock purchases once, checks gold/capacity, then allows sale
+PASS equipment: menu pauses and restores preparation and play; I is reserved from spell bindings
+PASS equipment: stronger rarity factors migrate saved rolls once without scaling relic properties
+PASS equipment: malformed saves and invalid or duplicate item payloads recover safely
+PASS boss hooks pull on a successful hit and poison persists briefly after leaving its pool
+PASS hydra heads fire individual bolts rather than target-range-sized explosions
+PASS quiver bonuses benefit bows and crossbows, not flails or caster fireballs
+PASS act boss appears at exactly three minutes and locks map, wave tier and future bosses
+PASS boss death starts the next full act only then, and keeps the previous record
+PASS two-minute timeout defeats even an invulnerable hero and explains the failed act
+PASS menus freeze the boss deadline, and a kill before expiry beats the timeout
+PASS single-act mode spawns only its own boss at the end and wins without advancing
+PASS five act clocks and five boss victories are required to complete the campaign
+PASS boss acceleration keeps charge, tell and impact times consistent and pools full-length
+
+63 suites passed. All 45 abilities and 84 talent definitions exercised.
+STRESS amazon {"time":1007,"kills":2918,"state":"win","bosses":["butcher","insectQueen","summoner","spiderDemon","archdemon"],"areas":0,"bullets":14}
+STRESS sorceress {"time":1067,"kills":2489,"state":"win","bosses":["butcher","insectQueen","summoner","spiderDemon","archdemon"],"areas":0,"bullets":5}
+STRESS necromancer {"time":1075,"kills":2404,"state":"dead","bosses":["butcher","insectQueen","summoner","spiderDemon"],"areas":0,"bullets":0}
+STRESS paladin {"time":1117,"kills":2331,"state":"dead","bosses":["butcher","insectQueen","summoner","spiderDemon"],"areas":0,"bullets":0}
+STRESS barbarian {"time":984,"kills":3246,"state":"win","bosses":["butcher","insectQueen","summoner","spiderDemon","archdemon"],"areas":0,"bullets":2}
+STRESS druid {"time":1078,"kills":2581,"state":"win","bosses":["butcher","insectQueen","summoner","spiderDemon","archdemon"],"areas":0,"bullets":8}
+STRESS assassin {"time":1054,"kills":2888,"state":"win","bosses":["butcher","insectQueen","summoner","spiderDemon","archdemon"],"areas":0,"bullets":4}

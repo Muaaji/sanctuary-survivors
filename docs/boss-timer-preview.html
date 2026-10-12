@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<base href="../">
+<script>Object.defineProperty(window,"localStorage",{value:(()=>{const data=new Map();return {getItem:k=>data.get(k)||null,setItem:(k,v)=>data.set(k,String(v)),removeItem:k=>data.delete(k)};})()});</script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+<title>Sanctuary Survivors — Roguelite dans la crypte</title>
+<link rel="stylesheet" href="css/style.css" />
+<link rel="stylesheet" href="css/equipment.css" />
+</head>
+<body>
+<div id="game-container">
+  <canvas id="game"></canvas>
+
+  <!-- ===== HUD ===== -->
+  <div id="hud" class="hidden">
+    <div id="hud-top">
+      <div style="display:flex; flex-direction:column; gap:4px">
+        <div class="gold-block"><span>🪙</span><span id="gold-display">0</span></div>
+        <div class="essence-block"><span>✦</span><span id="essence-display">0</span> essence</div>
+      </div>
+      <div id="hud-right">
+        <div class="timer" id="timer">00:00</div>
+        <div class="kills" id="kills">0 tués</div>
+        <button id="btn-settings">⚙ Réglages</button>
+      </div>
+    </div>
+
+    <!-- Cadre HUD image (officiel D2, si assets/ui/hud_frame.png) -->
+    <img id="hud-frame-img" alt="" src="assets/ui/hud_frame.png" />
+
+    <!-- Barre d'XP fine dorée au-dessus du bandeau -->
+    <div id="xp-bar"><div id="xp-fill"></div></div>
+
+    <!-- Bandeau inférieur façon D2 -->
+    <div id="hud-bottom">
+      <div class="orb hp"><div class="orb-fill" id="hp-fill"></div><div class="orb-label" id="hp-label">100</div></div>
+      <div id="skill-bar"></div>
+      <div class="orb mp"><div class="orb-fill" id="mp-fill"></div><div class="orb-label" id="mp-label">50</div></div>
+    </div>
+
+    <div id="shop-nearby"><span class="key-hint">E</span> — Commerçant errant</div>
+    <div id="fps">-- FPS</div>
+    <div id="build-badge">build fan-game</div>
+    <div id="toasts"></div>
+    <div id="achv-popup"><div class="achv-title">— HAUT FAIT —</div><div class="achv-name"></div><div class="achv-desc"></div></div>
+  </div>
+
+  <!-- ===== Écran titre ===== -->
+  <div id="title-screen" class="overlay">
+    <h1 class="title">Sanctuary Survivors</h1>
+    <p class="subtitle">— un roguelite dans la crypte —</p>
+    <p class="press-start" style="margin-top:30px">Appuie sur Entrée pour choisir ton héros…</p>
+    <div class="controls-hint">
+      Se déplacer : <b>W A S D</b> / <b>Z Q S D</b> / <b>flèches</b> · Sorts : <b>1 2 3</b> · Intéragir : <b>E</b><br>
+      Les armes attaquent seules. Survis 15 minutes. Armes auto, gemmes d'XP,<br>
+      boutique errante, hauts faits cachés, améliorations persistantes d'essence.<br>
+      <button class="btn small" id="btn-sanctuary-menu">✦ Sanctuaire (améliorations permanentes)</button>
+      &nbsp;
+      <button class="btn small" id="btn-settings-menu">⚙ Réglages audio</button>
+    </div>
+  </div>
+
+  <!-- ===== Choix de classe ===== -->
+  <div id="class-screen" class="overlay hidden">
+    <h2 class="title" style="font-size:32px">— Choisis ton héros —</h2>
+    <div class="class-cards" id="class-cards"></div>
+    <button class="btn small" id="class-back">← Retour</button>
+  </div>
+
+  <!-- ===== Level up ===== -->
+  <div id="levelup-overlay" class="overlay hidden">
+    <h2>— Niveau supérieur —</h2>
+    <div id="levelup-cards"></div>
+    <button class="btn small" id="reroll-btn">Relancer (restes: <span id="reroll-count">2</span>)</button>
+  </div>
+
+  <!-- ===== Pause ===== -->
+  <div id="pause-overlay" class="overlay hidden">
+    <h2 class="title" style="font-size:30px">— Pause —</h2>
+    <div style="margin-top:26px; display:flex; gap:14px; flex-wrap:wrap; justify-content:center">
+      <button class="btn" id="resume-btn">Reprendre</button>
+      <button class="btn small" id="pause-settings">⚙ Réglages</button>
+      <button class="btn danger" id="quit-btn">Abandonner</button>
+    </div>
+  </div>
+
+  <!-- ===== Réglages ===== -->
+  <div id="settings-overlay" class="overlay hidden">
+    <div class="settings-panel">
+      <h2>⚙ Réglages</h2>
+      <div class="set-row"><label>Volume général</label><input type="range" id="set-master" min="0" max="100" value="80"></div>
+      <div class="set-row"><label>Effets (combat)</label><input type="range" id="set-sfx" min="0" max="100" value="90"></div>
+      <div class="set-row"><label>Interface</label><input type="range" id="set-ui" min="0" max="100" value="85"></div>
+      <div class="set-row"><label>Amortir la foule</label><input type="checkbox" id="set-crowd" checked></div>
+      <div style="margin-top:6px; font-size:12px; color:#8d7f6a; max-width:320px">
+        « Amortir la foule » limite la cadence des sons de coups/morts quand beaucoup
+        d'ennemis meurent en même temps — pour éviter le maelström inaudible.
+      </div>
+      <div style="margin-top:16px"><button class="btn small" id="settings-close">Fermer</button></div>
+    </div>
+  </div>
+
+  <!-- ===== Boutique ===== -->
+  <div id="shop-overlay" class="overlay hidden">
+    <div class="shop-panel">
+      <h2>Commerçant errant</h2>
+      <div class="shop-sub">« J'ai des babioles pour l'âme courageuse… »</div>
+      <div class="shop-money">
+        <span style="color:#d9b356">🪙 <span id="shop-gold">0</span> or</span>
+      </div>
+      <div class="shop-items" id="shop-items"></div>
+      <button class="btn small" id="shop-close">Partir (E / Échap)</button>
+    </div>
+  </div>
+
+  <!-- ===== Sanctuaire (améliorations permanentes à l'essence) ===== -->
+  <div id="sanctuary-overlay" class="overlay hidden">
+    <div class="shop-panel">
+      <h2>✦ Sanctuaire des Anciens</h2>
+      <div class="shop-sub">L'essence collectée t'accompagne entre les descentes.</div>
+      <div class="shop-money">
+        <span style="color:#b07ce8">✦ <span id="sanct-essence">0</span> essence</span>
+      </div>
+      <div class="shop-items" id="sanct-items"></div>
+      <div id="sanct-spells" style="margin-top:8px; font-size:12.5px; color:#a98cc4"></div>
+      <button class="btn small" id="sanctuary-close">Fermer</button>
+    </div>
+  </div>
+
+  <!-- ===== Mort ===== -->
+  <div id="kill-screen" class="overlay hidden">
+    <div style="font-size:60px">💀</div>
+    <h2 style="font-family:'Metamorphous'; color:#a34335; font-size:36px">« Vous avez succombé. »</h2>
+    <p style="color:#b9ac8d">La crypte réclame encore une âme…</p>
+    <table class="stats-table" id="death-stats"></table>
+    <div style="margin-top:14px; display:flex; gap:12px; flex-wrap:wrap; justify-content:center">
+      <button class="btn" id="retry-btn">Redescendre (Entrée)</button>
+      <button class="btn small" id="death-sanctuary">✦ Sanctuaire</button>
+      <button class="btn danger small" id="discord-btn">Partager sur Discord</button>
+    </div>
+  </div>
+
+  <!-- ===== Victoire ===== -->
+  <div id="win-screen" class="overlay hidden">
+    <div style="font-size:60px">👑</div>
+    <h2 style="font-family:'Metamorphous'; color:#d9b356; font-size:36px">Duriel est tombé</h2>
+    <p style="color:#b9ac8d">La crypte est purgée… pour l'instant.</p>
+    <table class="stats-table" id="win-stats"></table>
+    <div style="margin-top:14px; display:flex; gap:12px; flex-wrap:wrap; justify-content:center">
+      <button class="btn" id="retry-btn2">Encore une descente (Entrée)</button>
+      <button class="btn small" id="win-sanctuary">✦ Sanctuaire</button>
+      <button class="btn danger small" id="discord-btn2">Partager sur Discord</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/helpers.js"></script>
+<script src="js/systems.js"></script>
+<script src="js/art.js"></script>
+<script src="js/assets.js"></script>
+<script src="js/data.js"></script>
+<script src="js/entities.js"></script>
+<script src="js/levels.js"></script>
+<script src="js/main.js"></script>
+
+<!-- Codex Survivors rules: additive integration after the legacy engine. -->
+<script src="js/survivors/catalog.js"></script>
+<script src="js/survivors/bosses.js"></script>
+<script src="js/survivors/runtime.js"></script>
+<script src="js/survivors/equipment.js"></script>
+<script src="js/survivors/stats.js"></script>
+<script src="js/survivors/weapon-art.js"></script>
+<script src="js/survivors/spell-art.js"></script>
+<script src="js/survivors/integration.js"></script>
+<script src="js/survivors/equipment-ui.js"></script>
+<script src="js/survivors/hud-controls.js"></script>
+<script>
+function previewBossReset(){SurvivorActs.selected=-1;Game.reset('paladin');Game.state='playing';Player.invuln=1e9;for(const id of ['title-screen','class-screen','kill-screen','win-screen','ss-run-setup'])document.getElementById(id).classList.add('hidden');document.getElementById('hud').classList.remove('hidden');Game.time=180;SurvivorActs.elapsed=180;updateProgress(0);renderSkillBar();updateHUD();}
+previewBossReset();
+const tests=document.createElement('div');tests.style.cssText='position:fixed;top:110px;left:10px;z-index:9;padding:8px;background:#17100fea;color:#d9c7a6;font:11px system-ui;border:1px solid #80633c';tests.innerHTML='<p style="margin-bottom:6px">Aperçu de test · sauvegarde temporaire</p><button id="preview-win" class="btn small">Vaincre le boss</button> <button id="preview-fail" class="btn small">Délai écoulé</button> <button id="preview-restart" class="btn small">Recommencer</button>';document.getElementById('game-container').appendChild(tests);
+document.getElementById('preview-win').onclick=()=>{if(SurvivorActs.phase==='boss'){SurvivorRuntime.damage(SurvivorActs.boss,1e9);Game.state='playing';updateProgress(0);updateHUD();}};
+document.getElementById('preview-fail').onclick=()=>{if(SurvivorActs.phase==='boss'){Game.state='playing';Game.time=SurvivorActs.deadline;updateProgress(0);}};
+document.getElementById('preview-restart').onclick=previewBossReset;
+</script>
+</body>
+</html>

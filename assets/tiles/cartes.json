@@ -1,0 +1,86 @@
+{
+  "maps": [
+    {
+      "file": "acte-1-plaines.png",
+      "title": "Plaines sombres",
+      "width": 1254,
+      "height": 1254,
+      "landmarks": [
+        "Cercle de pierres",
+        "Tour écroulée",
+        "Lit du ruisseau"
+      ],
+      "suggested_world_size": [
+        2048,
+        2048
+      ]
+    },
+    {
+      "file": "acte-2-desert.png",
+      "title": "Désert",
+      "width": 1254,
+      "height": 1254,
+      "landmarks": [
+        "Oasis",
+        "Cour en ruines",
+        "Carrefour des pistes"
+      ],
+      "suggested_world_size": [
+        2048,
+        2048
+      ]
+    },
+    {
+      "file": "acte-3-jungle.png",
+      "title": "Jungle",
+      "width": 1254,
+      "height": 1254,
+      "landmarks": [
+        "Temple",
+        "Deux ponts",
+        "Clairière circulaire",
+        "Tronc tombé"
+      ],
+      "suggested_world_size": [
+        2048,
+        2048
+      ]
+    },
+    {
+      "file": "acte-4-enfer.png",
+      "title": "Enfer",
+      "width": 1254,
+      "height": 1254,
+      "landmarks": [
+        "Cathédrale ruinée",
+        "Plateforme rituelle",
+        "Passage de lave",
+        "Fosse"
+      ],
+      "suggested_world_size": [
+        2048,
+        2048
+      ]
+    },
+    {
+      "file": "acte-5-montagne.png",
+      "title": "Montagne",
+      "width": 1254,
+      "height": 1254,
+      "landmarks": [
+        "Porte de forteresse",
+        "Lac gelé",
+        "Pont de pierre",
+        "Plateforme circulaire"
+      ],
+      "suggested_world_size": [
+        2048,
+        2048
+      ]
+    }
+  ],
+  "player_size": [
+    48,
+    48
+  ]
+}
