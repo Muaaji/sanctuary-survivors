@@ -17,8 +17,8 @@ const document={getElementById(id){if(!nodes.has(id))nodes.set(id,new Element())
 class ImageMock {
  set src(v){this._src=v;this.complete=true;this.width=this.height=v.includes('tiles')?1254:v.includes('boss_')?64:v.includes('sprites/')?48:32;this.naturalWidth=this.width;queueMicrotask(()=>{if(this.onload)this.onload();});}get src(){return this._src;}
 }
-const storage=new Map();
-const sandbox={console,document,Image:ImageMock,URLSearchParams,location:{search:'',reload(){}},innerWidth:1280,innerHeight:720,performance:{now:()=>0},requestAnimationFrame(){},addEventListener(){},setTimeout(){},navigator:{},localStorage:{getItem(key){return storage.get(key)||null;},setItem(key,value){storage.set(key,value);}},fetch:()=>Promise.resolve({ok:true,json:()=>Promise.resolve({maps:[]})})};
+const storage=new Map(),events=new Map();
+const sandbox={console,document,Image:ImageMock,URLSearchParams,location:{search:'',reload(){}},innerWidth:1280,innerHeight:720,performance:{now:()=>0},requestAnimationFrame(){},addEventListener(type,handler){if(!events.has(type))events.set(type,[]);events.get(type).push(handler);},setTimeout(){},navigator:{},localStorage:{getItem(key){return storage.get(key)||null;},setItem(key,value){storage.set(key,value);}},fetch:()=>Promise.resolve({ok:true,json:()=>Promise.resolve({maps:[]})})};
 sandbox.window=sandbox;vm.createContext(sandbox);
 for(const f of ['helpers','systems','art','assets','data','entities','levels','main'])vm.runInContext(fs.readFileSync(path.join(root,'js',f+'.js'),'utf8'),sandbox,{filename:f+'.js'});
 for(const f of ['catalog','bosses','runtime','equipment','stats','weapon-art','spell-art','integration','equipment-ui','hud-controls'])vm.runInContext(fs.readFileSync(path.join(root,'js/survivors',f+'.js'),'utf8'),sandbox,{filename:f+'.js'});
@@ -86,6 +86,15 @@ test('full spell and passive slots only offer owned upgrades',()=>{
  const choices=run('buildUpgradeOptions')();assert.ok(choices.length>0);assert.ok(choices.every(o=>owned.has(o.id)));
  assert.equal(Object.keys(player.passives).length,6);
  for(let i=0;i<50;i++)assert.ok(run('drawUpgradeCards')(new Element()).every(o=>owned.has(o.id)));
+});
+test('shop exits by Escape, E and button resume combat even with a stale menu state',()=>{
+ for(const code of ['Escape','KeyE','button']){
+  reset();game.prevState='title';run('Keys.right=true;openShop()');assert.equal(game.state,'shop');assert.equal(run('Keys.right'),false);
+  assert.ok(!document.getElementById('shop-overlay').classList.contains('hidden'));run('Keys.up=true');
+  if(code==='button')document.getElementById('shop-close').onclick();else for(const fn of events.get('keydown')||[])fn({code,target:{tagName:'DIV'},preventDefault(){}});
+  assert.equal(game.state,'playing',code);assert.equal(run('Keys.up'),false);assert.ok(document.getElementById('shop-overlay').classList.contains('hidden'));
+  const time=game.time;run('updateProgress(.1)');assert.ok(game.time>time);
+ }
 });
 test('shop prices and per-run stock prevent repeated permanent stat purchases',()=>{
  reset();player.gold=10000;const item=run("SHOP_POOL.find(it=>it.id==='maxHP')"),base=player.hpMax;

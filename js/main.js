@@ -72,9 +72,11 @@ addEventListener('keydown', (e) => {
   if (e.code === 'Escape') {
     if (st === 'playing') pauseGame();
     else if (st === 'paused') resumeGame();
-    else if (st === 'shop' || st === 'sanctuary' || st === 'settings') Game.closeOverlay(st);
+    else if (st === 'shop') closeShop();
+    else if (st === 'sanctuary' || st === 'settings') Game.closeOverlay(st);
     else if (st === 'classes') backToTitle();
   }
+  if (st === 'shop' && e.code === 'KeyE') { closeShop(); e.preventDefault(); }
   if (st === 'playing') {
     if (e.code === 'Digit1') Player.cast(0), renderSkillBar();
     if (e.code === 'Digit2') Player.cast(1), renderSkillBar();
@@ -239,12 +241,14 @@ function showAchvPopup(a, ess, spell) {
  * BOUTIQUE
  * ========================================================= */
 function openShop() {
+  for (const key of Object.keys(Keys)) Keys[key] = false;
   Game.state = 'shop';
   Sound.play('openShop');
   renderShop();
   document.getElementById('shop-overlay').classList.remove('hidden');
 }
 function closeShop() {
+  for (const key of Object.keys(Keys)) Keys[key] = false;
   Game.state = 'playing';
   Sound.play('closeShop');
   document.getElementById('shop-overlay').classList.add('hidden');
