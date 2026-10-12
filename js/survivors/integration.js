@@ -509,7 +509,7 @@
       let sprite,frame,width,height;
       if(item.kind==='merchant'){ctx.save();ctx.fillStyle='rgba(9,7,5,.5)';ctx.beginPath();ctx.ellipse(x,y+4,15,5,0,0,TAU);ctx.fill();if(merchantSprite.complete&&merchantSprite.naturalWidth){ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(merchantSprite,x-24,y-52,48,60);}ctx.restore();continue;}
       if(item.kind==='player'){sprite=Sprites.playerSprite(Player.classId,Player.facing,Player.attackAnimT>0)||ART.player[Player.classId]?.S||ART.player.paladin.S;width=48;height=48;if(Player.invuln>0&&Math.floor(R.now*15)%2)ctx.globalAlpha=.5;}
-      else if(item.kind==='enemy'){frame=body.boss?Sprites.bossSprite(body.sprite,body.bossBossAttackT>0?'attack':'idle',R.now*(body.bossTempo||1.2)):Sprites.monsterSprite(body.sprite,'idle',R.now);sprite=frame?.img||ART[body.sprite]||ART.fallen;width=body.boss?64:32;height=width;}
+      else if(item.kind==='enemy'){frame=body.ssChampion?Sprites.monsterSprite(body.sprite,'idle',R.now):body.boss?Sprites.bossSprite(body.sprite,body.bossBossAttackT>0?'attack':'idle',R.now*(body.bossTempo||1.2)):Sprites.monsterSprite(body.sprite,'idle',R.now);if(body.ssChampionImage?.complete&&body.ssChampionImage.naturalWidth)frame={img:body.ssChampionImage,sx:0,sw:body.ssChampionImage.width};sprite=frame?.img||ART[body.sprite]||ART.fallen;width=body.spriteSize||(body.boss?64:32);height=width;}
       else {
         const key=body.id.split('_')[1];
         if(key==='skeletons')frame=Sprites.monsterSprite('skeleton','idle',R.now);

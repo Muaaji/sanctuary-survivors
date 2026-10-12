@@ -3,14 +3,19 @@
 (() => {
   if (new URLSearchParams(location.search).has('legacy')) return;
   const times = [120, 240, 360];
-  // Preserve each act's final boss and reuse distinct, already telegraphed mechanics.
-  const rosters = [
-    ['summoner', 'insectQueen', 'butcher'],
-    ['butcher', 'spiderDemon', 'insectQueen'],
-    ['insectQueen', 'spiderDemon', 'summoner'],
-    ['butcher', 'insectQueen', 'spiderDemon'],
-    ['summoner', 'spiderDemon', 'archdemon']
+  // Intermediates are empowered ordinary monsters; act finales keep their bosses.
+  const champions = [
+    [{type:'fallen',sprite:'fallen-champion',name:'Chef des déchus'}, {type:'skeleton',sprite:'skeleton-bulwark',name:'Rempart ossifié'}],
+    [{type:'scarab',sprite:'dune-scarab',name:'Scarabée cuirassé'}, {type:'serpent',sprite:'sand-serpent',name:'Gardien des dunes'}],
+    [{type:'fungus',sprite:'ancient-fungus',name:'Ancien fongus'}, {type:'spider',sprite:'brood-spider',name:'Gardienne du couvain'}],
+    [{type:'fireHound',sprite:'infernal-hound',name:'Limier alpha'}, {type:'ogre',sprite:'slag-ogre',name:'Ogre des scories'}],
+    [{type:'undeadKnight',sprite:'frost-knight',name:'Chevalier du givre'}, {type:'skeletonArcher',sprite:'frost-archer',name:'Archer du givre'}]
   ];
+  const images = {};
+  if (typeof Image !== 'undefined') for (const champion of champions.flat()) {
+    const img = images[champion.sprite] = new Image();
+    img.src = 'assets/sprites/champions/' + champion.sprite + '.png';
+  }
   const finalHP = [1800, 1900, 1800, 2000, 2200];
   const finalDamage = [20, 21, 20, 22, 24];
   let serial = 0;
@@ -19,7 +24,7 @@
     reset(actIndex = 0) {
       const act = Math.max(0, Math.min(4, Math.floor(Number(actIndex) || 0)));
       this.state = { actIndex: act, runId: ++serial, elapsed: 0, phase: 'waves', status: 'playing', encounters: [], final: null };
-      this.state.encounters = rosters[act].map((id, index) => ({
+      this.state.encounters = [...champions[act].map(c => c.type), BOSSES[act].id].map((id, index) => ({
         id: 'act-' + (act + 1) + '-boss-' + (index + 1), mechanicId: id,
         at: times[index], final: index === 2, spawned: false, defeated: false, entity: null
       }));
@@ -38,23 +43,50 @@
       acts.bossStartedAt = acts.boss ? acts.boss.encounterAt : null;
     },
     spawn(encounter, index) {
-      const s = this.state, source = BOSSES.find(b => b.id === encounter.mechanicId);
-      if (!source) throw new Error('Unknown encounter boss: ' + encounter.mechanicId);
-      const def = { ...source, at: encounter.at,
-        hp: index === 2 ? finalHP[s.actIndex] : index === 0 ? 500 : 1000,
-        dmg: index === 2 ? finalDamage[s.actIndex] : index === 0 ? 12 : 16,
-        xp: index === 2 ? 180 : index === 0 ? 80 : 120,
-        name: index === 2 ? source.name : source.name + ' — intermédiaire ' + (index + 1)
-      };
-      const entity = spawnBoss(def);
-      // spawnBoss historically scales with campaign minute; the new budget is local.
-      const heat = window.SurvivorHeat ? SurvivorHeat.factors() : { hp: 1 };
-      entity.hp = entity.hpMax = def.hp * heat.hp;
+      const s = this.state, heat = window.SurvivorHeat ? SurvivorHeat.factors() : {hp:1,damage:1};
+      let entity;
+      if (!encounter.final) {
+        const champion = champions[s.actIndex][index];
+        const world = typeof currentMapWorld === 'function' ? currentMapWorld() : null;
+        const bounded = (value, max) => Math.max(32, Math.min((max || 2048) - 32, value));
+        const offsets = [[0,-340],[340,0],[0,340],[-340,0]];
+        const points = offsets.map((_,i) => offsets[(i + index) % offsets.length]).map(([dx,dy]) => ({x:bounded(Player.x+dx,world?.w),y:bounded(Player.y+dy,world?.h)}));
+        points.sort((a,b) => Math.hypot(b.x-Player.x,b.y-Player.y)-Math.hypot(a.x-Player.x,a.y-Player.y));
+        entity = spawnEnemy(champion.type, points[0].x, points[0].y);
+        if (!entity) throw new Error('Unknown champion monster: ' + champion.type);
+        entity.kind = 'boss';
+        entity.boss = true;
+        entity.ssChampion = true;
+        entity.id = 'champion-' + champion.sprite;
+        entity.name = champion.name;
+        entity.ssChampionImage = images[champion.sprite];
+        entity.ssChampionSprite = champion.sprite;
+        entity.spriteSize = index === 0 ? 56 : 64;
+        entity.r *= 1.65;
+        entity.xp = index === 0 ? 80 : 120;
+        const scale = window.SurvivorActWaves ? SurvivorActWaves.factors(encounter.at) : {hp:1,damage:1,speed:1};
+        entity.hp = entity.hpMax = (index === 0 ? 500 : 1000) * heat.hp * scale.hp;
+        // Normal spawn already applies heat and time; keep one heat multiplier.
+        if (entity.ssActScale) {
+          entity.ssActScale.damage = Math.max((index === 0 ? 12 : 16) * heat.damage, entity.ssActScale.damage * 1.6);
+          entity.ssActScale.speed *= 1.15;
+          entity.ssActScale.spawnElapsed = encounter.at;
+          entity.dmg = entity.ssActScale.damage * scale.damage;
+          entity.speed = entity.ssActScale.speed * scale.speed;
+        }
+        if (typeof toast === 'function') toast('⚔ ' + champion.name + ' — champion de l’acte');
+      } else {
+        const source = BOSSES[s.actIndex];
+        const def = {...source, at:encounter.at, hp:finalHP[s.actIndex], dmg:finalDamage[s.actIndex], xp:180};
+        entity = spawnBoss(def);
+        // Final spawn historically scales with minute; use only the local budget.
+        entity.hp = entity.hpMax = def.hp * heat.hp;
+        if (window.SurvivorActWaves) SurvivorActWaves.scaleEnemy(entity, encounter.at, s.actIndex);
+      }
       entity.encounterId = encounter.id;
       entity.encounterRunId = s.runId;
       entity.encounterAt = encounter.at;
       entity.encounterFinal = encounter.final;
-      if (window.SurvivorActWaves) SurvivorActWaves.scaleEnemy(entity, encounter.at, s.actIndex);
       encounter.spawned = true;
       encounter.entity = entity;
       if (encounter.final) s.final = entity;

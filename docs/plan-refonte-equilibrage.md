@@ -6,7 +6,7 @@
 
 ## Décisions utilisateur retenues — 12 octobre 2026
 
-Ces décisions remplacent les anciennes hypothèses de campagne et de délai de boss dans les sections historiques ci-dessous. Le contrat de jeu est maintenant implémenté : actes autonomes, trois rencontres, escalade continue et slot réservé. Les valeurs numériques restent une première calibration à mesurer en parties humaines. Les sections historiques décrivent le moteur antérieur.
+Ces décisions remplacent les anciennes hypothèses de campagne et de délai de boss dans les sections historiques ci-dessous. Le contrat de jeu est maintenant implémenté : actes autonomes, trois rencontres, escalade continue et slot réservé. Les deux intermédiaires sont désormais des champions de monstres ordinaires : dix sprites dédiés, deux par acte, avec silhouettes plus massives et comportement de leur famille. Les valeurs numériques restent une première calibration à mesurer en parties humaines. Les sections historiques décrivent le moteur antérieur.
 
 - **Un acte = une partie autonome.** Le mode campagne est supprimé. Chaque départ/recommencement remet le héros au niveau 1 et réinitialise XP, compétences/armes/passifs de run, talents, mana et or de run. Les découvertes, équipements et améliorations permanentes restent persistants.
 - **Six minutes de montée**, avec un boss intermédiaire à **2:00**, un deuxième à **4:00**, puis le boss final propre à l’acte à **6:00**.

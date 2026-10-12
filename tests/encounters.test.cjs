@@ -5,6 +5,8 @@ const assert = require('node:assert/strict');
 const context = { URLSearchParams, location: { search: '' }, window: null,
   Game: { state: 'playing', time: 0, minute: 0 },
   SurvivorActs: {}, SurvivorHeat: { factors: () => ({ hp: 1.4 }) },
+  Player:{x:1024,y:1024},
+  spawnEnemy(type,x,y) { return {type,x,y,r:7,hp:20,hpMax:20,dmg:6,speed:30,dead:false}; },
   Run: { bossKills: {} }, Wave: { bossSpawned: {} }, wins: 0,
   BOSSES: ['butcher', 'insectQueen', 'summoner', 'spiderDemon', 'archdemon'].map(id => ({ id, name: id })),
   spawnBoss(def) { return { ...def, hp: def.hp * 9, hpMax: def.hp * 9, dead: false }; },
@@ -21,8 +23,13 @@ for (let act = 0; act < 5; act++) {
   assert.equal(E.state.encounters.filter(e => e.spawned).length, 0);
   E.update(1);
   assert.equal(E.state.encounters[0].spawned, true);
+  assert.equal(E.state.encounters[0].entity.ssChampion,true);
+  assert.equal(E.state.encounters[0].entity.kind,'boss');
   E.update(240);
   assert.equal(E.state.encounters.filter(e => e.spawned).length, 3);
+  assert.equal(E.state.encounters[1].entity.ssChampion,true);
+  assert.notEqual(E.state.encounters[0].entity.type,E.state.encounters[1].entity.type);
+  assert.ok(!E.state.final.ssChampion);
   assert.equal(E.state.final.id, context.BOSSES[act].id);
   assert.equal(E.elapsed, 360);
   assert.equal(context.Game.minute, 6);

@@ -593,7 +593,7 @@ window.SurvivorRuntime = (() => {
         const dx=target.x-e.x,dy=target.y-e.y,d=Math.hypot(dx,dy)||1;
         const stopped=!e.boss&&(e.ssStopUntil||0)>this.now;
         const slow=e.ssSlowUntil>this.now?e.ssSlow||0:0;
-        let bossLocked=false;if(e.boss){SurvivorBosses.tick(e,dt,this);bossLocked=SurvivorBosses.locked(e,this.now);}
+        let bossLocked=false;if(e.boss&&!e.ssChampion){SurvivorBosses.tick(e,dt,this);bossLocked=SurvivorBosses.locked(e,this.now);}
         const ranged=['boneMage','skeletonArcher'].includes(e.type);
         if(!stopped&&!bossLocked&&(!ranged&&e.id!=='summoner'||d>220)) {const sp=e.speed*(1-Math.min(e.boss?.15:1,slow));e.x+=dx/d*sp*dt;e.y+=dy/d*sp*dt;}
         if(!e.boss&&e.knock){e.x+=e.knock.x*dt;e.y+=e.knock.y*dt;e.knock.x*=.86;e.knock.y*=.86;}

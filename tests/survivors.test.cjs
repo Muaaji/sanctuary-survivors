@@ -347,6 +347,18 @@ test('encounters appear once at two, four and six minutes while waves continue',
 test('mini boss death never advances an act and final death wins immediately',()=>{
  const acts=sandbox.SurvivorActs;acts.selected=0;reset();run('updateProgress(120)');R.damage(acts.boss,1e9);assert.equal(game.state,'playing');assert.equal(acts.index,0);run('updateProgress(240)');const final=sandbox.SurvivorEncounters.state.final;assert.ok(enemies.some(e=>e.boss&&!e.dead&&e!==final));R.damage(final,1e9);assert.equal(game.state,'win');assert.equal(acts.index,0);assert.equal(acts.phase,'finished');reset();
 });
+test('intermediates use distinct monster champions, ordinary AI and one heat/time scale',()=>{
+ const acts=sandbox.SurvivorActs,heat=sandbox.SurvivorHeat,B=sandbox.SurvivorBosses;const tick=B.tick;let bossTicks=0;B.tick=()=>bossTicks++;
+ try {for(let act=0;act<5;act++){
+  acts.selected=act;acts.records.sorceress[act]=0;heat.set(5);reset();run('updateProgress(240)');const champs=sandbox.SurvivorEncounters.state.encounters.slice(0,2).map(c=>c.entity);
+  assert.equal(champs.length,2);assert.notEqual(champs[0].ssChampionSprite,champs[1].ssChampionSprite);
+  for(const [i,e] of champs.entries()){assert.ok(e.ssChampion&&e.boss&&!e.elite);assert.ok(e.spriteSize>32);assert.ok(e.r>run('ENEMY_BASE')[e.type].r);assert.ok(e.ssActScale.damage>=run('ENEMY_BASE')[e.type].dmg*heat.factors().damage*1.6-1e-8);assert.ok(Math.abs(e.hpMax-(i?1000:500)*heat.factors().hp*sandbox.SurvivorActWaves.factors((i+1)*120).hp)<1e-8);}
+  const old={x:champs[0].x,y:champs[0].y};R.updateEnemies(.1);assert.ok(champs[0].x!==old.x||champs[0].y!==old.y);assert.equal(bossTicks,0);assert.ok(!champs.some(e=>e.lastMechanic));
+  R.damage(champs[0],1e9);assert.equal(run('pickups.filter(p=>p.type==="chest").length'),1);assert.equal(game.state,'playing');
+ }
+  acts.selected=0;reset();player.x=player.y=32;run('updateProgress(240)');for(const c of sandbox.SurvivorEncounters.state.encounters.slice(0,2))assert.ok(Math.hypot(c.entity.x-player.x,c.entity.y-player.y)>=300);
+ } finally {B.tick=tick;acts.selected=0;heat.set(0);reset();}
+});
 test('no boss deadline: late pressure grows without a forced defeat',()=>{
  reset();player.invuln=1e9;run('updateProgress(360)');const early=sandbox.SurvivorActWaves.factors(game.time);run('updateProgress(3600)');assert.equal(game.state,'playing');assert.equal(sandbox.SurvivorActs.remaining(),null);const late=sandbox.SurvivorActWaves.factors(game.time);assert.ok(late.hp>early.hp&&late.damage>early.damage);assert.ok(late.speed<1.31);reset();
 });
