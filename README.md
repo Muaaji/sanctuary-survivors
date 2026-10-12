@@ -53,6 +53,14 @@ Les arbres permettent, par exemple, de spécialiser une Sorcière en feu, froid 
 
 Les cartes et les sprites externes se trouvent dans `assets/`. Les effets des sorts et les animaux invoqués sont dessinés en Canvas ; les icônes simples sont en SVG.
 
+## Téléphone en paysage
+
+À l’ouverture sur un appareil tactile, le jeu propose d’activer le mode tactile. Le bouton « Mode tactile » sur l’écran titre permet aussi de l’activer après avoir refusé la proposition. Ce choix vaut pour la page ouverte et ne modifie pas la préférence de visée enregistrée sur ordinateur.
+
+Le joystick à gauche gère les déplacements ; les boutons à droite lancent les sorts actifs ou activent les auras. Les sorts passifs restent automatiques. La visée est toujours automatique dans ce mode, et les nouveaux sorts reçoivent un raccourci sans demander de clavier. Un bouton permet de parler au commerçant lorsqu’il est à portée. Les menus en haut donnent accès aux talents, aux statistiques, à l’inventaire et à la pause.
+
+Tourner le téléphone en portrait suspend une partie en cours et affiche une invitation à revenir en paysage ; toucher « Reprendre » relance la partie. Les commandes se relâchent aussi à la perte de focus et lors de l’ouverture des menus. L’affichage tient compte des encoches et des petits écrans, jusqu’à 568 × 320 en paysage. Vérifié en émulation mobile dans Chrome ; une vérification sur appareil réel reste utile pour le confort tactile et les performances.
+
 ## Maintenance et tests
 
 - `js/survivors/catalog.js` : catalogue et arbres.

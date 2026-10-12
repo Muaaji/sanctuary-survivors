@@ -117,6 +117,15 @@ test('shop smoke: eight services apply effects, reject insufficient gold and res
  reset();player.gold=10000;const gold=player.gold;buy('weaponUp');assert.equal(player.gold,gold);assert.equal(player.shopPurchases.weaponUp,undefined);
  player.gainWeapon('common_knives');player.weapons.common_knives.level=5;buy('weaponUp');assert.equal(player.gold,gold);
 });
+test('single crypt gate cycles acts and sums individual pacts for its visual heat',()=>{
+ reset('paladin');const acts=sandbox.SurvivorActs,heat=sandbox.SurvivorHeat,records=acts.cleared.slice(),ranks={...heat.ranks};
+ acts.records.paladin=[0,0,0,0,0];acts.selected=-1;sandbox.SurvivorIntegration.showRunSetup('paladin');
+ const next=document.getElementById('ss-act-next'),prev=document.getElementById('ss-act-prev');for(let n=0;n<3;n++)next.onclick();assert.equal(acts.selected,2);assert.equal(document.getElementById('ss-act').value,2);assert.ok(document.getElementById('ss-gate-title').textContent.includes('Jungle'));
+ for(const id of ['hp','damage','speed','elite','xp','rate']){const slider=document.getElementById('ss-contract-'+id);assert.equal(slider.disabled,false);slider.value=5;slider.oninput();}
+ assert.equal(heat.selected,30);assert.ok(document.getElementById('ss-run-setup').classList.contains('ss-infernal'));assert.ok(document.getElementById('ss-heat-value').textContent.includes('30/30'));
+ prev.onclick();assert.equal(acts.selected,1);for(let n=0;n<3;n++)prev.onclick();assert.equal(acts.selected,4);next.onclick();assert.equal(acts.selected,-1);
+ acts.records.paladin=records;heat.ranks=ranks;heat.refresh();acts.selected=-1;reset();
+});
 test('camera covers every map edge and also handles viewports bigger than a map',()=>{
  reset();run("Sprites.maps=[{file:'test',suggested_world_size:[2048,2048]}]");
  for(const [x,y] of [[24,24],[2024,24],[24,2024],[2024,2024]]){player.x=x;player.y=y;run('SurvivorIntegration.updateCamera()');const cam=run('CAM'),vw=run('VW'),vh=run('VH');assert.ok(cam.x-vw/(2*cam.zoom)>=-1e-6);assert.ok(cam.y-vh/(2*cam.zoom)>=-1e-6);assert.ok(cam.x+vw/(2*cam.zoom)<=2048+1e-6);assert.ok(cam.y+vh/(2*cam.zoom)<=2048+1e-6);}

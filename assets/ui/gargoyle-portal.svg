@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240">
+<defs><linearGradient id="stone" x2=".7" y2="1"><stop stop-color="#706959"/><stop offset=".5" stop-color="#393936"/><stop offset="1" stop-color="#171a1b"/></linearGradient><mask id="mouth"><rect width="240" height="240" fill="white"/><path d="M68 136Q120 119 172 136L178 171Q164 198 120 200Q76 198 62 171Z" fill="black"/></mask></defs>
+<g mask="url(#mouth)" fill="url(#stone)" stroke="#92816a" stroke-width="2" stroke-linejoin="round">
+<path d="M44 109 13 73 17 17 58 49 82 30 120 17 158 30 182 49 223 17 227 73 196 109 203 167 176 211 120 229 64 211 37 167Z"/>
+<path d="m17 17 41 55-21 18-24-17Zm206 0-41 55 21 18 24-17Z" fill="#454644"/>
+<path d="m49 88 26-33 45 16 45-16 26 33-38 18-33-20-33 20Z"/>
+<path d="m68 83 33 13-29 8Z" fill="#b8a47c"/><path d="m172 83-33 13 29 8Z" fill="#b8a47c"/>
+<path d="m120 87-15 33 15 10 15-10Z" fill="#656359"/>
+<path d="M61 125Q120 100 179 125L185 174Q169 209 120 212Q71 209 55 174Z" fill="#080b0c" stroke="#242727" stroke-width="9"/>
+<path d="m67 125 4 19 10-22m77 0 11 22 4-19M73 193l8-17 9 25m60 0 9-25 8 17" fill="#ab9c7e"/>
+<path d="m40 112 13 28-11 23m158-51-13 28 11 23M72 38l-7 22m103-22 7 22M99 27l6 20m30-20-6 20" fill="none" stroke="#191d1e"/>
+</g></svg>

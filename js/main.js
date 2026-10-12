@@ -102,8 +102,8 @@ let VW = 960, VH = 540;
 const CAM = { x: 0, y: 0, zoom: 2.2 };
 
 function resizeCanvas() {
-  VW = clamp(innerWidth, 480, 1920);
-  VH = clamp(innerHeight, 360, 1080);
+  VW = clamp(innerWidth, window.SurvivorMobile?.enabled ? 1 : 480, 1920);
+  VH = clamp(innerHeight, window.SurvivorMobile?.enabled ? 1 : 360, 1080);
   canvas.width = VW; canvas.height = VH;
 }
 addEventListener('resize', resizeCanvas);

@@ -1,0 +1,43 @@
+#ss-mobile-offer,#ss-mobile-rotate{z-index:150;background:#100d13f5}
+.ss-mobile-panel{max-width:480px;color:var(--parchment);padding:18px;border:1px solid var(--gold);background:#211a16;font:16px/1.5 system-ui}
+.ss-mobile-panel h2{color:var(--gold-bright);font-size:23px;margin-bottom:12px}
+.ss-mobile-panel .btn{display:block;margin:15px auto 0;font-size:13px;letter-spacing:0}
+#ss-touch-controls{position:absolute;inset:0;z-index:8;pointer-events:none}
+#ss-joystick{position:absolute;left:calc(20px + env(safe-area-inset-left));bottom:calc(18px + env(safe-area-inset-bottom));width:116px;height:116px;border:2px solid #b79b6688;border-radius:50%;background:#16110dbb;pointer-events:auto;touch-action:none}
+#ss-joystick-knob{position:absolute;left:50%;top:50%;width:46px;height:46px;border:2px solid #d7b577;border-radius:50%;background:#61492bcd;transform:translate(-50%,-50%);pointer-events:none}
+#ss-touch-spells{position:absolute;right:calc(14px + env(safe-area-inset-right));bottom:calc(16px + env(safe-area-inset-bottom));display:flex;gap:9px;align-items:end}
+.ss-touch-spell{position:relative;width:68px;min-height:84px;padding:5px;border:1px solid #b0966e;border-radius:8px;color:#efdfba;background:#211810e8;pointer-events:auto;touch-action:manipulation;font:10px/1.2 system-ui}
+.ss-touch-spell img{display:block;width:38px;height:38px;image-rendering:pixelated;margin:0 auto 4px}
+.ss-touch-spell span{display:block;max-height:24px;overflow:hidden}
+.ss-touch-spell small{display:block;margin-top:3px;color:#e6c26e}
+.ss-touch-spell.ss-unavailable,.ss-touch-spell:disabled{opacity:.6}
+#ss-touch-shop{position:absolute;right:calc(18px + env(safe-area-inset-right));bottom:calc(120px + env(safe-area-inset-bottom));pointer-events:auto;min-height:44px}
+body.ss-mobile #game{touch-action:none}
+body.ss-mobile .overlay{justify-content:flex-start;padding:16px max(16px,env(safe-area-inset-right)) 16px max(16px,env(safe-area-inset-left));overscroll-behavior:contain}
+body.ss-mobile #ss-mobile-offer,body.ss-mobile #ss-mobile-rotate{justify-content:center}
+body.ss-mobile .title{font-size:29px}
+body.ss-mobile .subtitle{font-size:12px;letter-spacing:1px}
+body.ss-mobile .btn{min-height:44px}
+body.ss-mobile #ss-start{margin-top:12px}
+body.ss-mobile .class-card{min-height:170px;width:190px;padding:12px}
+body.ss-mobile #hud-bottom{width:100%;height:0;bottom:env(safe-area-inset-bottom);background:none;border:0}
+body.ss-mobile #hud-bottom::before,body.ss-mobile #hud-bottom::after,body.ss-mobile #hud-frame-img,body.ss-mobile #skill-bar,body.ss-mobile #ss-build-ribbon{display:none!important}
+body.ss-mobile #hud-bottom .orb{position:fixed;bottom:calc(100dvh - 61px - env(safe-area-inset-top));width:38px;height:38px;margin:0}
+body.ss-mobile #hud-bottom .orb.hp{left:calc(110px + env(safe-area-inset-left))!important;right:auto!important}
+body.ss-mobile #hud-bottom .orb.mp{left:calc(154px + env(safe-area-inset-left))!important;right:auto!important}
+body.ss-mobile #hud-bottom #ss-hud-controls{position:fixed;bottom:calc(100dvh - 60px - env(safe-area-inset-top));left:50%;padding:2px 4px;gap:5px}
+body.ss-mobile #hud-bottom #ss-hud-controls .ss-hud-control{width:44px;height:44px}
+body.ss-mobile #hud-bottom #ss-hud-controls .ss-hud-control svg{width:22px;height:22px}
+body.ss-mobile #hud-bottom #xp-bar{left:calc(150px + env(safe-area-inset-left));width:calc(100% - 400px - env(safe-area-inset-left) - env(safe-area-inset-right));bottom:8px;min-width:60px}
+body.ss-mobile #hud-top{top:calc(10px + env(safe-area-inset-top));left:calc(12px + env(safe-area-inset-left));right:calc(12px + env(safe-area-inset-right))}
+body.ss-mobile #ss-boss-timer{top:calc(68px + env(safe-area-inset-top));font-size:10px;padding:3px 7px}
+body.ss-mobile #shop-nearby,body.ss-mobile #fps{display:none!important}
+body.ss-mobile .skill-name{display:none}
+body.ss-mobile #eq-overlay{padding:8px}
+body.ss-mobile .eq-panel{max-height:calc(100dvh - 16px);padding:12px}
+body.ss-mobile #ss-talent-tree{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+body.ss-mobile .ss-talent{padding:8px;font-size:12px}
+@media(max-width:650px){body.ss-mobile #ss-talent-tree{grid-template-columns:1fr}}
+
+body.ss-mobile #hud-bottom .orb-label{font-size:10px;white-space:nowrap}
+@media(max-width:700px){body.ss-mobile #hud-bottom #ss-hud-controls{left:auto;right:calc(95px + env(safe-area-inset-right));transform:none;gap:2px}}
