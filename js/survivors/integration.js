@@ -52,14 +52,14 @@
   ];
   let saved={};try{saved=JSON.parse(localStorage.getItem('survivors_contracts')||'{}')||{};}catch(e){}
   // Old shared victories cannot be attributed to a hero; keep them archived without granting class clears.
-  const Acts=window.SurvivorActs={selected:-1,active:-1,classId:'paladin',records:{},index:0,elapsed:0,phase:'waves',boss:null,bossStartedAt:null,deadline:null,
-    begin(){this.index=this.active<0?0:this.active;this.elapsed=0;this.phase='waves';this.boss=null;this.bossStartedAt=this.deadline=null;Game.defeatReason='';},
-    remaining(){return this.phase==='boss'?Math.max(0,(this.deadline||0)-Game.time):null;},
+  const Acts=window.SurvivorActs={selected:0,active:0,classId:'paladin',records:{},index:0,elapsed:0,phase:'waves',boss:null,bossStartedAt:null,deadline:null,
+    begin(){this.active=this.selected=clamp(Math.floor(Number(this.active)||0),0,4);this.index=this.active;this.elapsed=0;this.phase='waves';this.boss=null;this.bossStartedAt=this.deadline=null;Game.defeatReason='';SurvivorEncounters.reset(this.index);SurvivorUltimateOffers.reset();},
+    remaining(){return null;},
     get cleared(){return this.records[this.classId];},
     useClass(id){this.classId=id;return this.cleared;},
-    unlocked(){return this.selected<0?this.cleared.every(h=>h>=0):this.cleared[this.selected]>=0;},
+    unlocked(){return this.cleared[clamp(this.selected,0,4)]>=0;},
     complete(i){this.cleared[i]=Math.max(this.cleared[i],Heat.active);Heat.save();},
-    end(){return this.active<0?WIN_TIME:(this.active+1)*180;}
+    end(){return 360;}
   };
   currentActIndex=()=>Acts.index;
   for(const id of Object.keys(CLASSES))Acts.records[id]=Array.from({length:5},(_,i)=>Number.isFinite(saved.byClass?.[id]?.[i])?Math.max(-1,Math.min(30,saved.byClass[id][i])):-1);
@@ -71,8 +71,8 @@
       return {hp:1+.2*(ranks.hp||0),damage:1+.15*(ranks.damage||0),rate:1+.15*(ranks.rate||0),speed:1+.08*(ranks.speed||0),elite:.04*(ranks.elite||0),xp:1-.1*(ranks.xp||0),reward:1+.15*clamp(value,0,30)};}
   };
   for(const c of contracts)Heat.ranks[c.id]=clamp(Math.floor(Number(saved.ranks?.[c.id])||0),0,c.max);Heat.refresh();
-  spawnEnemy=function(type,x,y,opts={}){const e=legacy.spawnEnemy(type,x,y,opts);if(e){const f=Heat.factors();e.hp=e.hpMax*=f.hp;e.dmg*=f.damage;e.speed*=f.speed;}return e;};
-  winSequence=function(){if(Game.state==='win')return;const bonus=Math.floor(5*Heat.factors().reward);Meta.essence+=bonus;Player.essenceRun+=bonus;if(Acts.active>=0)Acts.complete(Acts.active);legacy.win();$('win-screen').querySelector('h2').textContent=Acts.active<0?'L’Archidémon est tombé':'Acte '+(Acts.active+1)+' terminé';$('ss-hotter').disabled=Heat.active>=30;renderHeat();toast('Victoire : +'+bonus+' essence · chaleur '+Heat.active);};
+  spawnEnemy=function(type,x,y,opts={}){const e=legacy.spawnEnemy(type,x,y,opts);if(e){const f=Heat.factors();e.hp=e.hpMax*=f.hp;e.dmg*=f.damage;e.speed*=f.speed;SurvivorActWaves.scaleEnemy(e,Acts.elapsed,Acts.index);}return e;};
+  winSequence=function(){if(Game.state==='win')return;const bonus=Math.floor(5*Heat.factors().reward);Meta.essence+=bonus;Player.essenceRun+=bonus;if(Acts.active>=0)Acts.complete(Acts.active);legacy.win();$('win-screen').querySelector('h2').textContent='Acte '+(Acts.active+1)+' terminé';$('ss-hotter').disabled=Heat.active>=30;renderHeat();toast('Victoire : +'+bonus+' essence · chaleur '+Heat.active);};
   Player.reset=function(cls) {
     this.classId=cls||this.classId;Acts.useClass(this.classId);Heat.active=Acts.unlocked()?Heat.selected:0;Heat.activeRanks=Heat.active?{...Heat.ranks}:{};Acts.active=Acts.selected;Acts.begin();R.reset();const c=CLASSES[this.classId];
     this.x=this.y=1024;this.r=11;this.facing=this.facing8='S';this.attackAnimT=0;
@@ -88,15 +88,15 @@
   Player.gainClassSkill=function(id) {
     const def=C.spells[id];if(!def||def.group!==this.classId)return false;
     const current=this.skills.find(w=>w.id===id);
-    if(current){if(current.level>=5)return false;current.level++;Knowledge.mark(id,true);return true;}
+    if(current){if(current.level>=5)return false;current.level++;Knowledge.mark(id,true);SurvivorUltimateOffers.refresh(buildUpgradeOptions());return true;}
     if(this.skills.length>=3)return false;
-    this.skills.push({id,def,level:1,cd:0});Knowledge.mark(id,true);return true;
+    this.skills.push({id,def,level:1,cd:0});SurvivorUltimateOffers.noteAcquired(id);Knowledge.mark(id,true);SurvivorUltimateOffers.refresh(buildUpgradeOptions());return true;
   };
   Player.gainWeapon=function(id) {
     const def=C.spells[id];if(!def||def.group!=='common')return false;
-    if(this.weapons[id]){if(this.weapons[id].evolved||this.weapons[id].level>=5)return false;this.weapons[id].level++;Knowledge.mark(id,true);return true;}
+    if(this.weapons[id]){if(this.weapons[id].evolved||this.weapons[id].level>=5)return false;this.weapons[id].level++;Knowledge.mark(id,true);SurvivorUltimateOffers.refresh(buildUpgradeOptions());return true;}
     if(Object.keys(this.weapons).length>=3)return false;
-    this.weapons[id]={id,def,level:1,cd:0,orbitAngle:0};Knowledge.mark(id,true);return true;
+    this.weapons[id]={id,def,level:1,cd:0,orbitAngle:0};SurvivorUltimateOffers.noteAcquired(id);Knowledge.mark(id,true);SurvivorUltimateOffers.refresh(buildUpgradeOptions());return true;
   };
   Player.gainPassive=function(id) {
     const def=C.passives[id],cur=this.passives[id]||0;
@@ -104,7 +104,7 @@
     const before=this.hpMax;this.passives[id]=cur+1;
     if(id==='vitality'){this.hpMax=Math.round(this.baseHP*(1+.1*this.passives[id])+(R.flatHP||0));this.hp+=this.hpMax-before;}
     if(id==='mana'){const a=SurvivorStats.get(),delta=a.manaMax-this.manaMax;this.manaMax=a.manaMax;this.mana=Math.min(this.manaMax,this.mana+delta);this.manaRegen=a.manaRegen;}
-    R.recalcSpeed();Knowledge.mark(id,true);return true;
+    R.recalcSpeed();Knowledge.mark(id,true);SurvivorUltimateOffers.refresh(buildUpgradeOptions());return true;
   };
   Object.defineProperties(Player,{
     magicFind:{configurable:true,get(){return 1;}},
@@ -139,7 +139,7 @@
   updateZones=dt=>R.updateFields(dt);
   updateTraps=()=>{};
   damageEnemy=(e,dmg)=>R.damage(e,dmg);
-  killEnemy=function(e){if(!R.onKill(e))return;legacy.killEnemy(e);if(e.elite)spawnPickupType(e.x,e.y,'chest');};
+  killEnemy=function(e){if(!R.onKill(e))return;legacy.killEnemy(e);if(e.elite)spawnPickupType(e.x,e.y,'chest');if(e.boss)checkAchievements();SurvivorEncounters.onKill(e);};
   spawnBoss=function(def) {
     const b=legacy.spawnBoss(def),world=currentMapWorld(),f=Heat.factors();
     b.hp=b.hpMax*=f.hp;b.dmg*=f.damage;b.speed*=f.speed;b.bossTempo=1.2;
@@ -175,33 +175,18 @@
   deathSequence=function(){oldDeath();$('kill-screen').querySelector('p').textContent=Game.defeatReason||'La crypte réclame encore une âme…';};
   updateProgress=function(dt) {
     if(Game.state!=='playing')return;
-    Game.time+=dt;
-    if(Acts.phase==='waves') {
-      Acts.elapsed=Math.min(180,Acts.elapsed+dt);
-      Game.minute=Acts.index*3+Math.min(2,Math.floor(Acts.elapsed/60));
-      if(Acts.elapsed>=180) {
-        const def=BOSSES[Acts.index];Wave.bossSpawned[def.id]=true;
-        Acts.phase='boss';Acts.bossStartedAt=Game.time;Acts.deadline=Game.time+120;Acts.boss=spawnBoss(def);
-        toast(def.name+' arrive ! Tu as 2 minutes pour le vaincre.');
-      }
-    } else if(Acts.phase==='boss') {
-      const def=BOSSES[Acts.index];
-      if(Run.bossKills[def.id]) {
-        Acts.complete(Acts.index);Acts.boss=null;Acts.bossStartedAt=Acts.deadline=null;
-        if(Acts.active>=0||Acts.index===BOSSES.length-1){Acts.phase='finished';winSequence();return;}
-        // Start the next map and its three-minute wave clock only after victory.
-        for(const e of enemies)e.dead=true;enemies.length=0;R.hazards=[];R.bullets=R.bullets.filter(p=>!p.hostile);
-        Acts.index++;Acts.elapsed=0;Acts.phase='waves';Game.minute=Acts.index*3;Wave.timer=0;
-        toast('Acte '+(Acts.index+1)+' — nouvelle descente.');
-      } else if(Game.time>=Acts.deadline) {
-        Acts.phase='failed';Game.defeatReason='Temps écoulé : '+def.name+' n’a pas été vaincu dans les 2 minutes. Acte '+(Acts.index+1)+' échoué.';
-        Player.hp=0;deathSequence();return;
-      }
-    }
+    SurvivorEncounters.update(dt);
+    if(Game.state!=='playing')return;
     checkLevelUp();checkAchievements();
   };
-  const oldWaveUpdate=Wave.update.bind(Wave);
-  Wave.update=function(dt){if(Game.state==='playing'&&Acts.phase==='waves')oldWaveUpdate(dt*Heat.factors().rate);};
+  Wave.update=function(dt){
+    if(Game.state!=='playing')return;
+    SurvivorActWaves.update(dt,Acts.elapsed);
+    const cfg=SurvivorActWaves.config(Acts.index,Acts.elapsed),rate=Math.min(8,cfg.rate*Heat.factors().rate);
+    const interval=1/rate;
+    this.timer+=Math.min(1,Math.max(0,Number(dt)||0));
+    while(this.timer>=interval){this.timer-=interval;this.spawnOne(cfg);}
+  };
   Wave.spawnOne=function(cfg) {
     if(enemies.filter(e=>!e.dead).length>=180)return;
     SurvivorIntegration.updateCamera();
@@ -227,7 +212,7 @@
   $('game-container').appendChild(evolution);
   const ribbon=document.createElement('div');ribbon.id='ss-build-ribbon';ribbon.innerHTML='<span id="ss-run-level"></span><div id="ss-passives"></div><button id="ss-talents-button" class="btn small">Talents <span id="ss-talent-count">0</span></button>';
   $('hud').appendChild(ribbon);
-  const bossTimer=document.createElement('div');bossTimer.id='ss-boss-timer';bossTimer.className='hidden';bossTimer.setAttribute('role','timer');bossTimer.setAttribute('aria-label','Temps restant pour vaincre le boss');$('hud').appendChild(bossTimer);
+  const bossTimer=document.createElement('div');bossTimer.id='ss-boss-timer';bossTimer.className='hidden';bossTimer.setAttribute('role','timer');bossTimer.setAttribute('aria-label','Prochaine rencontre et pression de l’acte');$('hud').appendChild(bossTimer);
   $('ss-talents-button').onclick=()=>openTalents(false);
   $('ss-talents-close').onclick=()=>closeTalents();
   $('build-badge').textContent='45 compétences · évolutions · talents';
@@ -245,10 +230,10 @@
   setup.innerHTML='<div class="ss-setup-panel"><p class="ss-step">2 / 2 · Préparer la descente</p><div class="ss-setup-hero"><img id="ss-setup-portrait" alt=""><div><h2 id="ss-setup-name"></h2><p id="ss-setup-profile"></p></div></div><div id="ss-setup-options"></div><div class="ss-setup-actions"><button id="ss-setup-back" class="btn small">← Changer de héros</button><button id="ss-launch" class="btn">Lancer la descente</button></div></div>';
   $('game-container').appendChild(setup);
   const heatControl=document.createElement('div');heatControl.className='ss-heat-control';
-  heatControl.innerHTML='<div id="ss-act-progress"></div><div class="ss-gate-layout"><section class="ss-single-gate"><div class="ss-gargoyle"><span id="ss-gate-landscape" class="ss-portal-landscape"></span><img src="assets/ui/gargoyle-portal.svg" alt="Portail de gargouille"><span class="ss-portal-embers"></span></div><nav class="ss-act-navigation" aria-label="Choix de l’acte"><button type="button" id="ss-act-prev" class="ss-gate-arrow" aria-label="Acte précédent">‹</button><div><h3 id="ss-gate-title"></h3><p id="ss-gate-boss"></p><small id="ss-gate-record"></small></div><button type="button" id="ss-act-next" class="ss-gate-arrow" aria-label="Acte suivant">›</button></nav><output id="ss-heat-value" class="ss-heat-total" aria-live="polite"></output></section><section class="ss-individual-pacts"><h3>Pactes de chaleur</h3><strong id="ss-heat-desc"></strong><div id="ss-contracts"></div></section></div><select id="ss-act" hidden aria-hidden="true" tabindex="-1"><option value="-1">Campagne — les cinq actes</option>'+BOSSES.map((b,i)=>'<option value="'+i+'">Acte '+(i+1)+' — '+escape(b.name)+'</option>').join('')+'</select>';
-  $('ss-setup-options').appendChild(heatControl);$('ss-act').value=-1;
-  const portalDefs=[{id:-1,name:'Campagne',terrain:'Les cinq royaumes',file:'acte-1-plaines.png'},...['Plaines sombres','Désert','Jungle','Enfer','Montagne'].map((name,id)=>({id,name,terrain:BOSSES[id].name,file:['acte-1-plaines.png','acte-2-desert.png','acte-3-jungle.png','acte-4-enfer.png','acte-5-montagne.png'][id]}))];
-  function cycleAct(direction){Acts.selected=((Acts.selected+1+direction+portalDefs.length)%portalDefs.length)-1;$('ss-act').value=Acts.selected;renderHeat();}
+  heatControl.innerHTML='<div id="ss-act-progress"></div><div class="ss-gate-layout"><section class="ss-single-gate"><div class="ss-gargoyle"><span id="ss-gate-landscape" class="ss-portal-landscape"></span><img src="assets/ui/gargoyle-portal.svg" alt="Portail de gargouille"><span class="ss-portal-embers"></span></div><nav class="ss-act-navigation" aria-label="Choix de l’acte"><button type="button" id="ss-act-prev" class="ss-gate-arrow" aria-label="Acte précédent">‹</button><div><h3 id="ss-gate-title"></h3><p id="ss-gate-boss"></p><small id="ss-gate-record"></small></div><button type="button" id="ss-act-next" class="ss-gate-arrow" aria-label="Acte suivant">›</button></nav><output id="ss-heat-value" class="ss-heat-total" aria-live="polite"></output></section><section class="ss-individual-pacts"><h3>Pactes de chaleur</h3><strong id="ss-heat-desc"></strong><div id="ss-contracts"></div></section></div><select id="ss-act" hidden aria-hidden="true" tabindex="-1">'+BOSSES.map((b,i)=>'<option value="'+i+'">Acte '+(i+1)+' — '+escape(b.name)+'</option>').join('')+'</select>';
+  $('ss-setup-options').appendChild(heatControl);$('ss-act').value=0;
+  const portalDefs=['Plaines sombres','Désert','Jungle','Enfer','Montagne'].map((name,id)=>({id,name,terrain:BOSSES[id].name,file:['acte-1-plaines.png','acte-2-desert.png','acte-3-jungle.png','acte-4-enfer.png','acte-5-montagne.png'][id]}));
+  function cycleAct(direction){Acts.selected=(Acts.selected+direction+portalDefs.length)%portalDefs.length;$('ss-act').value=Acts.selected;renderHeat();}
   $('ss-act-prev').onclick=()=>cycleAct(-1);$('ss-act-next').onclick=()=>cycleAct(1);
   function showRunSetup(cls){
     hideRunPanels();$('title-screen').classList.add('hidden');$('class-screen').classList.add('hidden');
@@ -269,11 +254,11 @@
     $('ss-heat-desc').textContent=unlocked?'Victoire : '+Math.floor(5*(1+.15*heat))+' essence · les pactes renforcent les ennemis':'Termine cette destination avec ce héros pour débloquer ses pactes.';
     const def=portalDefs.find(d=>d.id===Acts.selected)||portalDefs[0];
     $('ss-gate-landscape').style.backgroundImage='url(assets/tiles/'+def.file+')';
-    $('ss-gate-title').textContent=def.id<0?'Campagne':'Acte '+(def.id+1)+' · '+def.name;$('ss-gate-boss').textContent=def.terrain;
-    const record=def.id<0?(Acts.cleared.every(h=>h>=0)?Math.min(...Acts.cleared):-1):Acts.cleared[def.id];$('ss-gate-record').textContent=record<0?'À conquérir':'✓ Vaincu · chaleur '+record;
+    $('ss-gate-title').textContent='Acte '+(def.id+1)+' · '+def.name;$('ss-gate-boss').textContent=def.terrain;
+    const record=Acts.cleared[def.id];$('ss-gate-record').textContent=record<0?'À conquérir':'✓ Vaincu · chaleur '+record;
     for(const c of contracts){$('ss-contract-'+c.id).value=Heat.ranks[c.id];$('ss-contract-'+c.id).disabled=!unlocked;$('ss-rank-'+c.id).textContent=(unlocked?Heat.ranks[c.id]:0)+'/5';}
   }
-  $('ss-act').onchange=()=>{Acts.selected=clamp(Number($('ss-act').value)||0,-1,4);renderHeat();};renderHeat();
+  $('ss-act').onchange=()=>{Acts.selected=clamp(Number($('ss-act').value)||0,0,4);renderHeat();};renderHeat();
   const replay=document.createElement('button');replay.className='btn small';replay.textContent='Pactes / choisir un acte';replay.onclick=()=>showRunSetup(Player.classId);$('win-screen').appendChild(replay);
   const hotter=document.createElement('button');hotter.className='btn';hotter.id='ss-hotter';hotter.textContent='Recommencer à chaleur +1';hotter.onclick=()=>{Acts.selected=Acts.active;if(!Acts.unlocked()||Heat.active>=30)return;Heat.ranks={...Heat.activeRanks};const c=contracts.find(c=>(Heat.ranks[c.id]||0)<c.max);Heat.ranks[c.id]=(Heat.ranks[c.id]||0)+1;Heat.refresh();renderHeat();startRun(Player.classId);};$('win-screen').appendChild(hotter);
   $('retry-btn').textContent='Recommencer (Entrée)';$('retry-btn2').textContent='Recommencer (Entrée)';
@@ -338,9 +323,7 @@
     el.onclick=onClick;return el;
   }
   drawUpgradeCards=function(container) {
-    const choices=buildUpgradeOptions(),pool=choices.slice(),picked=[];
-    // Uniform draw without replacement across every currently legal upgrade.
-    while(picked.length<3&&pool.length)picked.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0]);
+    const picked=SurvivorUltimateOffers.pick(buildUpgradeOptions(),3);
     container.innerHTML='';
     for(const opt of picked){Knowledge.mark(opt.kind==='ultimate'?'ultimate:'+opt.id:opt.id);container.appendChild(card(opt,()=>{if(applyUpgrade(opt)){R.pendingLevels=Math.max(0,R.pendingLevels-1);Game.closeLevelUp();}}));}
     if(!picked.length) {
@@ -378,6 +361,7 @@
     if(R.pendingLevels>0){Game.showLevelUp();return;}
     if(R.pendingChests>0) {
       R.pendingChests--;
+      if(Player.level>=40&&buildUpgradeOptions().some(o=>o.kind==='ultimate')){R.pendingLevels++;Game.showLevelUp();return;}
       const choices=buildUpgradeOptions().filter(o=>o.kind!=='ultimate');if(choices.length)applyUpgrade(pick(choices));else Player.gold+=100;
       toast('Coffre : amélioration et 50 or');processRewards();return;
     }
@@ -391,7 +375,7 @@
   R.canBuyTalent=talentAllowed;
   R.buyTalent=function(branch,index) {
     if(!talentAllowed(branch,index))return false;
-    const node=branch.nodes[index];R.talents.add(node.id);Knowledge.mark('talent:'+node.id,true);R.talentPoints--;if(index===3)R.ultimate=node.id;
+    const node=branch.nodes[index];R.talents.add(node.id);Knowledge.mark('talent:'+node.id,true);SurvivorUltimateOffers.refresh(buildUpgradeOptions());R.talentPoints--;if(index===3)R.ultimate=node.id;
     Sound.play('select');renderWeaponSlots();renderTalents();return true;
   };
   function renderTalents() {
@@ -440,7 +424,7 @@
     $('class-screen').classList.remove('hidden');
   };
   const start=startRun;
-  startRun=function(cls){Acts.useClass(cls);renderHeat();setup.classList.add('hidden');start(cls);if(Acts.active>=0){Game.time=Acts.active*180;Game.minute=Acts.active*3;} $('talents-overlay').classList.add('hidden');$('evolution-overlay').classList.add('hidden');renderWeaponSlots();updateHUD();for(const w of Player.skills)if(SurvivorStats.activation(w.def)!=='passive'&&!w.binding)R.pendingBindings.push(w.id);if(R.pendingBindings.length)processRewards();};
+  startRun=function(cls){Acts.useClass(cls);renderHeat();setup.classList.add('hidden');start(cls);$('talents-overlay').classList.add('hidden');$('evolution-overlay').classList.add('hidden');renderWeaponSlots();updateHUD();for(const w of Player.skills)if(SurvivorStats.activation(w.def)!=='passive'&&!w.binding)R.pendingBindings.push(w.id);if(R.pendingBindings.length)processRewards();};
   const statsPanel=document.createElement('div');statsPanel.id='ss-stats-overlay';statsPanel.className='overlay hidden';statsPanel.innerHTML='<div class="ss-stats-panel"><h2>Statistiques du héros</h2><p id="ss-stats-note"></p><div id="ss-stats-values"></div><button class="btn" id="ss-stats-close">Revenir</button></div>';$('game-container').appendChild(statsPanel);
   const statsButton=document.createElement('button');statsButton.id='ss-stats-button';statsButton.className='btn small';statsButton.textContent='Stats · C';ribbon.appendChild(statsButton);
   R.autoAim=localStorage.getItem('survivors_auto_aim')==='1';
@@ -465,7 +449,10 @@
   };
   renderWeaponSlots=()=>renderSkillBar();
   refreshSkillCooldowns=function(){for(const el of document.querySelectorAll('[data-ability]')){const w=R.state(el.dataset.ability);if(!w)continue;const stats=R.stats(w),cd=stats.cd;el.classList.toggle('mana-starved',SurvivorStats.manaCost(stats)>Player.mana&&w.cd<=0);el.classList.toggle('aura-enabled',!!w.enabled);el.querySelector('.skill-cooldown').style.transform='scaleY('+Math.min(1,(w.cd||0)/Math.max(.1,cd))+')';}};
-  updateHUD=function(){legacy.updateHUD();const remaining=Acts.remaining();bossTimer.classList.toggle('hidden',remaining===null);bossTimer.classList.toggle('urgent',remaining!==null&&remaining<=30);if(remaining!==null){const seconds=Math.ceil(remaining);bossTimer.textContent='Acte '+(Acts.index+1)+' · Boss · '+Math.floor(seconds/60)+':'+String(seconds%60).padStart(2,'0')+' restantes';}$('ss-run-level').textContent='Niveau '+Player.level+' · Acte '+(Acts.index+1)+' · Chaleur '+Heat.active+' · ✓ '+Acts.cleared.filter(h=>h>=0).length+'/5';$('ss-talent-count').textContent=R.talentPoints;$('hp-label').textContent=Math.ceil(Player.hp)+' / '+Player.hpMax;$('mp-label').textContent=Math.ceil(Player.mana)+' / '+Player.manaMax;$('mp-fill').style.height=(Player.mana/Player.manaMax)*100+'%';};
+  updateHUD=function(){legacy.updateHUD();const next=SurvivorEncounters.nextEncounter;bossTimer.classList.remove('hidden');bossTimer.classList.remove('urgent');
+    if(next){const seconds=Math.max(0,Math.ceil(next.at-Acts.elapsed));bossTimer.textContent='Acte '+(Acts.index+1)+' · '+(next.final?'Boss final':'Boss intermédiaire')+' dans '+Math.floor(seconds/60)+':'+String(seconds%60).padStart(2,'0');}
+    else bossTimer.textContent='Boss final · pression ×'+SurvivorActWaves.factors(Acts.elapsed).damage.toFixed(1);
+    $('ss-run-level').textContent='Niveau '+Player.level+' · Acte '+(Acts.index+1)+' · Chaleur '+Heat.active+' · ✓ '+Acts.cleared.filter(h=>h>=0).length+'/5';$('ss-talent-count').textContent=R.talentPoints;$('hp-label').textContent=Math.ceil(Player.hp)+' / '+Player.hpMax;$('mp-label').textContent=Math.ceil(Player.mana)+' / '+Player.manaMax;$('mp-fill').style.height=(Player.mana/Player.manaMax)*100+'%';};
   // Shops use the same caps and inventory APIs as level-up rewards.
   const manaPotion=SHOP_POOL.find(it=>it.id==='potionMP');if(manaPotion){manaPotion.name='Rune de refonte';manaPotion.desc='+1 relance de choix de progression.';}
   const shopRules={potionHP:[160,2],potionMP:[180,1],weaponUp:[360,2],armorUp:[270,2],reroll:[220,1],magnetNow:[120,2],maxHP:[520,1],essenceDust:[600,1]};
@@ -484,7 +471,7 @@
     else if(it.id==='maxHP'){R.flatHP=(R.flatHP||0)+20;Player.hpMax+=20;Player.hp+=20;}
     else if(it.id==='essenceDust'){Meta.essence++;Meta.save();}
     else success=false;
-    if(success){Player.gold-=it.cost;purchased[it.id]=(purchased[it.id]||0)+1;Sound.play('buy');renderWeaponSlots();renderShop();}else{Sound.play('deny');toast('Amélioration indisponible : limite atteinte.');}
+    if(success){SurvivorUltimateOffers.refresh(buildUpgradeOptions());Player.gold-=it.cost;purchased[it.id]=(purchased[it.id]||0)+1;Sound.play('buy');renderWeaponSlots();renderShop();}else{Sound.play('deny');toast('Amélioration indisponible : limite atteinte.');}
   };
 
   SurvivorIntegration.updateCamera=function() {
@@ -506,6 +493,7 @@
     SurvivorBosses.draw(ctx,w2s,R);
     for(const corpse of R.corpses){const [x,y]=w2s(corpse.x,corpse.y);ctx.fillStyle='#635565';ctx.fillRect(x-4,y-1,8,2);}
     for(const f of R.fields){const [x,y]=w2s(f.x,f.y);ctx.fillStyle=hexToRgba(f.color,.12);ctx.strokeStyle=hexToRgba(f.color,.4);ctx.lineWidth=1;ctx.beginPath();ctx.arc(x,y,f.r*CAM.zoom,0,TAU);ctx.fill();ctx.stroke();if(['aura','hurricane','whirl','shield','nova','curse','fissure','blizzard','corpse','cry','plague'].includes(f.ctx.s.mode)){ctx.globalAlpha=.5;SurvivorSpellArt.draw(ctx,f.ctx.id,x,y,f.r*2*CAM.zoom,R.now,0,true);ctx.globalAlpha=1;}}
+    SurvivorActWaves.draw(ctx,w2s,Acts.elapsed);
     for(const item of pickups){
       const [x,y]=w2s(item.x,item.y);if(x<-30||y<-50||x>VW+30||y>VH+30)continue;
       const xp=['small','mid','big','giant'].includes(item.type),heal=['heart','flaskHP'].includes(item.type);
@@ -551,8 +539,8 @@
     for(const p of particles){const [x,y]=w2s(p.x,p.y);ctx.globalAlpha=Math.max(0,p.life/p.maxLife);ctx.fillStyle=p.color;if(p.kind==='dmg'){ctx.font='bold '+p.size+'px serif';ctx.textAlign='center';ctx.fillText(p.text,x,y);}else ctx.fillRect(x,y,p.size,p.size);}
     ctx.globalAlpha=1;
     drawShopLocator(w2s);
-    for(const boss of enemies)if(boss.boss&&!boss.dead)drawMapLocator(w2s,boss.x,boss.y,boss.name||'Boss','#c58a78');
-    const bosses=enemies.filter(e=>e.boss&&!e.dead);if(bosses.length){const boss=bosses[0],w=Math.min(480,VW*.55);ctx.fillStyle='#170e12';ctx.fillRect((VW-w)/2,55,w,9);ctx.fillStyle='#b14e45';ctx.fillRect((VW-w)/2,55,w*Math.max(0,boss.hp/boss.hpMax),9);ctx.font='14px serif';ctx.textAlign='center';ctx.fillStyle='#dfc7a1';ctx.fillText(boss.name,VW/2,48);}
+    const objective=Acts.boss;if(objective&&!objective.dead)drawMapLocator(w2s,objective.x,objective.y,objective.name||'Boss','#c58a78');
+    const bosses=enemies.filter(e=>e.boss&&!e.dead);if(bosses.length){const boss=Acts.boss&&!Acts.boss.dead?Acts.boss:bosses[bosses.length-1],w=Math.min(480,VW*.55);ctx.fillStyle='#170e12';ctx.fillRect((VW-w)/2,55,w,9);ctx.fillStyle='#b14e45';ctx.fillRect((VW-w)/2,55,w*Math.max(0,boss.hp/boss.hpMax),9);ctx.font='14px serif';ctx.textAlign='center';ctx.fillStyle='#dfc7a1';ctx.fillText(boss.name,VW/2,48);}
   };
   function mapLabel(text,x,y,color='#ffe092') {
     ctx.save();ctx.font='bold 12px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';const width=ctx.measureText(text).width+12;

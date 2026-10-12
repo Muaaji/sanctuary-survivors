@@ -16,11 +16,11 @@ Ouvrir **http://127.0.0.1:8090/index.html**. Aucun paquet ni build à installer.
 - **E** : entrer dans la boutique quand le commerçant est proche.
 - Les attaques sont automatiques, et laissent le personnage se déplacer.
 
-Les ennemis lâchent de l'expérience, de l'or et des soins. Chaque niveau propose une compétence de classe, une arme commune et un passif (les catégories complètes redistribuent leur choix) ; des relances sont disponibles. Un point de talent est gagné tous les cinq niveaux. Les coffres d'élites et de boss peuvent faire évoluer une arme. Chaque acte dure trois minutes de vagues, puis son boss apparaît. Tu disposes de deux minutes pour le vaincre : le dépassement du délai provoque la défaite. La carte et les vagues de l’acte suivant ne commencent qu’après sa mort. La campagne se termine après les cinq boss ; elle peut durer de quinze à vingt-cinq minutes de jeu.
+Les ennemis lâchent de l'expérience, de l'or et des soins. Chaque niveau propose trois améliorations aléatoires ; si un ultime est prêt (sort rang 5 + capacité associée), un emplacement lui est réservé, y compris lors des relances. Un point de talent est gagné tous les cinq niveaux. Les coffres d'élites et de boss accordent des améliorations ; au niveau 40, ils permettent aussi de choisir un ultime prêt. Chaque acte est une partie autonome : départ au niveau 1, boss intermédiaires à 2 et 4 minutes, boss final à 6 minutes. Sa mort termine immédiatement l'acte. Les vagues continuent pendant les combats et leur puissance augmente sans plafond avec le temps, sans délai imposé pour tuer un boss. Les PV des ennemis sont fixés à leur apparition ; leurs dégâts continuent de progresser. La densité et la vitesse restent bornées.
 
 ## Chaleur et destinations
 
-Choisir d’abord un héros, puis sélectionner la campagne complète ou un acte sur son écran de préparation. Terminer une destination à chaleur 0 débloque ses pactes. Six pactes proposent cinq rangs chacun, pour une chaleur totale de **0 à 30** : vie ennemie (+20 % par rang), dégâts (+15 %), vitesse (+8 %), chance d’élite (+4 points), expérience réduite (−10 %) et cadence des vagues (+15 %). Les effets sont fixes pendant la partie. La victoire accorde un bonus d’essence et permet de recommencer avec un point de chaleur supplémentaire.
+Choisir d’abord un héros, puis sélectionner un des cinq actes sur son écran de préparation. Terminer une destination à chaleur 0 débloque ses pactes. Six pactes proposent cinq rangs chacun, pour une chaleur totale de **0 à 30** : vie ennemie (+20 % par rang), dégâts (+15 %), vitesse (+8 %), chance d’élite (+4 points), expérience réduite (−10 %) et cadence des vagues (+15 %). Les effets sont fixes pendant la partie. La victoire accorde un bonus d’essence et permet de recommencer avec un point de chaleur supplémentaire.
 
 Cette version propose trente points de chaleur ; elle ne possède pas encore une progression de chaleur sans limite.
 
@@ -65,6 +65,15 @@ Tourner le téléphone en portrait suspend une partie en cours et affiche une in
 
 - `js/survivors/catalog.js` : catalogue et arbres.
 - `js/survivors/runtime.js` : combat et règles.
+- `js/survivors/encounters.js` : horloge locale, trois rencontres et victoire.
+- `js/survivors/act-waves.js` : populations par acte et escalade continue.
+- `js/survivors/ultimate-offers.js` : file des ultimes et emplacement réservé.
+- `js/survivors/encounters.js` : horloge locale, trois rencontres et victoire.
+- `js/survivors/act-waves.js` : populations par acte et escalade continue.
+- `js/survivors/ultimate-offers.js` : file des ultimes et emplacement réservé.
+- `js/survivors/encounters.js` : horloge locale, trois rencontres et victoire.
+- `js/survivors/act-waves.js` : populations par acte et escalade continue.
+- `js/survivors/ultimate-offers.js` : file des ultimes et emplacement réservé.
 - `js/survivors/integration.js` : menus, inventaire, progression, HUD et rendu.
 - `css/survivors.css` : interface additionnelle.
 - `assets/survivors/icons/` : icônes.

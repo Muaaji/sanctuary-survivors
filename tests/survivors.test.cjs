@@ -21,7 +21,7 @@ const storage=new Map(),events=new Map();
 const sandbox={console,document,Image:ImageMock,URLSearchParams,location:{search:'',reload(){}},innerWidth:1280,innerHeight:720,performance:{now:()=>0},requestAnimationFrame(){},addEventListener(type,handler){if(!events.has(type))events.set(type,[]);events.get(type).push(handler);},setTimeout(){},navigator:{},localStorage:{getItem(key){return storage.get(key)||null;},setItem(key,value){storage.set(key,value);}},fetch:()=>Promise.resolve({ok:true,json:()=>Promise.resolve({maps:[]})})};
 sandbox.window=sandbox;vm.createContext(sandbox);
 for(const f of ['helpers','systems','art','assets','data','entities','levels','main'])vm.runInContext(fs.readFileSync(path.join(root,'js',f+'.js'),'utf8'),sandbox,{filename:f+'.js'});
-for(const f of ['catalog','bosses','runtime','equipment','stats','weapon-art','spell-art','integration','equipment-ui','hud-controls'])vm.runInContext(fs.readFileSync(path.join(root,'js/survivors',f+'.js'),'utf8'),sandbox,{filename:f+'.js'});
+for(const f of ['catalog','bosses','runtime','equipment','stats','weapon-art','spell-art','act-waves','encounters','ultimate-offers','integration','equipment-ui','hud-controls'])vm.runInContext(fs.readFileSync(path.join(root,'js/survivors',f+'.js'),'utf8'),sandbox,{filename:f+'.js'});
 const run=src=>vm.runInContext(src,sandbox);
 const C=sandbox.SurvivorCatalogue,R=sandbox.SurvivorRuntime;
 const player=run('Player'),game=run('Game'),enemies=run('enemies');
@@ -59,13 +59,19 @@ test('all 45 abilities, with their class capstone, execute finite combat frames'
 test('every talent prerequisite, minimum level and single capstone is enforced',()=>{for(const cls of Object.keys(C.trees)){reset(cls);const tree=C.trees[cls];player.level=4;R.talentPoints=8;assert.equal(R.buyTalent(tree[0],0),false);player.level=40;assert.equal(R.buyTalent(tree[0],1),false);for(let i=0;i<4;i++)assert.equal(R.buyTalent(tree[0],i),true);for(let i=0;i<3;i++)assert.equal(R.buyTalent(tree[1],i),true);assert.equal(R.buyTalent(tree[1],3),false);assert.equal(R.talentPoints,1);}});
 test('multiple-level XP burst keeps all normal choices and awards talent points',()=>{reset();player.xp=800;run('checkLevelUp()');const gained=player.level-1;assert.equal(R.pendingLevels,gained);assert.equal(R.talentPoints,Math.floor(player.level/5));let choices=0;while(R.pendingLevels){const card=document.getElementById('levelup-cards').children[0];assert.ok(card);card.onclick();autoBind();choices++;if(choices>40)throw Error('reward loop');}assert.equal(choices,gained);assert.ok(['talents','playing'].includes(game.state));});
 test('ten common ultimates require rank five and one passive then appear at the next level',()=>{for(const recipe of Object.values(C.recipes)){reset();player.gainWeapon(recipe.weapon);const w=R.state(recipe.weapon);w.level=4;player.passives[recipe.passive]=1;assert.equal(R.ultimateEligible(w.id),false);w.level=5;player.passives[recipe.passive]=0;assert.equal(R.ultimateEligible(w.id),false);player.passives[recipe.passive]=1;const choices=run('buildUpgradeOptions')();const ultimate=choices.find(o=>o.kind==='ultimate');assert.ok(ultimate);assert.equal(ultimate.id,w.id);assert.equal(run('applyUpgrade')(ultimate),true);assert.equal(w.evolved,true);assert.equal(R.ultimateEligible(w.id),false);assert.equal(run('applyUpgrade')(ultimate),false);assert.equal(Object.keys(player.weapons).length,1);}});
+test('reserved ultimate survives rerolls, advances after acquisition and is available from a capped-level chest',()=>{
+ reset();player.gainWeapon('common_knives');for(let i=1;i<5;i++)player.gainWeapon('common_knives');player.gainPassive(C.recipes.common_knives.passive);
+ const choices=()=>run('drawUpgradeCards(document.getElementById("levelup-cards"))');for(let i=0;i<8;i++){const picked=choices();assert.equal(picked[0].kind,'ultimate');assert.equal(picked[0].id,'common_knives');assert.equal(new Set(picked.map(o=>o.kind+o.id)).size,picked.length);}
+ assert.ok(run('applyUpgrade')(choices()[0]));assert.ok(!choices().some(o=>o.kind==='ultimate'&&o.id==='common_knives'));
+ reset();player.level=40;player.gainWeapon('common_knives');for(let i=1;i<5;i++)player.gainWeapon('common_knives');player.gainPassive(C.recipes.common_knives.passive);R.pendingChests=1;R.processRewards();assert.equal(game.state,'levelup');assert.equal(choices()[0].id,'common_knives');assert.equal(player.level,40);reset();
+});
 test('all class spells evolve with an associated talent and retain their slot',()=>{for(const [cls,tree] of Object.entries(C.trees))for(const d of Object.values(C.spells).filter(d=>d.group===cls)){reset(cls);player.skills=[];player.gainClassSkill(d.id);const w=R.state(d.id);w.level=5;assert.equal(R.ultimateEligible(d.id),false);const branch=tree.find(b=>b.skills.includes(d.id));R.talents.add(branch.nodes[0].id);assert.equal(R.ultimateEligible(d.id),true);const before=R.stats(w);const opt=run('buildUpgradeOptions()').find(o=>o.kind==='ultimate');assert.ok(opt);assert.equal(run('applyUpgrade')(opt),true);const after=R.stats(w);if(before.dmg>0)assert.ok(after.dmg>before.dmg);assert.ok(after.cd<before.cd);assert.equal(player.skills.length,1);run('renderSkillBar()');}});
 test('knowledge records shown choices, acquisitions and unknowns without revealing all candidates',()=>{reset();const k=sandbox.SurvivorKnowledge;k.entries={};assert.equal(k.status('common_axes'),0);const opts=run('drawUpgradeCards')(new Element());for(const o of opts)assert.equal(k.status(o.id),1);const unshown=Object.keys(C.passives).find(id=>!opts.some(o=>o.id===id));assert.equal(k.status(unshown),0);run('applyUpgrade')(opts[0]);assert.equal(k.status(opts[0].id),2);k.mark(opts[0].id);assert.equal(k.status(opts[0].id),2);assert.equal(JSON.parse(storage.get('survivors_knowledge'))[opts[0].id],2);reset();assert.equal(k.status(opts[0].id),2);k.open();assert.equal(game.state,'knowledge');document.getElementById('ss-library-close').onclick();assert.equal(game.state,'playing');});
 test('poison stacking refreshes one source, caps at three; bosses resist hard control',()=>{reset('necromancer');const e=enemy();const s=C.spells.necromancer_nova;for(let i=0;i<5;i++)R.dot(e,'poison','source'+i,10+i,3,{s,id:s.id});assert.equal(e.ssDots.length,3);const old=e.ssDots.find(d=>d.source==='source4');R.dot(e,'poison','source4',16,5,{s,id:s.id});assert.equal(e.ssDots.length,3);assert.equal(old.until,5);e.boss=true;R.control(e,'slow',2,.9);R.control(e,'freeze',1);R.control(e,'stun',1);assert.equal(e.ssSlow,.15);assert.ok(!e.ssStopUntil);e.boss=false;R.control(e,'freeze',1);const until=e.ssStopUntil;R.now=.5;R.control(e,'freeze',1);assert.equal(e.ssStopUntil,until);});
 test('chest flow queues multiple pickups without losing upgrades',()=>{reset();R.pendingChests=2;R.processRewards();autoBind();assert.equal(R.pendingChests,0);assert.equal(game.state,'playing');});
 test('secondary trail effects expire instead of recursively sustaining themselves',()=>{reset('barbarian');player.skills=[];player.gainClassSkill('barbarian_whirl');for(const n of C.trees.barbarian[1].nodes)R.talents.add(n.id);enemy();const w=R.state('barbarian_whirl'),s=R.stats(w);R.cast(w,s);for(let i=0;i<200;i++){R.now+=.05;R.updateFields(.05);}assert.equal(R.fields.length,0);});
 test('all maps drawn safely even when loaded: regression for legacy w2s TDZ',()=>{reset();run("Sprites.maps=[{file:'test',suggested_world_size:[2048,2048]}];Sprites.mapImages.test={width:1254,height:1254};draw()");});
-test('end condition requires the final boss rather than only the timer',()=>{reset();sandbox.SurvivorActs.index=4;sandbox.SurvivorActs.elapsed=179.99;game.time=899.99;run('updateProgress(.05)');assert.notEqual(game.state,'win');assert.equal(sandbox.SurvivorActs.phase,'boss');run('Run.bossKills.archdemon=true;updateProgress(.05)');assert.equal(game.state,'win');});
+test('end condition requires the actual final boss death',()=>{sandbox.SurvivorActs.selected=4;reset();run('updateProgress(360)');assert.notEqual(game.state,'win');run('Run.bossKills.archdemon=true;updateProgress(.05)');assert.notEqual(game.state,'win');R.damage(sandbox.SurvivorEncounters.state.final,1e9);assert.equal(game.state,'win');reset();});
 test('all 21 capstone identifiers have concrete effect handlers',()=>{const impl=fs.readFileSync(path.join(root,'js/survivors/runtime.js'),'utf8')+fs.readFileSync(path.join(root,'js/survivors/integration.js'),'utf8');for(const tree of Object.values(C.trees))for(const b of tree)assert.ok(impl.includes(b.nodes[3].mods.special),b.id);});
 test('retry hides death, victory and reward panels before hero selection',()=>{
  reset();for(const id of ['kill-screen','win-screen','levelup-overlay','talents-overlay','evolution-overlay'])document.getElementById(id).classList.remove('hidden');
@@ -119,11 +125,11 @@ test('shop smoke: eight services apply effects, reject insufficient gold and res
 });
 test('single crypt gate cycles acts and sums individual pacts for its visual heat',()=>{
  reset('paladin');const acts=sandbox.SurvivorActs,heat=sandbox.SurvivorHeat,records=acts.cleared.slice(),ranks={...heat.ranks};
- acts.records.paladin=[0,0,0,0,0];acts.selected=-1;sandbox.SurvivorIntegration.showRunSetup('paladin');
- const next=document.getElementById('ss-act-next'),prev=document.getElementById('ss-act-prev');for(let n=0;n<3;n++)next.onclick();assert.equal(acts.selected,2);assert.equal(document.getElementById('ss-act').value,2);assert.ok(document.getElementById('ss-gate-title').textContent.includes('Jungle'));
+ acts.records.paladin=[0,0,0,0,0];acts.selected=0;sandbox.SurvivorIntegration.showRunSetup('paladin');
+ const next=document.getElementById('ss-act-next'),prev=document.getElementById('ss-act-prev');for(let n=0;n<2;n++)next.onclick();assert.equal(acts.selected,2);assert.equal(document.getElementById('ss-act').value,2);assert.ok(document.getElementById('ss-gate-title').textContent.includes('Jungle'));
  for(const id of ['hp','damage','speed','elite','xp','rate']){const slider=document.getElementById('ss-contract-'+id);assert.equal(slider.disabled,false);slider.value=5;slider.oninput();}
  assert.equal(heat.selected,30);assert.ok(document.getElementById('ss-run-setup').classList.contains('ss-infernal'));assert.ok(document.getElementById('ss-heat-value').textContent.includes('30/30'));
- prev.onclick();assert.equal(acts.selected,1);for(let n=0;n<3;n++)prev.onclick();assert.equal(acts.selected,4);next.onclick();assert.equal(acts.selected,-1);
+ prev.onclick();assert.equal(acts.selected,1);for(let n=0;n<2;n++)prev.onclick();assert.equal(acts.selected,4);next.onclick();assert.equal(acts.selected,0);
  acts.records.paladin=records;heat.ranks=ranks;heat.refresh();acts.selected=-1;reset();
 });
 test('camera covers every map edge and also handles viewports bigger than a map',()=>{
@@ -146,9 +152,9 @@ test('heat snapshots each run, scales enemies and remains finite at large levels
 });
 test('acts lock heat until completion and retry snapshots contracts and destination',()=>{
  const acts=sandbox.SurvivorActs,heat=sandbox.SurvivorHeat;acts.useClass('sorceress');acts.selected=2;acts.cleared[2]=-1;heat.set(30);reset();assert.equal(heat.active,0);
- acts.records.amazon[2]=-1;run("startRun('amazon')");assert.equal(game.time,360);assert.equal(run('currentActIndex()'),2);
- game.time=539.9;acts.elapsed=179.9;run('updateProgress(.2);Run.bossKills.summoner=true;updateProgress(.01)');assert.equal(game.state,'win');assert.equal(acts.cleared[2],0);
- document.getElementById('ss-hotter').onclick();assert.equal(game.state,'playing');assert.equal(player.classId,'amazon');assert.equal(player.level,1);assert.equal(game.time,360);assert.equal(heat.active,1);
+ acts.records.amazon[2]=-1;run("startRun('amazon')");assert.equal(game.time,0);assert.equal(run('currentActIndex()'),2);
+ run('updateProgress(360)');R.damage(sandbox.SurvivorEncounters.state.final,1e9);assert.equal(game.state,'win');assert.equal(acts.cleared[2],0);
+ document.getElementById('ss-hotter').onclick();assert.equal(game.state,'playing');assert.equal(player.classId,'amazon');assert.equal(player.level,1);assert.equal(game.time,0);assert.equal(heat.active,1);
  heat.ranks={xp:5,elite:5,speed:5};heat.refresh();run("startRun('amazon')");const before=player.xp;run("collectPickup({type:'big',gemValue:10})");assert.equal(player.xp-before,5);assert.equal(heat.factors().elite,.2);
  heat.ranks.xp=0;assert.equal(heat.factors().xp,.5);acts.selected=-1;heat.set(0);reset();
 });
@@ -179,7 +185,7 @@ test('hero selection opens setup before starting; launch snapshots the selected 
  assert.equal(game.state,'setup');assert.equal(sandbox.SurvivorActs.classId,'sorceress');assert.equal(player.classId,'paladin');assert.equal(game.time,before);
  assert.ok(document.getElementById('class-screen').classList.contains('hidden'));assert.ok(!document.getElementById('ss-run-setup').classList.contains('hidden'));
  document.getElementById('ss-act').value='1';document.getElementById('ss-act').onchange();document.getElementById('ss-launch').onclick();autoBind();
- assert.equal(game.state,'playing');assert.equal(player.classId,'sorceress');assert.equal(sandbox.SurvivorActs.active,1);assert.equal(game.time,180);assert.ok(document.getElementById('ss-run-setup').classList.contains('hidden'));
+ assert.equal(game.state,'playing');assert.equal(player.classId,'sorceress');assert.equal(sandbox.SurvivorActs.active,1);assert.equal(game.time,0);assert.ok(document.getElementById('ss-run-setup').classList.contains('hidden'));
  run('SurvivorIntegration.showRunSetup("sorceress")');document.getElementById('ss-setup-back').onclick();assert.equal(game.state,'classes');assert.ok(document.getElementById('ss-run-setup').classList.contains('hidden'));sandbox.SurvivorActs.selected=-1;reset();
 });
 test('common weapons are all physical, mana-free and mechanically distinct',()=>{
@@ -220,6 +226,9 @@ test('base HP is reduced by 40 percent for all heroes and hearts heal only ten p
 test('weapon recipes use meaningful stat partners and class synergies grant actual damage',()=>{
  assert.equal(C.recipes.common_comets.passive,'area');assert.equal(C.recipes.common_storm.passive,'area');assert.equal(C.recipes.common_embers.passive,'amount');
  reset('sorceress');const w=player.skills[0],before=R.stats(w).dmg;player.gainClassSkill('sorceress_hydra');assert.ok(R.stats(w).dmg>before);
+});
+test('final boss HP uses the local six-minute budget',()=>{
+ const acts=sandbox.SurvivorActs;acts.selected=4;sandbox.SurvivorHeat.set(0);reset();run('updateProgress(360)');assert.ok(Math.abs(acts.boss.hpMax-2200*sandbox.SurvivorActWaves.factors(360).hp)<1e-8);assert.equal(game.time,360);acts.selected=0;reset();
 });
 test('bosses have distinct telegraphed cycles, bounded summons and phase-two cadence',()=>{
  const defs=run('BOSSES'),results=[];
@@ -332,26 +341,20 @@ test('hydra heads fire individual bolts rather than target-range-sized explosion
 test('quiver bonuses benefit bows and crossbows, not flails or caster fireballs',()=>{
  reset('sorceress');player.gainWeapon('common_embers');player.gainWeapon('common_comets');const fire=R.stats(player.skills[0]),bow=R.stats(R.state('common_embers')),flail=R.stats(R.state('common_comets'));player.gainPassive('amount');player.gainPassive('amount');assert.equal(R.stats(R.state('common_embers')).count,bow.count+1);assert.ok(R.stats(R.state('common_embers')).speed>bow.speed);assert.equal(R.stats(R.state('common_comets')).count,flail.count);assert.equal(R.stats(player.skills[0]).count,fire.count);assert.equal(R.stats(player.skills[0]).speed,fire.speed);
 });
-test('act boss appears at exactly three minutes and locks map, wave tier and future bosses',()=>{
- const acts=sandbox.SurvivorActs;acts.selected=-1;reset();run('updateProgress(179.9)');assert.equal(acts.phase,'waves');assert.equal(enemies.filter(e=>e.boss).length,0);run('updateProgress(.1)');assert.equal(acts.phase,'boss');assert.equal(acts.boss.id,'butcher');assert.equal(acts.remaining(),120);assert.equal(run('currentActIndex()'),0);
- const timer=run('Wave.timer');run('Wave.update(60);updateProgress(60)');assert.equal(run('Wave.timer'),timer);assert.equal(acts.index,0);assert.equal(run('Game.minute'),2);assert.equal(enemies.filter(e=>e.boss).length,1);assert.equal(run('Wave.bossSpawned.insectQueen'),undefined);assert.equal(acts.remaining(),60);
- run('updateHUD()');assert.ok(document.getElementById('ss-boss-timer').textContent.includes('1:00'));assert.ok(!document.getElementById('ss-boss-timer').classList.contains('hidden'));reset();
+test('encounters appear once at two, four and six minutes while waves continue',()=>{
+ const acts=sandbox.SurvivorActs;acts.selected=0;reset();run('updateProgress(119.9)');assert.equal(enemies.filter(e=>e.boss).length,0);run('updateProgress(.1)');assert.equal(enemies.filter(e=>e.boss).length,1);run('updateProgress(120)');assert.equal(enemies.filter(e=>e.boss).length,2);run('updateProgress(120)');assert.equal(enemies.filter(e=>e.boss).length,3);assert.equal(acts.boss.id,'butcher');assert.equal(acts.remaining(),null);const count=enemies.length;run('Wave.update(1)');assert.ok(enemies.length>count);run('updateProgress(0)');assert.equal(enemies.filter(e=>e.boss).length,3);run('updateHUD()');assert.ok(document.getElementById('ss-boss-timer').textContent.includes('pression'));reset();
 });
-test('boss death starts the next full act only then, and keeps the previous record',()=>{
- const acts=sandbox.SurvivorActs;acts.selected=-1;reset();acts.cleared[0]=-1;run('updateProgress(180)');const boss=acts.boss;run('updateProgress(45)');R.damage(boss,1e9);assert.ok(boss.dead);run('updateProgress(.01)');assert.equal(acts.index,1);assert.equal(acts.phase,'waves');assert.equal(acts.elapsed,0);assert.equal(acts.cleared[0],sandbox.SurvivorHeat.active);assert.equal(run('currentActIndex()'),1);assert.equal(acts.deadline,null);
- run('updateProgress(179.99)');assert.equal(acts.phase,'waves');run('updateProgress(.01)');assert.equal(acts.boss.id,'insectQueen');assert.equal(acts.remaining(),120);assert.ok(game.time>405);reset();
+test('mini boss death never advances an act and final death wins immediately',()=>{
+ const acts=sandbox.SurvivorActs;acts.selected=0;reset();run('updateProgress(120)');R.damage(acts.boss,1e9);assert.equal(game.state,'playing');assert.equal(acts.index,0);run('updateProgress(240)');const final=sandbox.SurvivorEncounters.state.final;assert.ok(enemies.some(e=>e.boss&&!e.dead&&e!==final));R.damage(final,1e9);assert.equal(game.state,'win');assert.equal(acts.index,0);assert.equal(acts.phase,'finished');reset();
 });
-test('two-minute timeout defeats even an invulnerable hero and explains the failed act',()=>{
- const acts=sandbox.SurvivorActs;acts.selected=-1;reset();acts.cleared[0]=-1;player.invuln=1e9;run('updateProgress(180);updateProgress(119.99)');assert.equal(game.state,'playing');assert.equal(run('currentActIndex()'),0);run('updateProgress(.01)');assert.equal(game.state,'dead');assert.equal(player.hp,0);assert.equal(acts.phase,'failed');assert.equal(acts.cleared[0],-1);assert.ok(game.defeatReason.includes('2 minutes'));assert.ok(document.getElementById('kill-screen').querySelector('p').textContent.includes('Le Boucher'));reset();assert.equal(game.defeatReason,'');assert.equal(acts.phase,'waves');
+test('no boss deadline: late pressure grows without a forced defeat',()=>{
+ reset();player.invuln=1e9;run('updateProgress(360)');const early=sandbox.SurvivorActWaves.factors(game.time);run('updateProgress(3600)');assert.equal(game.state,'playing');assert.equal(sandbox.SurvivorActs.remaining(),null);const late=sandbox.SurvivorActWaves.factors(game.time);assert.ok(late.hp>early.hp&&late.damage>early.damage);assert.ok(late.speed<1.31);reset();
 });
-test('menus freeze the boss deadline, and a kill before expiry beats the timeout',()=>{
- const acts=sandbox.SurvivorActs;acts.selected=-1;reset();run('updateProgress(180)');const left=acts.remaining();for(const state of ['paused','equipment','stats','talents','levelup','shop','settings']){game.state=state;run('updateProgress(200)');assert.equal(acts.remaining(),left);}game.state='playing';run('updateProgress(119.99)');R.damage(acts.boss,1e9);run('updateProgress(.01)');assert.equal(game.state,'playing');assert.equal(acts.index,1);assert.equal(acts.phase,'waves');reset();
+test('menus freeze the complete act clock',()=>{
+ reset();run('updateProgress(120)');const elapsed=game.time;for(const state of ['paused','equipment','stats','talents','levelup','shop','settings']){game.state=state;run('updateProgress(200)');assert.equal(game.time,elapsed);assert.equal(enemies.filter(e=>e.boss).length,1);}reset();
 });
-test('single-act mode spawns only its own boss at the end and wins without advancing',()=>{
- const acts=sandbox.SurvivorActs;acts.selected=3;reset('amazon');run('updateProgress(180)');assert.equal(acts.boss.id,'spiderDemon');assert.equal(run('currentActIndex()'),3);assert.equal(enemies.filter(e=>e.boss).length,1);R.damage(acts.boss,1e9);run('updateProgress(.01)');assert.equal(game.state,'win');assert.equal(acts.index,3);assert.equal(acts.phase,'finished');acts.selected=-1;reset();
-});
-test('five act clocks and five boss victories are required to complete the campaign',()=>{
- const acts=sandbox.SurvivorActs;acts.selected=-1;reset();const defs=run('BOSSES');for(let i=0;i<5;i++){run('updateProgress(180)');assert.equal(acts.index,i);assert.equal(acts.boss.id,defs[i].id);R.damage(acts.boss,1e9);run('updateProgress(.01)');assert.equal(game.state,i===4?'win':'playing');}assert.equal(acts.phase,'finished');assert.ok(defs.every(d=>run('Run.bossKills')[d.id]));reset();
+test('each of five autonomous acts starts at level one and ends at its own final boss',()=>{
+ const acts=sandbox.SurvivorActs,ids=['butcher','insectQueen','summoner','spiderDemon','archdemon'];for(let i=0;i<5;i++){acts.selected=i;reset('amazon');assert.equal(player.level,1);assert.equal(game.time,0);run('updateProgress(360)');assert.equal(acts.index,i);assert.equal(acts.boss.id,ids[i]);assert.equal(enemies.filter(e=>e.boss).length,3);R.damage(acts.boss,1e9);assert.equal(game.state,'win');assert.equal(acts.index,i);}acts.selected=0;reset();
 });
 test('boss acceleration keeps charge, tell and impact times consistent and pools full-length',()=>{
  const B=sandbox.SurvivorBosses;reset();const boss=run('spawnBoss(BOSSES[0])');B.tick(boss,.1,R);assert.ok(Math.abs(boss.nextBossAction-3.75)<1e-8);assert.ok(Math.abs(R.hazards[0].start-.8/1.2)<1e-8);assert.ok(Math.abs((R.hazards[0].end-R.hazards[0].start)-.25)<1e-8);
