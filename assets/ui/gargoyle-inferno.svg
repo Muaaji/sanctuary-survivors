@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240">
+<defs><linearGradient id="fire" x2="0" y2="1"><stop stop-color="#fff2ad"/><stop offset=".35" stop-color="#ffad43"/><stop offset="1" stop-color="#b32315"/></linearGradient><filter id="glow"><feGaussianBlur stdDeviation="2"/></filter></defs>
+<g id="cracks" fill="none" stroke="#e96932" stroke-width="1.5"><path d="m91 37 8 15-9 7 12 9m49-31-8 15 9 7-12 9M43 94l13 9-7 17 9 7m139-33-13 9 7 17-9 7M65 186l14 5-3 12 15 7m84-24-14 5 3 12-15 7"/></g>
+<g id="runes" fill="none" stroke="#ffc176" stroke-width="1.7"><path d="M108 34v18l12-6 12 6V34m-18 0 6-8 6 8M40 147l7-7 7 7-7 9Zm146 0 7-7 7 7-7 9ZM106 217l14-8 14 8-14 7Z"/></g>
+<g id="horns" fill="#452620" stroke="#cf7750" stroke-width="1.5"><path d="M35 66Q-5 30 27 1Q13 32 60 49Z"/><path d="M205 66Q245 30 213 1Q227 32 180 49Z"/></g>
+<g id="flames" fill="url(#fire)" opacity=".85"><path d="M30 177Q-4 145 22 110Q10 144 35 133Q13 106 30 83Q31 125 45 147Z"/><path d="M210 177Q244 145 218 110Q230 144 205 133Q227 106 210 83Q209 125 195 147Z"/><path d="M58 219Q40 197 48 172Q52 203 72 207Z"/><path d="M182 219Q200 197 192 172Q188 203 168 207Z"/></g>
+<g id="crown" fill="url(#fire)" stroke="#f7bb66" stroke-width="1"><path d="M79 34 68 5 94 23 106 1 120 19 134 1 146 23 172 5 161 34 120 26Z"/><path d="m87 18 7 5m20-11 6 7m26 4 7-5" fill="none" stroke="#fff7c4" stroke-width="2"/></g>
+<g id="sigil" fill="none" stroke="#dc743c"><circle cx="120" cy="126" r="105" stroke-width="1.2" stroke-dasharray="16 6 3 6"/><circle cx="120" cy="126" r="114" stroke-width=".6"/><path d="m120 12 6 9-6 9-6-9Zm0 210 6 9-6 9-6-9M7 120l9 6-9 6m226-12-9 6 9 6" stroke-width="2"/></g>
+</svg>

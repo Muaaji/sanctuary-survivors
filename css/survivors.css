@@ -251,3 +251,20 @@
 .ss-infernal .ss-single-gate .ss-gargoyle{filter:drop-shadow(0 0 22px #d3271e88)}
 .ss-infernal .ss-heat-total{border-color:#bb4a31;color:#f29b7a;background:#60160f44}
 @media(max-width:650px){.ss-gate-layout{grid-template-columns:1fr;gap:24px}.ss-single-gate .ss-gargoyle{width:220px}.ss-individual-pacts .ss-contract{grid-template-columns:1fr 100px 25px}}
+
+/* Seven escalating heat tiers, using carved details over the stone guardian. */
+.ss-inferno-detail{position:absolute;inset:0;z-index:4;pointer-events:none;opacity:0;transition:opacity .3s;filter:drop-shadow(0 0 3px #ef481d)}
+.ss-detail-cracks{background:url('../assets/ui/gargoyle-cracks.svg') center/contain no-repeat}
+.ss-detail-runes{background:url('../assets/ui/gargoyle-runes.svg') center/contain no-repeat}
+.ss-detail-horns{background:url('../assets/ui/gargoyle-horns.svg') center/contain no-repeat}
+.ss-detail-flames{background:url('../assets/ui/gargoyle-flames.svg') center/contain no-repeat}
+.ss-detail-crown{background:url('../assets/ui/gargoyle-crown.svg') center/contain no-repeat}
+.ss-detail-sigil{background:url('../assets/ui/gargoyle-sigil.svg') center/contain no-repeat;z-index:1}
+[data-heat-tier='1'] .ss-detail-cracks,[data-heat-tier='2'] .ss-detail-cracks,[data-heat-tier='3'] .ss-detail-cracks,[data-heat-tier='4'] .ss-detail-cracks,[data-heat-tier='5'] .ss-detail-cracks,[data-heat-tier='6'] .ss-detail-cracks{opacity:1}
+[data-heat-tier='2'] .ss-detail-runes,[data-heat-tier='3'] .ss-detail-runes,[data-heat-tier='4'] .ss-detail-runes,[data-heat-tier='5'] .ss-detail-runes,[data-heat-tier='6'] .ss-detail-runes{opacity:1}
+[data-heat-tier='3'] .ss-detail-horns,[data-heat-tier='4'] .ss-detail-horns,[data-heat-tier='5'] .ss-detail-horns,[data-heat-tier='6'] .ss-detail-horns{opacity:1}
+[data-heat-tier='4'] .ss-detail-flames,[data-heat-tier='5'] .ss-detail-flames,[data-heat-tier='6'] .ss-detail-flames{opacity:1}
+[data-heat-tier='5'] .ss-detail-crown,[data-heat-tier='6'] .ss-detail-crown{opacity:1}
+[data-heat-tier='6'] .ss-detail-sigil{opacity:1}
+[data-heat-tier='6'] .ss-gargoyle img{filter:sepia(.85) saturate(2) drop-shadow(0 0 14px #fa3d19)}
+@media(prefers-reduced-motion:reduce){.ss-inferno-detail{transition:none}}

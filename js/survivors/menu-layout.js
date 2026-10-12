@@ -4,6 +4,7 @@
  if(!window.SurvivorIntegration)return;
  const $=id=>document.getElementById(id);
  const style=document.createElement('link');style.rel='stylesheet';style.href='css/menus.css?v=11';document.head.appendChild(style);
+ const gothicStyle=document.createElement('link');gothicStyle.rel='stylesheet';gothicStyle.href='css/gothic.css?v=2';document.head.appendChild(gothicStyle);
  const screens=['title-screen','class-screen','levelup-overlay','pause-overlay','settings-overlay','shop-overlay','sanctuary-overlay','kill-screen','win-screen','talents-overlay','evolution-overlay','knowledge-overlay','ss-run-setup','ss-bind-overlay','ss-stats-overlay','eq-overlay','ss-omens-overlay'];
  const wrapped=['title-screen','class-screen','levelup-overlay','pause-overlay','kill-screen','win-screen','evolution-overlay'];
  for(const id of screens){const screen=$(id);if(!screen)continue;screen.classList.add('ss-menu-screen');screen.setAttribute('role','dialog');screen.setAttribute('aria-modal','true');screen.tabIndex=-1;

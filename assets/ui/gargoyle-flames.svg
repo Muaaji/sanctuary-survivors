@@ -1,0 +1,3 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240"><defs><linearGradient id="fire" x2="0" y2="1"><stop stop-color="#fff2ad" /><stop offset=".35" stop-color="#ffad43" /><stop offset="1" stop-color="#b32315" /></linearGradient><filter id="glow"><feGaussianBlur stdDeviation="2" /></filter></defs>
+<g id="flames" fill="url(#fire)" opacity=".85"><path d="M30 177Q-4 145 22 110Q10 144 35 133Q13 106 30 83Q31 125 45 147Z" /><path d="M210 177Q244 145 218 110Q230 144 205 133Q227 106 210 83Q209 125 195 147Z" /><path d="M58 219Q40 197 48 172Q52 203 72 207Z" /><path d="M182 219Q200 197 192 172Q188 203 168 207Z" /></g>
+</svg>

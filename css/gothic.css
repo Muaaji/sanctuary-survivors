@@ -1,0 +1,70 @@
+@import url('./gothic-fonts.css');
+:root{--parchment:#c8baa0;--gold:#9a7545;--gold-bright:#dec18b;--blood:#702923;--gothic-surface:radial-gradient(ellipse at 50% 0,#29303755,transparent 60%),repeating-linear-gradient(113deg,#ffffff02 0 1px,transparent 1px 5px),linear-gradient(135deg,#1c1d1c,#101215 60%,#1e1713);--gothic-border:url('../assets/ui/gothic-panel-frame.png')}
+body{font-family:'Cormorant Garamond',Georgia,serif;color:var(--parchment)}
+button,input,select{font-family:inherit}
+.overlay{background:radial-gradient(ellipse at 50% 12%,#24292be8,#0b0c0ff7 75%);color:var(--parchment)}
+#title-screen{background:radial-gradient(ellipse at 50% 40%,#492b1940,transparent 55%),repeating-linear-gradient(115deg,#ffffff02 0 1px,transparent 1px 7px),#0c0d10}
+#title-screen h1{font-family:'UnifrakturCook',Georgia,serif!important;letter-spacing:2px;font-size:clamp(42px,7vw,82px);color:#e1c38f;text-shadow:0 2px #1a0d07,0 0 3px #e58232,0 5px 18px #000,0 0 38px #b13b1b66}
+#title-screen .subtitle{font-family:'Cinzel',Georgia,serif;letter-spacing:3px;color:#a78c62;font-size:12px}
+#title-screen .press-start{font-size:19px;color:#c7bca8}
+#title-screen .controls-hint{font-family:'Cormorant Garamond',Georgia,serif;font-size:16px;line-height:1.7}
+h2,#class-screen h2,.eq-header h2,#ss-setup-name,.ss-talent-panel h2,#levelup-overlay h2,#evolution-overlay h2{font-family:'UnifrakturCook',Georgia,serif!important;color:#d9be8f;text-shadow:0 2px 2px #000;letter-spacing:1px}
+h3,.class-card h3,.ss-card h3,.ss-act-navigation h3{font-family:'Cinzel',Georgia,serif;letter-spacing:.5px;color:#d2b986}
+.btn,#btn-settings,.eq-tab,.ss-gate-arrow{border:1px solid #896c43;border-radius:1px;background:linear-gradient(180deg,#484036 0,#262421 13%,#101318 55%,#1b1815 90%,#544333);box-shadow:inset 0 0 0 2px #0a0b0c,inset 0 0 0 3px #74604066,0 3px 9px #0008;color:#d9c39c;font-family:'Cinzel',Georgia,serif;letter-spacing:1px;text-shadow:0 2px #000;transition:box-shadow .18s,color .18s,border-color .18s}
+.btn:not(.small){padding:13px 28px}
+.btn:hover:not(:disabled),.eq-tab:hover,.ss-gate-arrow:hover{background:linear-gradient(#44382d,#2c1712 55%,#38251a);border-color:#d3ac6c;color:#ffe0a7;box-shadow:inset 0 0 0 2px #17100b,0 0 18px #ba4e2433,0 3px 9px #000}
+.btn:focus-visible,.class-card:focus-visible,.ss-card:focus-visible{outline:2px solid #dfb875;outline-offset:4px}
+/* Nine-slice sculpture, used only on spacious panels and choice cards. */
+.ss-setup-panel,.eq-panel,.ss-talent-panel,.ss-stats-panel,.ss-bind-panel,.ss-library-panel{border:38px solid transparent;border-image:var(--gothic-border) 250 stretch;background:var(--gothic-surface);background-clip:padding-box;padding:20px;box-shadow:0 18px 60px #0009}
+.ss-setup-panel{width:min(1040px,100%)}
+.eq-panel{width:min(1260px,100%);padding:14px}
+.class-card,.ss-card{border:24px solid transparent;border-image:var(--gothic-border) 250 stretch;border-radius:0;background:var(--gothic-surface);background-clip:padding-box;box-shadow:0 8px 24px #0009;padding:16px 10px;color:#c9bca6}
+.class-card{width:260px;min-height:270px}.class-card p,.class-card small,.ss-card p,.ss-card small{font-family:'Cormorant Garamond',Georgia,serif;font-size:15px;line-height:1.3;color:#bcb19e}
+.class-card:hover,.ss-card:hover{box-shadow:0 0 25px #c0652f30,0 10px 30px #000}
+.ss-talent,.ss-contract,.eq-detail,.eq-layout section{border:1px solid #63543d;border-radius:0;background:var(--gothic-surface);box-shadow:inset 0 0 0 2px #090a0c,inset 0 0 14px #0007}
+.ss-talent{font-family:'Cormorant Garamond',Georgia,serif;font-size:17px}.ss-talent small{font-size:13px;color:#b9a98d}
+.ss-contract{padding:10px 12px;font-size:16px}.ss-contract small{font-size:12px;color:#a99b85}.ss-contract output{font-family:'Cinzel',serif}
+.ss-individual-pacts h3{font-size:15px}.ss-individual-pacts #ss-heat-desc{font-size:14px;line-height:1.2}
+.ss-act-navigation h3{font-size:16px}.ss-act-navigation p{font-size:16px}.ss-act-navigation small{font-size:13px}
+.ss-heat-total{font-family:'Cinzel',Georgia,serif;font-size:12px;border-color:#786044;background:linear-gradient(90deg,transparent,#64462430,transparent);text-shadow:0 1px #000}
+.ss-setup-hero{margin-bottom:16px;padding-bottom:12px;border-color:#6f5a3e}#ss-setup-profile{font-size:16px}
+.ss-setup-actions{margin-top:18px}
+.eq-header{border-color:#685438}.eq-layout h3{font-size:13px}.eq-help,.eq-detail p{font-size:15px;line-height:1.35}
+.eq-cell,.eq-slot{border-radius:0;box-shadow:inset 0 0 0 1px #a38a5233,inset 0 0 15px #0008;background:linear-gradient(140deg,#37322a,#15161a)}
+.eq-cell:hover,.eq-slot:hover{border-color:#c6a572}.eq-slot span,.eq-slot b{font-family:'Cormorant Garamond',Georgia,serif;font-size:11px}
+.shop-item{background:var(--gothic-surface);border:1px solid #615239;box-shadow:inset 0 0 0 2px #0a0b0e;padding:12px}.shop-item .si-name{font-family:'Cinzel',Georgia,serif;color:#d2b986}.shop-item .si-desc{font-size:15px;color:#b6a98e}
+#shop-overlay h2,#pause-overlay h2,#settings-overlay h2{font-size:36px}
+#shop-overlay,#pause-overlay,#settings-overlay{font-size:17px}
+#hud,#ss-boss-timer,.orb-label{font-family:'Cinzel',Georgia,serif}
+#ss-bind-overlay,#ss-stats-overlay,#knowledge-overlay{font-size:17px}
+@media(max-width:700px){.ss-setup-panel,.eq-panel,.ss-talent-panel,.ss-stats-panel,.ss-bind-panel,.ss-library-panel{border-width:22px;padding:12px}.class-card,.ss-card{border-width:18px}.ss-contract{font-size:14px;padding:8px}.ss-contract small{font-size:11px}.ss-setup-panel{width:100%}.ss-setup-hero{gap:10px}.btn:not(.small){padding:10px 16px}.eq-panel{max-height:calc(100dvh - 20px)}}
+@media(prefers-reduced-motion:reduce){.btn,.class-card,.ss-card{transition:none}}
+
+/* Keep the shared menu layout, apply the art above its surface rules. */
+#game-container>.ss-menu-screen{background:radial-gradient(ellipse at 50% 18%,#272b2be8,#080a0cf7 75%)}
+#title-screen .ss-menu-shell,#class-screen .ss-menu-shell,.ss-menu-shell,.ss-commerce-panel,.settings-panel,.ss-binding-panel,#ss-run-setup .ss-setup-panel{border:34px solid transparent;border-image:var(--gothic-border) 250 stretch;border-radius:0;background:var(--gothic-surface);background-clip:padding-box;padding:24px;color:#c8baa0}
+#title-screen .ss-menu-shell{padding:30px 34px;width:min(820px,100%)}
+#title-screen .title{font-size:clamp(38px,5vw,65px);color:#ddbc83}
+#title-screen .press-start,.ss-menu-screen .ss-menu-intro,#title-screen .ss-help{font-family:'Cormorant Garamond',Georgia,serif;font-size:17px}
+#title-screen .ss-help{font-size:15px}.ss-menu-screen h2{font-family:'UnifrakturCook',Georgia,serif!important;font-size:32px!important}
+#class-cards .class-card,.ss-menu-screen .ss-card{border:22px solid transparent;border-image:var(--gothic-border) 250 stretch;border-radius:0;background:var(--gothic-surface);background-clip:padding-box;font-family:'Cormorant Garamond',Georgia,serif;padding:12px;gap:10px}
+#class-cards .class-card p{font-size:16px;line-height:1.3}#class-cards .class-card small{font-size:13px;line-height:1.3}
+#class-cards .class-card:hover{background:var(--gothic-surface);background-clip:padding-box;box-shadow:0 0 22px #b64c2433}
+.ss-menu-screen .btn{border-radius:0}.ss-menu-screen [data-primary]{background:linear-gradient(#503826,#271914 65%,#443222);border-color:#bc995f}
+@media(max-width:740px){#title-screen .ss-menu-shell,#class-screen .ss-menu-shell,.ss-menu-shell,.ss-commerce-panel,.settings-panel,.ss-binding-panel,#ss-run-setup .ss-setup-panel{border-width:22px;padding:14px}#title-screen .ss-menu-shell{padding:24px 16px}#class-cards .class-card,.ss-menu-screen .ss-card{border-width:18px;padding:10px}.ss-menu-screen h2{font-size:27px!important}}
+
+/* Menus show decisions first; controls and skill explanations live in their dedicated views. */
+#title-screen .subtitle,#title-screen .press-start,#title-screen .ss-help,.ss-menu-intro,.ss-step,#ss-setup-profile,.eq-header small{display:none}
+#title-screen .ss-title-primary{margin:28px 0 16px}
+#class-cards .class-card{min-height:210px;gap:10px}
+#class-cards .class-card p{flex:0;color:#c5b08b;margin:0}
+#class-cards .class-card small{font-size:13px;line-height:1.3}
+#class-cards .class-card img{width:72px;height:72px}
+.eq-detail:has(>.eq-help:only-child){display:flex;align-items:center;justify-content:center;color:#8f806a}
+/* Small gauntlet pointer, with its hotspot at the extended fingertip. */
+canvas#game{cursor:url('../assets/ui/cursors/diablo-hand.svg') 13 3,auto}
+
+/* The gauntlet follows the player through both the game and its menus. */
+button:not(:disabled),a,[role="button"],select,input[type="range"],summary{cursor:url('../assets/ui/cursors/diablo-hand.svg') 13 3,pointer}
+button:not(:disabled):active,a:active,[role="button"]:active,select:active,input[type="range"]:active,summary:active{cursor:url('../assets/ui/cursors/diablo-hand-pressed.svg') 13 4,pointer}
+button:disabled,input:disabled,select:disabled{cursor:not-allowed}

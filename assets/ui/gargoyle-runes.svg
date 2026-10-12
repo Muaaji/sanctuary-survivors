@@ -1,0 +1,3 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240"><defs><linearGradient id="fire" x2="0" y2="1"><stop stop-color="#fff2ad" /><stop offset=".35" stop-color="#ffad43" /><stop offset="1" stop-color="#b32315" /></linearGradient><filter id="glow"><feGaussianBlur stdDeviation="2" /></filter></defs>
+<g id="runes" fill="none" stroke="#ffc176" stroke-width="1.7"><path d="M108 34v18l12-6 12 6V34m-18 0 6-8 6 8M40 147l7-7 7 7-7 9Zm146 0 7-7 7 7-7 9ZM106 217l14-8 14 8-14 7Z" /></g>
+</svg>
