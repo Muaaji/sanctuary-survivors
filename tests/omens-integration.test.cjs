@@ -18,7 +18,7 @@ reset();assert.equal(O.owned.length,0);assert.equal(d.getElementById('ss-omens-o
 h.run('updateProgress(120)');const champion=s.SurvivorEncounters.state.encounters[0].entity;champion.dead=true;s.SurvivorEncounters.onKill(champion);d.getElementById('ss-omens-defer').onclick();
 p.gainClassSkill('sorceress_chain');R.pendingBindings=['sorceress_chain'];R.pendingLevels=1;R.pendingChests=1;O.resume();R.processRewards();assert.equal(g.state,'binding');assert.equal(O.pending,true);
 assert.equal(R.assignKey('Digit2'),true);assert.equal(g.state,'levelup');assert.equal(R.pendingChests,1);
-R.pendingLevels=0;h.run('Game.closeLevelUp()');assert.equal(R.pendingChests,0);assert.equal(g.state,'omens');assert.equal(O.pending,true);
+R.pendingLevels=0;h.run('Game.closeLevelUp()');assert.equal(R.pendingChests,0);if(g.state==='binding'){assert.equal(O.pending,true);const free=Array.from({length:9},(_,i)=>'Digit'+(i+1)).find(k=>!p.skills.some(w=>w.binding===k));assert.equal(R.assignKey(free),true);}assert.equal(g.state,'omens');assert.equal(O.pending,true);
 // Stat and movement hooks run once, including after repeated speed recalculation.
 reset();h.run('updateProgress(120)');const c=s.SurvivorEncounters.state.encounters[0];c.defeated=true;c.entity.dead=true;
 const originalRandom=s.SurvivorRunRng.random;let first=true;s.SurvivorRunRng.random=stream=>{if(stream==='offers'&&first){first=false;return .99;}return originalRandom(stream);};

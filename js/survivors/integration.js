@@ -522,9 +522,15 @@
     const map=currentMapImage(),world=currentMapWorld();
     if(map&&world){const [x,y]=w2s(0,0);ctx.drawImage(map,x,y,world.w*CAM.zoom,world.h*CAM.zoom);}
     else {const x=-((CAM.x*CAM.zoom)%512)-512,y=-((CAM.y*CAM.zoom)%512)-512;for(let yy=y;yy<VH;yy+=512)for(let xx=x;xx<VW;xx+=512)ctx.drawImage(ART.floorCanvas,xx,yy);}
-    SurvivorBosses.draw(ctx,w2s,R);
+    let visibleSpellZones=0;
+    const spellZoneVisible=(x,y,r)=>{if(visibleSpellZones>=32||x+r<0||y+r<0||x-r>VW||y-r>VH)return false;visibleSpellZones++;return true;};
     for(const corpse of R.corpses){const [x,y]=w2s(corpse.x,corpse.y);ctx.fillStyle='#635565';ctx.fillRect(x-4,y-1,8,2);}
-    for(const f of R.fields){const [x,y]=w2s(f.x,f.y);ctx.fillStyle=hexToRgba(f.color,.12);ctx.strokeStyle=hexToRgba(f.color,.4);ctx.lineWidth=1;ctx.beginPath();ctx.arc(x,y,f.r*CAM.zoom,0,TAU);ctx.fill();ctx.stroke();if(['aura','hurricane','whirl','shield','nova','curse','fissure','blizzard','corpse','cry','plague'].includes(f.ctx.s.mode)){ctx.globalAlpha=.5;SurvivorSpellArt.draw(ctx,f.ctx.id,x,y,f.r*2*CAM.zoom,R.now,0,true);ctx.globalAlpha=1;}}
+    for(const f of R.fields){const [x,y]=w2s(f.x,f.y),s=f.ctx.s;
+      if(f.once&&['nova','corpse','fireball','meteor','aura'].includes(s.mode)&&R.fx.some(fx=>fx.kind==='zoneSpell'&&fx.spellId===f.ctx.id&&fx.x===f.x&&fx.y===f.y))continue;
+      if(!spellZoneVisible(x,y,f.r*CAM.zoom))continue;
+      if(SurvivorSpellArt.drawGround?.(ctx,f.ctx.id,x,y,f.r*2*CAM.zoom,R.now,{mode:s.mode,element:s.element,age:Math.max(0,R.now-f.start),duration:Math.max(.001,f.until-f.start),opacity:.75}))continue;
+      ctx.fillStyle=hexToRgba(f.color,.12);ctx.strokeStyle=hexToRgba(f.color,.4);ctx.lineWidth=1;ctx.beginPath();ctx.arc(x,y,f.r*CAM.zoom,0,TAU);ctx.fill();ctx.stroke();
+    }
     SurvivorActWaves.draw(ctx,w2s,Acts.elapsed);
     for(const item of pickups){
       const [x,y]=w2s(item.x,item.y);if(x<-30||y<-50||x>VW+30||y>VH+30)continue;
@@ -558,20 +564,29 @@
       if(item.kind==='enemy'&&(body.boss||body.elite||body.hp<body.hpMax)){const w=body.boss?70:28;ctx.fillStyle='#20141a';ctx.fillRect(x-w/2,y-height-3,w,4);ctx.fillStyle=body.boss?'#d47a65':'#bdac6c';ctx.fillRect(x-w/2,y-height-3,w*Math.max(0,body.hp/body.hpMax),4);}
     }
     for(const w of Object.values(Player.weapons))if((C.spells[w.id].mode==='orbit'||C.spells[w.id].weaponKind==='flail')){const s=R.stats(w);for(let i=0;i<s.count;i++){const a=w.orbitAngle+i*TAU/s.count;const [x,y]=w2s(Player.x+Math.cos(a)*s.radius*(s.evolved?1.2:1),Player.y+Math.sin(a)*s.radius*(s.evolved?1.2:1));ctx.save();ctx.translate(x,y);ctx.rotate(a);ctx.drawImage(SurvivorWeaponArt.get('flail'),-12,-12,24,24);ctx.restore();}}
-    if(R.shieldHP>0){const [x,y]=w2s(Player.x,Player.y);SurvivorSpellArt.draw(ctx,'paladin_shield',x,y-12,64*CAM.zoom,R.now,0,true);ctx.strokeStyle='#e1ca80';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y-12,24,0,TAU);ctx.stroke();}
+    if(R.shieldHP>0){const [x,y]=w2s(Player.x,Player.y);if(spellZoneVisible(x,y,32*CAM.zoom))SurvivorSpellArt.drawGround?.(ctx,'paladin_shield',x,y,64*CAM.zoom,R.now,{mode:'shield',element:'magic',opacity:.7});}
     for(const p of R.bullets){const [x,y]=w2s(p.x,p.y);ctx.save();ctx.translate(x,y);ctx.scale(CAM.zoom,CAM.zoom);ctx.rotate(p.angle+p.age*(p.mode==='axe'||p.mode==='hammer'?7:0));
       const spellSprite=SurvivorSpellArt.projectile(p);if(spellSprite&&SurvivorSpellArt.draw(ctx,spellSprite,0,0,p.mode==='orb'?26:22,R.now)){ctx.restore();continue;}const sprite=projectileArt(p);if(p.ctx?.s?.weaponKind==='dagger')ctx.rotate(Math.PI/2);ctx.globalAlpha=.25;ctx.drawImage(sprite,-sprite.width/2-5,-sprite.height/2);ctx.globalAlpha=1;ctx.drawImage(sprite,-sprite.width/2,-sprite.height/2);ctx.restore();}
-    for(const f of R.fx){const [x,y]=w2s(f.x,f.y),ratio=f.life/f.maxLife;ctx.strokeStyle=hexToRgba(f.color,Math.max(.2,ratio));ctx.lineWidth=f.kind==='warning'?2:1;ctx.beginPath();
+    for(const f of R.fx){const [x,y]=w2s(f.x,f.y),ratio=f.life/f.maxLife;
+      if(f.kind==='zoneSpell'){if(spellZoneVisible(x,y,f.r*CAM.zoom))SurvivorSpellArt.drawGround?.(ctx,f.spellId,x,y,f.r*2*CAM.zoom,R.now,{mode:f.mode,element:f.element,age:f.maxLife-f.life,duration:f.maxLife,opacity:.9});continue;}
+      if(f.kind==='warning'&&window.SurvivorGroundArt){SurvivorGroundArt.draw(ctx,{x:f.x,y:f.y,r:f.r,shape:'circle',color:f.color,created:R.now-(f.maxLife-f.life),start:R.now+f.life},w2s,R.now,CAM.zoom);continue;}
+      ctx.strokeStyle=hexToRgba(f.color,Math.max(.2,ratio));ctx.lineWidth=1;ctx.beginPath();
       if(f.kind==='spell'){SurvivorSpellArt.draw(ctx,f.spellId,x,y,48,R.now);}
       else if(f.kind==='weapon'){ctx.save();ctx.translate(x,y);ctx.rotate((f.angle||0)+Math.PI/2+(f.weaponKind==='spear'?0:(1-ratio)*.8));ctx.drawImage(SurvivorWeaponArt.get(f.weaponKind),-16,-16,32,32);ctx.restore();}
       else if(f.kind==='slash'){ctx.lineWidth=3;ctx.arc(x,y,f.r*CAM.zoom,-Math.PI*.8,Math.PI*.1);ctx.stroke();ctx.lineWidth=1;ctx.beginPath();ctx.arc(x,y,Math.max(2,f.r-4)*CAM.zoom,-Math.PI*.8,Math.PI*.1);ctx.stroke();}
-      else{ctx.arc(x,y,f.r*CAM.zoom*(f.kind==='warning'?1:1.1-ratio*.15),0,TAU);ctx.stroke();if(f.kind==='warning'){ctx.fillStyle=hexToRgba(f.color,.08);ctx.fill();}}}
+      else{
+        const fade=Math.max(0,Math.min(1,ratio)),reach=Math.min(28,Math.max(4,f.r))*CAM.zoom*(.35+(1-fade)*.65),shard=Math.max(2,4*CAM.zoom*fade);
+        ctx.save();ctx.globalAlpha=fade*.65;ctx.strokeStyle='#b8a68a';ctx.fillStyle='#76634e';ctx.lineWidth=Math.max(1,CAM.zoom);
+        for(let i=0;i<6;i++){const a=i*TAU/6+.2,dx=Math.cos(a),dy=Math.sin(a),px=Math.round(x+dx*reach),py=Math.round(y+dy*reach);ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(Math.round(px+dx*shard),Math.round(py+dy*shard));ctx.stroke();if(i%2===0)ctx.fillRect(px,py,Math.max(1,Math.round(CAM.zoom)),Math.max(1,Math.round(CAM.zoom)));}
+        ctx.restore();
+      }}
     if(Game.state==='playing'&&!R.autoAim&&R.aimPoint){const [x,y]=w2s(R.aimPoint.x,R.aimPoint.y);ctx.strokeStyle='#e4d3a0';ctx.lineWidth=1;ctx.beginPath();ctx.arc(x,y,7,0,TAU);ctx.moveTo(x-11,y);ctx.lineTo(x+11,y);ctx.moveTo(x,y-11);ctx.lineTo(x,y+11);ctx.stroke();}
     for(const l of lightning){const [x,y]=w2s(l.x1,l.y1),[xx,yy]=w2s(l.x2,l.y2);ctx.strokeStyle='#b1cfee';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo((x+xx)/2+7,(y+yy)/2-5);ctx.lineTo(xx,yy);ctx.stroke();}
     for(const p of particles){const [x,y]=w2s(p.x,p.y);ctx.globalAlpha=Math.max(0,p.life/p.maxLife);ctx.fillStyle=p.color;if(p.kind==='dmg'){ctx.font='bold '+p.size+'px serif';ctx.textAlign='center';ctx.fillText(p.text,x,y);}else ctx.fillRect(x,y,p.size,p.size);}
     ctx.globalAlpha=1;
     drawShopLocator(w2s);
     const objective=Acts.boss;if(objective&&!objective.dead)drawMapLocator(w2s,objective.x,objective.y,objective.name||'Boss','#c58a78');
+    SurvivorBosses.draw(ctx,w2s,R);
     window.SurvivorEnemyRoles?.draw(ctx,w2s);
     const bosses=enemies.filter(e=>e.boss&&!e.dead);if(bosses.length){const boss=Acts.boss&&!Acts.boss.dead?Acts.boss:bosses[bosses.length-1],w=Math.min(480,VW*.55);ctx.fillStyle='#170e12';ctx.fillRect((VW-w)/2,55,w,9);ctx.fillStyle='#b14e45';ctx.fillRect((VW-w)/2,55,w*Math.max(0,boss.hp/boss.hpMax),9);ctx.font='14px serif';ctx.textAlign='center';ctx.fillStyle='#dfc7a1';ctx.fillText(boss.name,VW/2,48);}
   };

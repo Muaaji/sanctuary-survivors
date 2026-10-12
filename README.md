@@ -114,3 +114,9 @@ Les ennemis ont des rôles et des attaques annoncées ; les vagues privilégient
 Les dix armes communes gagnent désormais des évolutions distinctes : perforation, rebonds, couverture, salves ou orbites. Chaque champion de deux et quatre minutes propose trois **Présages**, avec avantage et contrepartie ; deux maximum par partie. Le choix peut être reporté et repris depuis le HUD.
 
 Sur la préparation, **Parcours du jour** fixe une seed par jour UTC, héros et acte. L'historique local garde dix parties et affiche les cinq dernières ; une dernière partie avec seed peut être reprise. Les actions, équipements, pactes et progression restent personnels et changent le résultat.
+
+## Effets et audio
+
+Les avertissements ennemis utilisent des contours continus et des matières sombres, avec progression avant déclenchement. Les sorts de zone ont des animations originales de glace, braises, os, poison, runes et vents. Les explosions visuelles persistent sans prolonger leurs dégâts ; les effets se figent pendant la pause.
+
+Les effets sonores utilisent neuf échantillons Kenney CC0, avec volumes séparés et limitation du cumul des sons. Sources et licences : [docs/audio-credits.md](docs/audio-credits.md).

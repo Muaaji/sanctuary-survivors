@@ -79,107 +79,66 @@ function metaBonus(id) {
 }
 
 /* =========================================================
- * MIXEUR AUDIO — synthèse WebAudio + anti-overlap
+ * MIXEUR AUDIO — Kenney CC0 sampled foley, bounded voices
  * ========================================================= */
 const Sound = {
-  ctx: null, master: null, sfxBus: null, uiBus: null,
-  voices: 0,
-  last: {},      // kind -> timestamp de dernière émission
-  enabled: true,
-
-  init() {
-    if (this.ctx) return;
-    const AC = window.AudioContext || window.webkitAudioContext;
-    if (!AC) { this.enabled = false; return; }
-    this.ctx = new AC();
-    this.master = this.ctx.createGain();
-    this.master.connect(this.ctx.destination);
-    this.sfxBus = this.ctx.createGain();
-    this.uiBus = this.ctx.createGain();
-    this.sfxBus.connect(this.master);
-    this.uiBus.connect(this.master);
-    this.applyVolumes();
+  ctx:null,master:null,sfxBus:null,uiBus:null,voices:0,last:{},enabled:true,
+  buffers:new Map(),pending:new Map(),failed:new Set(),active:new Set(),maxVoices:10,
+  // [sample, local gain, priority]; no combat RNG is consumed for sound.
+  palette:{
+    hit:['impact-light',.22,0],enemyDeath:['impact-medium',.20,0],gem:['click',.32,0],coin:['coins',.18,0],
+    heal:['book',.42,2],magnet:['cloth',.28,0],essence:['coins',.22,1],chest:['wood',.35,2],
+    playerHurt:['impact-heavy',.44,3],bossRoar:['creak',.48,3],levelup:['book',.5,2],
+    select:['click',.5,2],buy:['coins',.3,2],deny:['wood',.28,2],achv:['coins',.3,2],
+    cast:['cloth',.32,0],freeze:['cloth',.24,1],gameover:['creak',.35,3],victory:['wood',.42,3],
+    openShop:['book',.42,2],closeShop:['book',.30,2]
   },
-
-  applyVolumes() {
-    if (!this.ctx) return;
-    this.master.gain.value = Settings.master;
-    this.sfxBus.gain.value = Settings.sfx;
-    this.uiBus.gain.value = Settings.ui;
+  init(){
+    if(this.ctx){this.resume();return;}
+    const AC=window.AudioContext||window.webkitAudioContext;
+    if(!AC){this.enabled=false;return;}
+    try{
+      this.ctx=new AC();this.master=this.ctx.createGain();this.sfxBus=this.ctx.createGain();this.uiBus=this.ctx.createGain();
+      this.sfxBus.connect(this.master);this.uiBus.connect(this.master);
+      if(this.ctx.createDynamicsCompressor){const c=this.ctx.createDynamicsCompressor();c.threshold.value=-18;c.knee.value=18;c.ratio.value=4;c.attack.value=.005;c.release.value=.12;this.master.connect(c);c.connect(this.ctx.destination);}
+      else this.master.connect(this.ctx.destination);
+      this.applyVolumes();this.resume();
+      // Called by existing pointer/keyboard start controls; no download at page load.
+      for(const sample of new Set(Object.values(this.palette).map(p=>p[0])))this.load(sample);
+    }catch(_){this.enabled=false;}
   },
-
-  /* fréquences minimales entre deux sons du même type : évite les overlaps déchirants */
-  minGap(k) {
-    if (k === 'bossRoar') return 1.0;
-    if (k === 'levelup' || k === 'victory' || k === 'gameover') return 0.5;
-    if (k === 'hit') return Settings.crowdDamp ? 0.16 : 0.06;
-    if (k === 'enemyDeath') return Settings.crowdDamp ? 0.22 : 0.09;
-    if (k === 'gem') return 0.09;
-    if (k === 'coin') return 0.12;
-    if (k === 'cast') return 0.10;
-    return 0.05;
+  resume(){if(this.ctx?.state==='suspended')try{const p=this.ctx.resume();if(p?.catch)p.catch(()=>{});}catch(_){}},
+  applyVolumes(){if(!this.ctx)return;const volume=v=>Number.isFinite(v)?Math.max(0,Math.min(1,v)):0;this.master.gain.value=volume(Settings.master);this.sfxBus.gain.value=volume(Settings.sfx);this.uiBus.gain.value=volume(Settings.ui);},
+  load(sample){
+    if(!this.ctx||this.failed.has(sample))return Promise.resolve(null);
+    if(this.buffers.has(sample))return Promise.resolve(this.buffers.get(sample));
+    if(this.pending.has(sample))return this.pending.get(sample);
+    const task=Promise.resolve().then(()=>fetch('assets/audio/'+sample+'.wav')).then(r=>{if(!r.ok)throw Error('audio unavailable');return r.arrayBuffer();}).then(bytes=>this.ctx.decodeAudioData(bytes)).then(buffer=>{this.buffers.set(sample,buffer);return buffer;}).catch(()=>{this.failed.add(sample);return null;}).finally(()=>this.pending.delete(sample));
+    this.pending.set(sample,task);return task;
   },
-
-  play(kind) {
-    if (!this.enabled) return;
-    if (!this.ctx) { this.init(); if (!this.enabled) return; }
-    if (this.ctx.state === 'suspended') { try { this.ctx.resume(); } catch (e) {} }
-
-    const now = this.ctx.currentTime;
-    const gap = this.minGap(kind);
-    if (this.last[kind] && now - this.last[kind] < gap) return;
-
-    // budget global de voix : au-delà, on coupe les sons mineurs
-    if (this.voices > 22) {
-      if (['hit', 'enemyDeath', 'gem', 'coin', 'trail'].includes(kind)) return;
-    }
-
-    this.last[kind] = now;
-    const t0 = now;
-    const bus = (kind === 'select' || kind === 'heal' || kind === 'chest' ||
-                 kind === 'levelup' || kind === 'victory' || kind === 'gameover' ||
-                 kind === 'buy' || kind === 'deny' || kind === 'achv')
-      ? this.uiBus : this.sfxBus;
-
-    const note = (freq, dur, type = 'square', vol = 0.12, slide = 0, delay = 0) => {
-      const o = this.ctx.createOscillator();
-      const g = this.ctx.createGain();
-      o.type = type;
-      o.frequency.setValueAtTime(freq, t0 + delay);
-      if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(20, freq + slide), t0 + delay + dur);
-      g.gain.setValueAtTime(vol, t0 + delay);
-      g.gain.exponentialRampToValueAtTime(0.001, t0 + delay + dur);
-      o.connect(g); g.connect(bus);
-      o.start(t0 + delay); o.stop(t0 + delay + dur + 0.02);
-      this.voices++;
-      o.onended = () => { this.voices--; };
-    };
-
-    switch (kind) {
-      case 'hit': note(rand(260, 330), 0.05, 'square', 0.05, -120); break;
-      case 'enemyDeath': note(rand(110, 160), 0.14, 'sawtooth', 0.07, -70); break;
-      case 'gem': note(720, 0.06, 'triangle', 0.06); break;
-      case 'coin': note(1150, 0.05, 'square', 0.045); break;
-      case 'heal': note(520, 0.12, 'sine', 0.09); note(780, 0.14, 'sine', 0.07); break;
-      case 'magnet': note(400, 0.10, 'sine', 0.07, 300); break;
-      case 'essence': note(300, 0.1, 'triangle', 0.08, 260); note(800, 0.18, 'triangle', 0.07, 130); break;
-      case 'chest': [523, 659, 784].forEach((f, i) => note(f, 0.12, 'triangle', 0.07, 0, i * 0.08)); break;
-      case 'playerHurt': note(150, 0.16, 'sawtooth', 0.10, -80); break;
-      case 'bossRoar': note(66, 0.6, 'sawtooth', 0.16, 30); note(100, 0.6, 'square', 0.08, -40); break;
-      case 'levelup': [392, 523, 659, 784].forEach((f, i) => note(f, 0.15, 'triangle', 0.08, 0, i * 0.075)); break;
-      case 'select': note(700, 0.05, 'triangle', 0.07, 200); break;
-      case 'buy': note(880, 0.08, 'triangle', 0.08); note(1175, 0.10, 'triangle', 0.06); break;
-      case 'deny': note(160, 0.12, 'square', 0.08, -60); break;
-      case 'achv': [660, 880, 1320].forEach((f, i) => note(f, 0.2, 'triangle', 0.08, 0, i * 0.11)); break;
-      case 'cast': note(340, 0.10, 'triangle', 0.08, 260); break;
-      case 'freeze': note(980, 0.18, 'sine', 0.07, -320); break;
-      case 'gameover': [220, 175, 147, 110].forEach((f, i) => note(f, 0.35, 'sawtooth', 0.08, 0, i * 0.24)); break;
-      case 'victory': [523, 659, 784, 1047, 1319].forEach((f, i) => note(f, 0.28, 'triangle', 0.08, 0, i * 0.14)); break;
-      case 'openShop': note(420, 0.09, 'triangle', 0.07); note(630, 0.12, 'triangle', 0.06); break;
-      case 'closeShop': note(630, 0.08, 'triangle', 0.06); note(420, 0.10, 'triangle', 0.05, -100); break;
-    }
-  },
+  minGap(k){if(k==='bossRoar')return 1;if(['levelup','victory','gameover','playerHurt'].includes(k))return .5;if(k==='hit')return Settings.crowdDamp?.18:.08;if(k==='enemyDeath')return Settings.crowdDamp?.26:.12;if(['gem','coin','essence'].includes(k))return .18;if(k==='cast')return .16;return .08;},
+  play(kind){
+    // A missed/unloaded sound stays silent: no stale burst after decoding.
+    if(!this.enabled||!this.ctx||!this.palette[kind])return;
+    this.resume();if(this.ctx.state!=='running')return;
+    const [sample,gain,priority]=this.palette[kind],ui=['select','heal','chest','levelup','victory','gameover','buy','deny','achv','openShop','closeShop'].includes(kind),bus=ui?this.uiBus:this.sfxBus;
+    if(this.master.gain.value<=0||bus.gain.value<=0)return;
+    const now=this.ctx.currentTime;if(this.last[kind]!==undefined&&now-this.last[kind]<this.minGap(kind))return;
+    const buffer=this.buffers.get(sample);if(!buffer){this.load(sample);return;}
+    // Reserve three voices for player feedback and important UI.
+    if(priority<2&&this.active.size>=7)return;
+    if(this.active.size>=this.maxVoices){const victim=[...this.active].find(v=>v.priority<priority);if(!victim)return;victim.release();try{victim.source.stop();}catch(_){} }
+    let source,volume,voice;
+    try{
+      source=this.ctx.createBufferSource();volume=this.ctx.createGain();source.buffer=buffer;volume.gain.value=gain;
+      source.connect(volume);volume.connect(bus);
+      voice={source,priority,release:()=>{if(!this.active.delete(voice))return;this.voices=this.active.size;try{source.disconnect();volume.disconnect();}catch(_){}}};
+      source.onended=voice.release;this.active.add(voice);this.voices=this.active.size;this.last[kind]=now;source.start(now+.005);
+    }catch(_){if(voice)voice.release();else{try{source?.disconnect();volume?.disconnect();}catch(_){}}}
+  }
 };
 
 /* Alias conservé pour tous les appels existants Audio2.play(...) */
 const Audio2 = Sound;
+// Capture the first pointer gesture so menu clicks can unlock and preload audio.
+if(typeof document!=='undefined'&&typeof document.addEventListener==='function')document.addEventListener('pointerdown',()=>Sound.init(),{once:true,capture:true});

@@ -3,7 +3,7 @@
 window.SurvivorBosses={
  windup(e,seconds){return seconds/(e.bossTempo||1.2);},
  bounded(x,y){const w=currentMapWorld()||{w:2048,h:2048};return {x:clamp(x,30,w.w-30),y:clamp(y,30,w.h-30)};},
- zone(e,R,shape,point,extra={}){if(R.hazards.length>=40)return;const z={owner:e,shape,x:point.x,y:point.y,angle:angleTo(e.x,e.y,point.x,point.y),r:65,length:260,width:26,start:R.now+.9,end:R.now+1.4,next:0,dmg:e.dmg*.7,color:'#da7459',...extra};const duration=z.end-z.start;z.start=R.now+this.windup(e,z.start-R.now);z.end=z.start+duration;R.hazards.push(z);},
+ zone(e,R,shape,point,extra={}){if(R.hazards.length>=40)return;const z={owner:e,shape,x:point.x,y:point.y,angle:angleTo(e.x,e.y,point.x,point.y),r:65,length:260,width:26,start:R.now+.9,end:R.now+1.4,next:0,dmg:e.dmg*.7,color:'#da7459',...extra};const duration=z.end-z.start;z.start=R.now+this.windup(e,z.start-R.now);z.end=z.start+duration;z.created=R.now;R.hazards.push(z);},
  adds(e,count,type){const live=enemies.filter(a=>!a.dead&&a.broodOwner===e);for(let i=0;i<Math.min(count,6-live.length)&&enemies.length<180;i++){const p=this.bounded(e.x+Math.cos(i*2.4)*65,e.y+Math.sin(i*2.4)*65);const a=spawnEnemy(type,p.x,p.y);if(a){a.broodOwner=e;a.hp=a.hpMax*=.6;}}},
  locked(e,now){return (e.bossWindup||0)>now||(e.bossChargeUntil||0)>now;},
  tick(e,dt,R){
@@ -37,9 +37,5 @@ window.SurvivorBosses={
   const inside=z.shape==='circle'?dx*dx+dy*dy<(z.r+Player.r)**2:z.shape==='line'?forward>=0&&forward<z.length&&side<z.width+Player.r:dx*dx+dy*dy<z.length*z.length&&Math.abs(angleDiff(Math.atan2(dy,dx),z.angle))<z.width/2;
   if(inside){if(z.slow)R.enemySlowUntil=R.now+.35;if(z.dmg>0&&R.now>z.next){const before=Player.hp;Player.takeDamage(z.dmg);if(Player.hp<before){if(z.poison){R.playerPoisonUntil=R.now+3;R.playerPoisonNext=R.now+1;}if(z.hook){const dx=z.owner.x-Player.x,dy=z.owner.y-Player.y,len=Math.hypot(dx,dy)||1;const p=this.bounded(Player.x+dx/len*45,Player.y+dy/len*45);Player.x=p.x;Player.y=p.y;}}z.next=R.now+.8;}}
  }if(R.playerPoisonUntil>R.now&&R.now>=R.playerPoisonNext){Player.takeDamage(Math.max(1,Player.hpMax*.025));R.playerPoisonNext=R.now+1;}},
- draw(ctx,w2s,R){for(const z of R.hazards){const [x,y]=w2s(z.x,z.y),zoom=CAM.zoom,warning=R.now<z.start;ctx.save();ctx.translate(x,y);ctx.rotate(z.angle);ctx.strokeStyle=z.color;ctx.fillStyle=hexToRgba(z.color,warning?.08:.24);ctx.lineWidth=warning?2:3;ctx.setLineDash(warning?[5,5]:[]);ctx.beginPath();
-  if(z.shape==='circle')ctx.arc(0,0,z.r*zoom,0,TAU);else if(z.shape==='line')ctx.rect(0,-z.width*zoom,z.length*zoom,z.width*2*zoom);else {ctx.moveTo(0,0);ctx.arc(0,0,z.length*zoom,-z.width/2,z.width/2);ctx.closePath();}ctx.fill();ctx.stroke();
-  if(z.web){for(let a=0;a<8;a++){ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(Math.cos(a*TAU/8)*z.r*zoom,Math.sin(a*TAU/8)*z.r*zoom);ctx.stroke();}}
-  ctx.restore();
- }},
+ draw(ctx,w2s,R){for(const z of R.hazards)window.SurvivorGroundArt?.draw(ctx,z,w2s,R.now,CAM.zoom);},
 };

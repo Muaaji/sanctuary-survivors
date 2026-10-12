@@ -2,7 +2,6 @@
 'use strict';
 window.SurvivorEnemyRoles=(()=>{
  const families={fallen:'runner',zombie:'bulwark',ogre:'bulwark',undeadKnight:'bulwark',sandDemon:'bulwark',serpent:'flanker',fungus:'poison',spider:'web',fireHound:'charger',skeletonArcher:'archer',boneMage:'archer'};
- const colors={runner:'#f2cf75',charger:'#ffad73',poison:'#b4df71',web:'#e7ddd0'};
  const state={hazards:[],serial:0,now:0};
  const playing=()=>typeof Game!=='undefined'&&Game.state==='playing';
  const live=e=>e&&!e.dead&&(!e.boss||e.ssChampion);
@@ -64,14 +63,7 @@ window.SurvivorEnemyRoles=(()=>{
  }
  function draw(ctx,w2s){
   if(typeof enemies==='undefined')return;const zoom=typeof CAM==='undefined'?1:CAM.zoom;
-  for(const z of state.hazards){if(!live(z.owner))continue;const [x,y]=w2s(z.x,z.y),warning=state.now<z.start;
-   ctx.save();ctx.translate(x,y);ctx.strokeStyle=colors[z.kind];ctx.fillStyle=z.kind==='poison'?'rgba(180,223,113,.15)':z.kind==='web'?'rgba(231,221,208,.12)':'rgba(255,180,100,.12)';ctx.lineWidth=2;ctx.setLineDash(warning?[5,4]:[]);ctx.beginPath();
-   if(z.shape==='line'){ctx.rotate(z.angle);const length=distance(z.x,z.y,z.end.x,z.end.y)*zoom;const width=z.width*zoom;ctx.moveTo(0,-width);ctx.lineTo(length,-width);ctx.arc(length,0,width,-Math.PI/2,Math.PI/2);ctx.lineTo(0,width);ctx.arc(0,0,width,Math.PI/2,Math.PI*1.5);ctx.closePath();}
-   else ctx.arc(0,0,z.r*zoom,0,Math.PI*2);
-   ctx.fill();ctx.stroke();
-   if(z.kind==='web')for(let n=0;n<6;n++){ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(Math.cos(n*Math.PI/3)*z.r*zoom,Math.sin(n*Math.PI/3)*z.r*zoom);ctx.stroke();}
-   ctx.restore();
-  }
+  for(const z of state.hazards){if(!live(z.owner))continue;window.SurvivorGroundArt?.draw(ctx,{...z,shape:z.shape==='line'?'capsule':'circle',length:distance(z.x,z.y,z.end.x,z.end.y)},w2s,state.now,zoom);}
  }
  return {reset,configure,update,draw,families,state};
 })();

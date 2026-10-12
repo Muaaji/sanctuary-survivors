@@ -188,7 +188,14 @@ window.SurvivorRuntime = (() => {
       this.fields.push({x,y,r:s.radius,until:this.now+life,start:this.now,next:this.now,interval:.5,dmg:s.dmg,
         color:this.color(s.element),ctx,follow:false,once:!s.duration,hitSet:new Set(),...extra});
     },
-    burst(s,x,y,extra={}) { this.field(s,x,y,this.context(s,extra),{once:true,until:this.now+.15}); },
+    burst(s,x,y,extra={}) {
+      this.field(s,x,y,this.context(s,extra),{once:true,until:this.now+.15});
+      // Pure visual lifetime; damage and hitbox still expire after the original .15 seconds.
+      if(['nova','corpse','fireball','meteor','aura'].includes(s.mode)&&this.gate('zoneVisual:'+s.id,.25)&&this.fx.length<200){
+        const life=s.mode==='aura'?.65:.7;
+        this.fx.push({kind:'zoneSpell',spellId:s.id,mode:s.mode,element:s.element,x,y,r:s.radius,color:this.color(s.element),life,maxLife:life});
+      }
+    },
     cast(w,s,secondary=false, origin=Player,aim=null) {
       const ctx=this.context(s,{secondary}),nearest=aim?this.nearest(aim.x,aim.y,150):this.nearest(origin.x,origin.y,this.targetRange(),new Set(),s.id==='amazon_guided'),target=aim?{x:aim.x,y:aim.y}:nearest;
       window.SurvivorBuildCombos?.onCast(s,ctx);
@@ -261,7 +268,7 @@ window.SurvivorRuntime = (() => {
         }
         case 'curse': {
           if(!center)break;
-          this.effect(center.x,center.y,s.radius,'#ca89e2',.6);
+          if(this.fx.length<200)this.fx.push({kind:'zoneSpell',spellId:s.id,mode:s.mode,element:s.element,x:center.x,y:center.y,r:s.radius,color:this.color(s.element),life:.6,maxLife:.6});
           for(const e of this.alive())if(dist2(e.x,e.y,center.x,center.y)<s.radius*s.radius){e.cursedUntil=this.now+s.duration;e.curseBonus=s.evolved?.4:.25;}
           break;
         }

@@ -1,0 +1,92 @@
+[
+  {
+    "file": "assets/audio/impact-light.wav",
+    "pack": "impact",
+    "source": "Audio/impactGeneric_light_000.ogg",
+    "sourceSha256": "f0e982611e97512fee5f777986b67e8b435434b601f94992ec044f7e89fb5acb",
+    "seconds": 0.139,
+    "peak": 0.3358,
+    "rms": 0.0498,
+    "bytes": 8918
+  },
+  {
+    "file": "assets/audio/impact-medium.wav",
+    "pack": "impact",
+    "source": "Audio/impactSoft_medium_000.ogg",
+    "sourceSha256": "7d3ba0bb5e60a11b5d3e558c141303dcf494256675fbf753c0d252d2cf0481e3",
+    "seconds": 0.118,
+    "peak": 0.6278,
+    "rms": 0.1225,
+    "bytes": 7596
+  },
+  {
+    "file": "assets/audio/impact-heavy.wav",
+    "pack": "impact",
+    "source": "Audio/impactSoft_heavy_000.ogg",
+    "sourceSha256": "49e7ca88743fca974bb8676ea138b751cfd8f9033b5e7af8736c2a215d6edbc1",
+    "seconds": 0.505,
+    "peak": 0.65,
+    "rms": 0.0932,
+    "bytes": 32370
+  },
+  {
+    "file": "assets/audio/wood.wav",
+    "pack": "impact",
+    "source": "Audio/impactWood_medium_000.ogg",
+    "sourceSha256": "1723a9fd25103ed41af06054814e84e65f4a772bac86ab2dc927da93d9592ff5",
+    "seconds": 0.333,
+    "peak": 0.313,
+    "rms": 0.0384,
+    "bytes": 21334
+  },
+  {
+    "file": "assets/audio/click.wav",
+    "pack": "interface",
+    "source": "Audio/click_001.ogg",
+    "sourceSha256": "ccfb7fa0cccdd9faec0eb16033c732b1e308d139d80f799161495d58f7adcdb9",
+    "seconds": 0.1,
+    "peak": 0.1561,
+    "rms": 0.0138,
+    "bytes": 6444
+  },
+  {
+    "file": "assets/audio/coins.wav",
+    "pack": "rpg",
+    "source": "Audio/handleCoins.ogg",
+    "sourceSha256": "8a91f969e932df709df80ee124d86a51389eed9b67f22e5e716bc2bbf60d8dab",
+    "seconds": 0.846,
+    "peak": 0.65,
+    "rms": 0.0217,
+    "bytes": 54156
+  },
+  {
+    "file": "assets/audio/book.wav",
+    "pack": "rpg",
+    "source": "Audio/bookOpen.ogg",
+    "sourceSha256": "953390534377222bee89ac8cd9e60a58fdc037c71a4d7c18c43cd647c7f34ba8",
+    "seconds": 0.154,
+    "peak": 0.154,
+    "rms": 0.0185,
+    "bytes": 9882
+  },
+  {
+    "file": "assets/audio/creak.wav",
+    "pack": "rpg",
+    "source": "Audio/creak1.ogg",
+    "sourceSha256": "8a346186fd297254248cab8e8117060a52a5cf2a84f603153a762108550ea95e",
+    "seconds": 0.661,
+    "peak": 0.3218,
+    "rms": 0.0439,
+    "bytes": 42350
+  },
+  {
+    "file": "assets/audio/cloth.wav",
+    "pack": "rpg",
+    "source": "Audio/cloth1.ogg",
+    "sourceSha256": "ddb93a3671233f95da0e0b10367f082f7eb42fa6caaddcf776410aa8833c747d",
+    "seconds": 0.661,
+    "peak": 0.5638,
+    "rms": 0.046,
+    "bytes": 42350
+  }
+]
