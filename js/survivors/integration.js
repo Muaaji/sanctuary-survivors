@@ -480,6 +480,7 @@
     const hx=VW/(2*CAM.zoom),hy=VH/(2*CAM.zoom);
     CAM.x=clamp(Player.x,hx,world.w-hx);CAM.y=clamp(Player.y,hy,world.h-hy);
   };
+  const merchantSprite=new Image();merchantSprite.src='assets/sprites/merchant/idle.png';
   const oldShopAppear=Shopkeeper.appear;
   Shopkeeper.appear=function(){oldShopAppear.call(this);const world=currentMapWorld();if(world){this.x=clamp(this.x,60,world.w-60);this.y=clamp(this.y,60,world.h-60);}};
   draw=function() {
@@ -501,11 +502,11 @@
       else if(item.type!=='equipment'){ctx.fillStyle='#b49c6c';ctx.fillRect(x-3,y-3,6,6);}
       ctx.restore();
     }
-    if(Shopkeeper.active){const [x,y]=w2s(Shopkeeper.x,Shopkeeper.y);ctx.drawImage(ART.shopTent,x-24,y-30,48,34);}
-    const bodies=[...enemies.filter(e=>!e.dead).map(e=>({kind:'enemy',body:e,y:e.y})),...R.allies.filter(a=>!a.dead).map(a=>({kind:'ally',body:a,y:a.y})),{kind:'player',body:Player,y:Player.y}].sort((a,b)=>a.y-b.y);
+    const bodies=[...(Shopkeeper.active?[{kind:'merchant',body:Shopkeeper,y:Shopkeeper.y}]:[]),...enemies.filter(e=>!e.dead).map(e=>({kind:'enemy',body:e,y:e.y})),...R.allies.filter(a=>!a.dead).map(a=>({kind:'ally',body:a,y:a.y})),{kind:'player',body:Player,y:Player.y}].sort((a,b)=>a.y-b.y);
     for(const item of bodies) {
       const body=item.body,[x,y]=w2s(body.x,body.y);if(x<-100||x>VW+100||y<-100||y>VH+100)continue;
       let sprite,frame,width,height;
+      if(item.kind==='merchant'){ctx.save();ctx.fillStyle='rgba(9,7,5,.5)';ctx.beginPath();ctx.ellipse(x,y+4,15,5,0,0,TAU);ctx.fill();if(merchantSprite.complete&&merchantSprite.naturalWidth){ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(merchantSprite,x-24,y-52,48,60);}ctx.restore();continue;}
       if(item.kind==='player'){sprite=Sprites.playerSprite(Player.classId,Player.facing,Player.attackAnimT>0)||ART.player[Player.classId]?.S||ART.player.paladin.S;width=48;height=48;if(Player.invuln>0&&Math.floor(R.now*15)%2)ctx.globalAlpha=.5;}
       else if(item.kind==='enemy'){frame=body.boss?Sprites.bossSprite(body.sprite,body.bossBossAttackT>0?'attack':'idle',R.now*(body.bossTempo||1.2)):Sprites.monsterSprite(body.sprite,'idle',R.now);sprite=frame?.img||ART[body.sprite]||ART.fallen;width=body.boss?64:32;height=width;}
       else {
@@ -544,11 +545,19 @@
     ctx.save();ctx.font='bold 12px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';const width=ctx.measureText(text).width+12;
     ctx.fillStyle='rgba(8,9,13,.94)';ctx.fillRect(x-width/2,y-10,width,20);ctx.fillStyle=color;ctx.fillText(text,x,y);ctx.restore();
   }
+  function drawMerchantBubble(x,y,near) {
+    const width=near?108:28,top=y-76,left=x-width/2;
+    ctx.save();ctx.fillStyle='#211c17';ctx.strokeStyle=near?'#e1c185':'#ae9365';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(left+3,top);ctx.lineTo(left+width-3,top);ctx.lineTo(left+width,top+3);ctx.lineTo(left+width,top+19);ctx.lineTo(x+5,top+19);ctx.lineTo(x,top+24);ctx.lineTo(x-5,top+19);ctx.lineTo(left,top+19);ctx.lineTo(left,top+3);ctx.closePath();ctx.fill();ctx.stroke();
+    const coinX=near?left+12:x;ctx.fillStyle='#b78e42';ctx.beginPath();ctx.arc(coinX,top+10,6,0,TAU);ctx.fill();ctx.strokeStyle='#efd291';ctx.beginPath();ctx.arc(coinX,top+10,4,0,TAU);ctx.stroke();ctx.fillStyle='#efd291';ctx.fillRect(coinX-1,top+7,2,6);
+    if(near){ctx.font='12px serif';ctx.textAlign='left';ctx.fillStyle='#ead6b2';ctx.fillText('Marchand · E',left+23,top+14);}
+    ctx.restore();
+  }
   function drawShopLocator(w2s) {
     if(!Shopkeeper.active)return;
     const [x,y]=w2s(Shopkeeper.x,Shopkeeper.y);
-    if(x>=24&&x<=VW-24&&y>=75&&y<=VH-150){if(Shopkeeper.near())mapLabel('Boutique · E',x,y-40,'#bfa77b');return;}
-    drawMapLocator(w2s,Shopkeeper.x,Shopkeeper.y,'Boutique','#cfb588');
+    if(x>=24&&x<=VW-24&&y>=75&&y<=VH-150){drawMerchantBubble(x,y,Shopkeeper.near());return;}
+    drawMapLocator(w2s,Shopkeeper.x,Shopkeeper.y,'Marchand','#cfb588');
   }
   function drawMapLocator(w2s,wx,wy,label,color) {
     const [sx,sy]=w2s(wx,wy);
