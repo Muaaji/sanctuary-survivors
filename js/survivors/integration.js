@@ -6,6 +6,14 @@
   const legacy={killEnemy,collectPickup,updateHUD,spawnBoss,reset:Player.reset,spawnEnemy,win:winSequence,shop:buyShopItem};
   window.SurvivorIntegration={version:1,legacy,catalog:C,runtime:R};
   const $=id=>document.getElementById(id);
+  const Omens=window.SurvivorRunOmens;
+  if(Omens){
+    const stats=R.stats,reset=R.reset,speed=R.recalcSpeed,encounterKill=SurvivorEncounters.onKill;
+    R.stats=function(...args){return Omens.applyStats(stats.apply(this,args));};
+    R.reset=function(...args){Omens.reset();$('ss-omens-overlay')?.classList.add('hidden');return reset.apply(this,args);};
+    R.recalcSpeed=function(...args){const result=speed.apply(this,args);Player.speed=Omens.applyPlayerSpeed(Player.speed);return result;};
+    SurvivorEncounters.onKill=function(entity){const accepted=encounterKill.call(this,entity);if(accepted&&Omens.earn(entity.encounterId)&&Game.state==='playing')processRewards();return accepted;};
+  }
   const icon=id=>'assets/survivors/icons/'+id+'.svg';
   const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   let discoveries={};try{discoveries=JSON.parse(localStorage.getItem('survivors_knowledge')||'{}')||{};}catch(e){}
@@ -214,6 +222,22 @@
   const ribbon=document.createElement('div');ribbon.id='ss-build-ribbon';ribbon.innerHTML='<span id="ss-run-level"></span><div id="ss-passives"></div><button id="ss-talents-button" class="btn small">Talents <span id="ss-talent-count">0</span></button>';
   $('hud').appendChild(ribbon);
   const comboBadge=document.createElement('span');comboBadge.id='ss-combo-status';comboBadge.style.cssText='color:#d7c28d;font:11px/1.2 sans-serif;max-width:300px;white-space:normal';ribbon.appendChild(comboBadge);
+  const omenPanel=document.createElement('div');omenPanel.id='ss-omens-overlay';omenPanel.className='overlay hidden';
+  omenPanel.innerHTML='<div class="ss-stats-panel"><h2>Choisis un Présage</h2><p>Un pouvoir et sa contrepartie. Deux maximum par partie.</p><div id="ss-omens-cards" class="cards"></div><button id="ss-omens-defer" class="btn small">Reporter le choix</button></div>';
+  $('game-container').appendChild(omenPanel);
+  const omenResume=document.createElement('button');omenResume.id='ss-omens-resume';omenResume.className='btn small hidden';omenResume.textContent='Présage en attente';ribbon.appendChild(omenResume);
+  function openOmens(){
+    const box=$('ss-omens-cards');box.innerHTML='';Game.state='omens';for(const key of Object.keys(Keys))Keys[key]=false;
+    for(const choice of Omens.choices()){
+      const button=document.createElement('button');button.type='button';button.className='card ss-card';button.dataset.omen=choice.id;
+      const heading=document.createElement('h3');heading.textContent=choice.icon+' '+choice.name;button.appendChild(heading);
+      const text=document.createElement('p');text.textContent=choice.description;button.appendChild(text);
+      button.onclick=()=>{if(Game.state!=='omens'||!Omens.choose(choice.id))return;omenPanel.classList.add('hidden');R.recalcSpeed();renderWeaponSlots();processRewards();};box.appendChild(button);
+    }
+    omenPanel.classList.remove('hidden');box.children[0]?.focus?.();
+  }
+  $('ss-omens-defer').onclick=()=>{if(Game.state!=='omens')return;Omens.defer();omenPanel.classList.add('hidden');processRewards();};
+  omenResume.onclick=()=>{if(!['playing','paused'].includes(Game.state)||!Omens?.resume())return;$('pause-overlay').classList.add('hidden');processRewards();};
   const bossTimer=document.createElement('div');bossTimer.id='ss-boss-timer';bossTimer.className='hidden';bossTimer.setAttribute('role','timer');bossTimer.setAttribute('aria-label','Prochaine rencontre et pression de l’acte');$('hud').appendChild(bossTimer);
   $('ss-talents-button').onclick=()=>openTalents(false);
   $('ss-talents-close').onclick=()=>closeTalents();
@@ -245,6 +269,7 @@
     $('ss-act').value=Acts.selected;renderHeat();setup.classList.remove('hidden');
   }
   SurvivorIntegration.showRunSetup=showRunSetup;
+  SurvivorIntegration.prepareReplay=entry=>{if(!entry||!CLASSES[entry.classId]||!Number.isInteger(entry.act)||entry.act<1||entry.act>5)return false;showRunSetup(entry.classId);Acts.selected=entry.act-1;$('ss-act').value=Acts.selected;renderHeat();return true;};
   $('ss-setup-back').onclick=()=>showClassSelect();$('ss-launch').onclick=()=>startRun(Acts.classId);
   addEventListener('keydown',e=>{if(Game.state!=='setup')return;if(e.code==='Escape'){showClassSelect();e.preventDefault();}else if(e.code==='Enter'&&!['SELECT','INPUT','BUTTON'].includes(e.target?.tagName)){startRun(Acts.classId);e.preventDefault();}});
   for(const c of contracts){const row=document.createElement('label');row.className='ss-contract';row.innerHTML='<span>'+c.name+'<small>'+c.desc+'</small></span><input type="range" min="0" max="5" step="1" id="ss-contract-'+c.id+'" aria-label="'+c.name+'"><output id="ss-rank-'+c.id+'"></output>';$('ss-contracts').appendChild(row);const change=()=>{Heat.ranks[c.id]=clamp(Number($('ss-contract-'+c.id).value)||0,0,c.max);Heat.refresh();renderHeat();};$('ss-contract-'+c.id).oninput=change;$('ss-contract-'+c.id).onchange=change;}
@@ -371,6 +396,7 @@
       const choices=buildUpgradeOptions().filter(o=>o.kind!=='ultimate');if(choices.length)applyUpgrade(window.SurvivorRunRng?SurvivorRunRng.withStream('offers',()=>pick(choices)):pick(choices));else Player.gold+=SurvivorRunEconomy.maxedChestGold;
       toast('Coffre : amélioration et 50 or');processRewards();return;
     }
+    if(Omens?.pending&&!Omens.deferred){openOmens();return;}
     if(R.talentPoints>0&&!R.deferredTalents){openTalents(true);return;}
     R.deferredTalents=false;Game.state='playing';
   }
@@ -410,7 +436,7 @@
     if(R.pendingLevels||R.pendingChests)processRewards();else Game.state=R.talentResume||'playing';
   }
   function hideRunPanels() {
-    for(const id of ['kill-screen','win-screen','levelup-overlay','pause-overlay','shop-overlay','talents-overlay','evolution-overlay','knowledge-overlay','settings-overlay','sanctuary-overlay','ss-stats-overlay','ss-run-setup','ss-bind-overlay'])$(id).classList.add('hidden');
+    for(const id of ['kill-screen','win-screen','levelup-overlay','pause-overlay','shop-overlay','talents-overlay','evolution-overlay','knowledge-overlay','settings-overlay','sanctuary-overlay','ss-stats-overlay','ss-run-setup','ss-bind-overlay','ss-omens-overlay'])$(id).classList.add('hidden');
     $('hud').classList.add('hidden');
     for(const key of Object.keys(Keys))Keys[key]=false;
   }
@@ -455,7 +481,7 @@
   };
   renderWeaponSlots=()=>renderSkillBar();
   refreshSkillCooldowns=function(){for(const el of document.querySelectorAll('[data-ability]')){const w=R.state(el.dataset.ability);if(!w)continue;const stats=R.stats(w),cd=stats.cd;el.classList.toggle('mana-starved',SurvivorStats.manaCost(stats)>Player.mana&&w.cd<=0);el.classList.toggle('aura-enabled',!!w.enabled);el.querySelector('.skill-cooldown').style.transform='scaleY('+Math.min(1,(w.cd||0)/Math.max(.1,cd))+')';}};
-  updateHUD=function(){legacy.updateHUD();const combo=window.SurvivorBuildCombos?.active()[0];comboBadge.textContent=combo?combo.name+' · '+(combo.active?'actif '+combo.remaining.toFixed(1)+' s':combo.readyIn>0?'prêt dans '+Math.ceil(combo.readyIn)+' s':'prêt'):'';const next=SurvivorEncounters.nextEncounter;bossTimer.classList.remove('hidden');bossTimer.classList.remove('urgent');
+  updateHUD=function(){legacy.updateHUD();omenResume.classList.toggle('hidden',!Omens?.pending);const combo=window.SurvivorBuildCombos?.active()[0];comboBadge.textContent=combo?combo.name+' · '+(combo.active?'actif '+combo.remaining.toFixed(1)+' s':combo.readyIn>0?'prêt dans '+Math.ceil(combo.readyIn)+' s':'prêt'):'';const next=SurvivorEncounters.nextEncounter;bossTimer.classList.remove('hidden');bossTimer.classList.remove('urgent');
     if(next){const seconds=Math.max(0,Math.ceil(next.at-Acts.elapsed));bossTimer.textContent='Acte '+(Acts.index+1)+' · '+(next.final?'Boss final':'Boss intermédiaire')+' dans '+Math.floor(seconds/60)+':'+String(seconds%60).padStart(2,'0');}
     else bossTimer.textContent='Boss final · pression ×'+SurvivorActWaves.factors(Acts.elapsed).damage.toFixed(1);
     $('ss-run-level').textContent='Niveau '+Player.level+' · Acte '+(Acts.index+1)+' · Chaleur '+Heat.active+' · ✓ '+Acts.cleared.filter(h=>h>=0).length+'/5';$('ss-talent-count').textContent=R.talentPoints;$('hp-label').textContent=Math.ceil(Player.hp)+' / '+Player.hpMax;$('mp-label').textContent=Math.ceil(Player.mana)+' / '+Player.manaMax;$('mp-fill').style.height=(Player.mana/Player.manaMax)*100+'%';};

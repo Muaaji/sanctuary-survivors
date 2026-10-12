@@ -28,4 +28,5 @@ const before=stats('sorceress_fireball',5),after=stats('sorceress_fireball',5,tr
 close(after.dmg,before.dmg*1.5);close(after.cd,before.cd*.8);
 assert.equal(S.manaCost(after),Math.round(Math.min(22,7+after.cd*1.5)));
 assert.equal(S.manaDrain(C.spells.druid_hurricane),6);assert.equal(S.manaDrain(C.spells.paladin_holyfire),4);
+for(const id of c.SurvivorEvolutionContent.ids()){const base=stats(id,5),ult=stats(id,5,true),p=c.SurvivorEvolutionContent.describe(id);close(ult.dmg,base.dmg*p.damage);close(ult.radius,base.radius*p.area);close(ult.cd,base.cd*p.cooldown);assert.equal(ult.count,Math.min(12,base.count+p.count));const row=report.rows.find(r=>r.id===id&&r.rank==='ultime');close(row.damage,ult.dmg);assert.equal(row.ricochet,ult.ricochet);close(row.speed,ult.speed);}
 console.log('PASS stats foundations: 270 finite rows, category, speed, zone, rank, caps, mana and companions');

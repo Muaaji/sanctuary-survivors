@@ -47,3 +47,5 @@ Protocole v2 : le bot de mêlée approche à portée au lieu de fuir systématiq
 Seize morts, cinq parties encore actives. La fenêtre finit à l'apparition du boss final : aucune victoire n'est forcée. Ces résultats diagnostiquent le moteur et la politique du bot ; ils ne valident pas l'équilibrage humain.
 
 [48 profils de progression](mesures-progression.json) croisent actes I/V, chaleur 0/6/30, équipement et méta pour le paladin et la sorcière. [Quatre essais prolongés](mesures-duels.json) vont jusqu'à 480 secondes et se terminent tous par une mort. Le bot ignore une partie des annonces et n'achète rien : des parties humaines restent nécessaires pour calibrer les valeurs.
+
+Le script courant utilise le protocole v3 : il choisit aussi la première carte de Présage et d’évolution affichée. Les mesures figées ci-dessus restent celles de v2, avant les extensions, et ne sont pas réétiquetées comme résultats de v3.

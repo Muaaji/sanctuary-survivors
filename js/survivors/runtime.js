@@ -83,7 +83,8 @@ window.SurvivorRuntime = (() => {
         if(w.evolved){s.dmg*=1.35;s.radius*=1.15;s.cd*=.85;if(!['axe','sling'].includes(d.weaponKind))s.count++;if(d.weaponKind==='sling')s.ricochet+=2;}
       }
       if(w.evolved&&!common){s.dmg*=1.5;s.radius*=1.25;s.cd*=.8;if(s.allyHP)s.allyHP*=1.5;}
-      return window.SurvivorBuildCombos?SurvivorBuildCombos.apply(s):s;
+      const evolved=window.SurvivorEvolutionContent?SurvivorEvolutionContent.finalStats(w,s):s;
+      return window.SurvivorBuildCombos?SurvivorBuildCombos.apply(evolved):evolved;
     },
     context(s, extra={}) { return {id:s.id,s,secondary:false,periodic:false,ally:false,...extra}; },
     alive() { return enemies.filter(e=>!e.dead); },
@@ -326,7 +327,7 @@ window.SurvivorRuntime = (() => {
         return;
       }
       if(!target)return;
-      for(let i=0;i<s.count;i++)this.schedule(i*.18,()=>{
+      for(let i=0;i<s.count;i++)this.schedule(i*(s.strikeInterval||.18),()=>{
         const focus=this.nearest(origin.x,origin.y,s.radius+20);if(!focus)return;const aim=angleTo(origin.x,origin.y,focus.x,focus.y);
         const hits=this.alive().filter(e=>{const dx=e.x-origin.x,dy=e.y-origin.y,forward=dx*Math.cos(aim)+dy*Math.sin(aim),side=Math.abs(-dx*Math.sin(aim)+dy*Math.cos(aim));
           return kind==='spear'?forward>=-e.r&&forward<s.radius+e.r&&side<12+e.r:dist2(e.x,e.y,origin.x,origin.y)<(s.radius+e.r)**2&&(kind==='scythe'||Math.abs(angleDiff(angleTo(origin.x,origin.y,e.x,e.y),aim))<1.1);

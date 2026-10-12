@@ -805,7 +805,7 @@ window.SurvivorCatalogue = {
       "weaponRank": 5,
       "passiveRank": 1,
       "name": "Dagues jumelles",
-      "desc": "Arme renforcée : +35 % dégâts, +15 % portée, −15 % recharge ; une dague supplémentaire."
+      "desc": "Dagues précises : +2 perforations, +10 points critiques ; cadence +11 %."
     },
     "common_axes": {
       "weapon": "common_axes",
@@ -813,7 +813,7 @@ window.SurvivorCatalogue = {
       "weaponRank": 5,
       "passiveRank": 1,
       "name": "Hache du retour",
-      "desc": "Arme renforcée : +35 % dégâts, +15 % portée, −15 % recharge ; retour plus rapide et impacts renforcés."
+      "desc": "Hache traversante : +2 perforations et projectile 20 % plus rapide ; retour existant."
     },
     "common_embers": {
       "weapon": "common_embers",
@@ -821,7 +821,7 @@ window.SurvivorCatalogue = {
       "weaponRank": 5,
       "passiveRank": 1,
       "name": "Arc de guerre",
-      "desc": "Arme renforcée : +35 % dégâts, +15 % portée, −15 % recharge ; une flèche supplémentaire."
+      "desc": "Arc tendu : une flèche supplémentaire, projectiles 25 % plus rapides."
     },
     "common_blades": {
       "weapon": "common_blades",
@@ -829,7 +829,7 @@ window.SurvivorCatalogue = {
       "weaponRank": 5,
       "passiveRank": 1,
       "name": "Lame royale",
-      "desc": "Arme renforcée : +35 % dégâts, +15 % portée, −15 % recharge ; une seconde taille."
+      "desc": "Épée enchaînée : une taille supplémentaire, portée +12 %."
     },
     "common_flasks": {
       "weapon": "common_flasks",
@@ -837,7 +837,7 @@ window.SurvivorCatalogue = {
       "weaponRank": 5,
       "passiveRank": 1,
       "name": "Lance de phalange",
-      "desc": "Arme renforcée : +35 % dégâts, +15 % portée, −15 % recharge ; une seconde estocade."
+      "desc": "Lance de ligne : estocade 45 % plus longue, sans frappe supplémentaire."
     },
     "common_frost": {
       "weapon": "common_frost",
@@ -845,7 +845,7 @@ window.SurvivorCatalogue = {
       "weaponRank": 5,
       "passiveRank": 1,
       "name": "Arbalète à répétition",
-      "desc": "Arme renforcée : +35 % dégâts, +15 % portée, −15 % recharge ; un carreau supplémentaire."
+      "desc": "Arbalète traversante : +3 perforations et carreaux 15 % plus rapides."
     },
     "common_storm": {
       "weapon": "common_storm",
@@ -853,7 +853,7 @@ window.SurvivorCatalogue = {
       "weaponRank": 5,
       "passiveRank": 1,
       "name": "Grande faucheuse",
-      "desc": "Arme renforcée : +35 % dégâts, +15 % portée, −15 % recharge ; un second balayage."
+      "desc": "Faux étendue : balayage circulaire 35 % plus large, sans seconde frappe."
     },
     "common_seal": {
       "weapon": "common_seal",
@@ -861,7 +861,7 @@ window.SurvivorCatalogue = {
       "weaponRank": 5,
       "passiveRank": 1,
       "name": "Masse du siège",
-      "desc": "Arme renforcée : +35 % dégâts, +15 % portée, −15 % recharge ; une seconde frappe."
+      "desc": "Masse insistante : seconde frappe étourdissante ; intervalle entre frappes de 0,12 s."
     },
     "common_skulls": {
       "weapon": "common_skulls",
@@ -869,7 +869,7 @@ window.SurvivorCatalogue = {
       "weaponRank": 5,
       "passiveRank": 1,
       "name": "Fronde à ricochets",
-      "desc": "Arme renforcée : +35 % dégâts, +15 % portée, −15 % recharge ; deux rebonds supplémentaires."
+      "desc": "Fronde dispersée : +2 rebonds ; dégâts par impact −10 %, recharge −5 %."
     },
     "common_comets": {
       "weapon": "common_comets",
@@ -877,7 +877,7 @@ window.SurvivorCatalogue = {
       "weaponRank": 5,
       "passiveRank": 1,
       "name": "Fléau à chaînes",
-      "desc": "Arme renforcée : +35 % dégâts, +15 % portée, −15 % recharge ; une boule d’acier supplémentaire."
+      "desc": "Fléau serré : deux masses orbitales supplémentaires ; rayon −10 %, dégâts par impact −15 %."
     }
   },
   "trees": {

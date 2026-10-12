@@ -1,0 +1,20 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path'),{createHarness}=require('./helpers/game-harness.cjs');
+const h=createHarness(),s=h.sandbox;
+if(!s.SurvivorReplay)vm.runInContext(fs.readFileSync(path.join(__dirname,'../js/survivors/replay.js'),'utf8'),s);
+const replay=s.SurvivorReplay,T=s.SurvivorTelemetry;
+const daily=h.nodes.get('ss-daily-mode');assert.ok(daily);assert.equal(daily['aria-pressed'],'false');daily.onclick();assert.equal(replay.mode,'daily');assert.equal(daily['aria-pressed'],'true');daily.onclick();assert.equal(replay.mode,'normal');
+replay.setMode('daily');h.run("SurvivorActs.selected=2;Game.reset('sorceress');Game.state='playing'");
+assert.equal(s.SurvivorRunRng.snapshot().seed,replay.seedFor('sorceress',3));const seq=Array.from({length:4},()=>s.SurvivorRunRng.random('waves'));
+h.run("Game.reset('sorceress');Game.state='playing'");assert.deepEqual(Array.from({length:4},()=>s.SurvivorRunRng.random('waves')),seq);
+let savedSnapshot;const finish=replay.finish;replay.finish=function(snapshot){savedSnapshot=snapshot;return finish(snapshot);};
+h.player.hp=1;h.player.invuln=0;s.SurvivorRuntime.shieldHP=0;h.run('Math.random=()=>.99');h.game.time=42;h.player.takeDamage(9999);
+assert.equal(replay.entries().length,1);assert.equal(replay.entries()[0].result,'dead');assert.equal(savedSnapshot.incoming.attempts,1);assert.equal(savedSnapshot.incoming.health,1);assert.equal(savedSnapshot.incoming.raw,9999);h.run('deathSequence()');assert.equal(replay.entries().length,1);
+replay.setMode('normal');h.run("Game.reset('paladin');Game.state='playing'");assert.equal(s.SurvivorRunRng.snapshot().seed,null);
+s.location.search='?seed=debug-replay';h.run("Game.reset('paladin');Game.state='playing'");assert.equal(s.SurvivorRunRng.snapshot().seed,'debug-replay');h.game.time=20;h.run('winSequence()');assert.equal(replay.entries()[0].seed,'debug-replay');assert.equal(replay.entries()[0].result,'win');
+s.location.search='';const entry=replay.entries()[0];s.SurvivorActs.selected=0;
+function findButton(node){if(node.textContent==='Rejouer la seed de la dernière partie')return node;for(const child of node.children||[]){const found=findButton(child);if(found)return found;}return null;}
+s.SurvivorMenus.renderHistory();const historyButton=findButton(h.document.getElementById('title-screen').querySelector('.ss-menu-shell'));assert.ok(historyButton);historyButton.onclick();assert.equal(s.SurvivorActs.selected,entry.act-1);assert.equal(Number(h.document.getElementById('ss-act').value),entry.act-1);assert.ok(entry.act!==1);h.run('Game.reset(SurvivorActs.classId)');assert.equal(s.SurvivorRunRng.snapshot().seed,entry.seed);assert.equal(h.player.classId,entry.classId);assert.equal(s.SurvivorActs.index+1,entry.act);
+assert.ok(T.snapshot());
+h.run("Game.state='playing';SurvivorEncounters.update(360)");const boss=s.SurvivorEncounters.state.final;assert.ok(boss);boss.hp=boss.hpMax=10;s.SurvivorRuntime.damage(boss,25,{id:'fatal-boss',periodic:true});assert.equal(h.game.state,'win');assert.equal(savedSnapshot.outgoing.effective,10);assert.equal(savedSnapshot.outgoing.overkill,15);assert.equal(savedSnapshot.outgoing.bySkill['fatal-boss'],10);assert.equal(replay.entries()[0].result,'win');
+console.log('PASS replay integration: seeded daily resets, normal/debug seeds, finalized death counters, history and latest preparation');

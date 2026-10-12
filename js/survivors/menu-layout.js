@@ -3,8 +3,8 @@
 (()=>{
  if(!window.SurvivorIntegration)return;
  const $=id=>document.getElementById(id);
- const style=document.createElement('link');style.rel='stylesheet';style.href='css/menus.css?v=10';document.head.appendChild(style);
- const screens=['title-screen','class-screen','levelup-overlay','pause-overlay','settings-overlay','shop-overlay','sanctuary-overlay','kill-screen','win-screen','talents-overlay','evolution-overlay','knowledge-overlay','ss-run-setup','ss-bind-overlay','ss-stats-overlay','eq-overlay'];
+ const style=document.createElement('link');style.rel='stylesheet';style.href='css/menus.css?v=11';document.head.appendChild(style);
+ const screens=['title-screen','class-screen','levelup-overlay','pause-overlay','settings-overlay','shop-overlay','sanctuary-overlay','kill-screen','win-screen','talents-overlay','evolution-overlay','knowledge-overlay','ss-run-setup','ss-bind-overlay','ss-stats-overlay','eq-overlay','ss-omens-overlay'];
  const wrapped=['title-screen','class-screen','levelup-overlay','pause-overlay','kill-screen','win-screen','evolution-overlay'];
  for(const id of screens){const screen=$(id);if(!screen)continue;screen.classList.add('ss-menu-screen');screen.setAttribute('role','dialog');screen.setAttribute('aria-modal','true');screen.tabIndex=-1;
   if(wrapped.includes(id)){const shell=document.createElement('div');shell.className='ss-menu-shell';while(screen.firstChild)shell.appendChild(screen.firstChild);screen.appendChild(shell);}
@@ -31,5 +31,11 @@
   front=top;
  }
  const observer=new MutationObserver(()=>{if(!pending){pending=true;requestAnimationFrame(sync);}});observer.observe($('game-container'),{subtree:true,attributes:true,attributeFilter:['class']});sync();
- window.SurvivorMenus={sync};
+ // Daily seeds and compact local history use existing menu surfaces.
+ const replay=window.SurvivorReplay,historyBodies=[];
+ function renderHistory(){if(!replay)return;for(const body of historyBodies){body.textContent='';const entries=replay.entries().slice(0,5);if(!entries.length){body.textContent='Aucune partie terminée sur cet appareil.';continue;}for(const entry of entries){const line=document.createElement('p');line.textContent=replay.format(entry);body.appendChild(line);}const last=entries[0];if(last.seed){const button=document.createElement('button');button.className='btn small';button.textContent='Rejouer la seed de la dernière partie';button.onclick=()=>{const entry=replay.replayLatest();if(!entry)return;SurvivorIntegration.prepareReplay(entry);};body.appendChild(button);}const note=document.createElement('p');note.className='ss-help';note.textContent='Même seed de départ. Vos actions, équipement, progression et pactes peuvent changer le résultat. Aucun classement.';body.appendChild(note);}}
+ if(replay){const modeButton=document.createElement('button');modeButton.id='ss-daily-mode';modeButton.className='btn small';function renderMode(){modeButton.textContent=replay.mode==='daily'?'Parcours du jour · activé (UTC)':'Parcours du jour · désactivé';modeButton.setAttribute('aria-pressed',String(replay.mode==='daily'));}modeButton.onclick=()=>{replay.setMode(replay.mode==='daily'?'normal':'daily');renderMode();};renderMode();$('ss-run-setup').querySelector('.ss-setup-actions').insertBefore(modeButton,$('ss-launch'));const note=document.createElement('p');note.className='ss-help';note.textContent='Parcours du jour : seed fixe par jour UTC, héros et acte. Équipement, progression et pactes restent personnels.';$('ss-run-setup').querySelector('.ss-setup-panel').appendChild(note);
+  for(const id of ['title-screen','pause-overlay']){const details=document.createElement('details'),summary=document.createElement('summary'),body=document.createElement('div');summary.textContent='Historique local · dernières parties';details.appendChild(summary);details.appendChild(body);details.addEventListener('toggle',renderHistory);($(id).querySelector('.ss-menu-shell')||$(id)).appendChild(details);historyBodies.push(body);}renderHistory();
+ }
+ window.SurvivorMenus={sync,renderHistory};
 })();

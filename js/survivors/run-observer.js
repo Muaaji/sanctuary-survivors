@@ -3,10 +3,12 @@
 (() => {
  if(new URLSearchParams(location.search).has('legacy'))return;
  const R=SurvivorRuntime,rng=SurvivorRunRng;
- let data=null;
+ let data=null,depth=0,saved=false;
+ function finalize(){if(data?.result&&depth===0&&!saved){saved=true;T.render();window.SurvivorReplay?.finish(T.snapshot());window.SurvivorMenus?.renderHistory?.();}}
+ function boundary(fn){return function(...args){depth++;try{return fn.apply(this,args);}finally{depth--;finalize();}};}
  const fresh=()=>({outgoing:{effective:0,overkill:0,bySkill:{}},incoming:{attempts:0,raw:0,invulnerable:0,dodges:0,armor:0,shield:0,health:0},manaSpent:0,lowManaSeconds:0,xpCollected:0,goldCollected:0,healing:0,checkpoints:[],peakEnemies:0,peakHostileProjectiles:0,enemyCapSeconds:0,result:null});
  const T=window.SurvivorTelemetry={
-  reset(){data=fresh();return this.snapshot();},
+  reset(){saved=false;data=fresh();return this.snapshot();},
   snapshot(){if(!data)return null;return JSON.parse(JSON.stringify({...data,seed:rng.snapshot().seed,classId:Player.classId,act:SurvivorActs.index+1,time:Game.time,level:Player.level,heat:{...SurvivorHeat.activeRanks},casts:{...R.casts},manaWaits:R.manaWaits}));},
   render(){if(!data)return;const s=this.snapshot();for(const id of ['win-screen','kill-screen']){
    const host=document.getElementById(id);let details=document.getElementById('ss-report-'+id);
@@ -22,7 +24,7 @@
  dropLoot=scope('loot',dropLoot);collectPickup=scope('loot',collectPickup);const kill=killEnemy;killEnemy=scope('visual',function(e){const already=e.ssKilled;const result=kill(e);if(!already&&e.ssKilled)window.SurvivorBestiary?.defeated(e);return result;});
  drawUpgradeCards=scope('offers',drawUpgradeCards);buyShopItem=scope('offers',buyShopItem);
  const rewards=R.processRewards;R.processRewards=scope('offers',rewards);
- const reset=Player.reset;Player.reset=function(...args){const params=new URLSearchParams(location.search);rng.reset(params.has('seed')?params.get('seed'):null);const result=reset.apply(this,args);T.reset();return result;};
+ const reset=Player.reset;Player.reset=function(...args){const params=new URLSearchParams(location.search);const meta=window.SurvivorReplay?.start(args[0]||this.classId,SurvivorActs.selected+1,params.has('seed')?{seed:params.get('seed')}:{});rng.reset(params.has('seed')?params.get('seed'):(meta?.seed??null));const result=reset.apply(this,args);T.reset();return result;};
  const damage=R.damage;R.damage=function(e,amount,ctx={}){const hp=e?.hp,active=!!data&&Game.state==='playing'&&e&&!e.dead&&Number.isFinite(amount)&&amount>0;const result=rng.withStream('combat',()=>damage.call(this,e,amount,ctx));if(active){const actual=Math.max(0,hp-e.hp),effective=Math.min(hp,actual);data.outgoing.effective+=effective;data.outgoing.overkill+=Math.max(0,actual-hp);const id=ctx.id||'basic';data.outgoing.bySkill[id]=(data.outgoing.bySkill[id]||0)+effective;if(data.result)T.render();}return result;};
  const hurt=Player.takeDamage;Player.takeDamage=function(amount){const active=!!data&&Game.state==='playing'&&Number.isFinite(amount)&&amount>0,hp=this.hp,shield=R.shieldHP,invuln=this.invuln;const armor=active?Math.min(.6,SurvivorStats.get().armor*.02):0;const result=rng.withStream('combat',()=>hurt.call(this,amount));if(active){const a=data.incoming;a.attempts++;a.raw+=amount;if(invuln>0)a.invulnerable++;else if(this.invuln===.25&&this.hp===hp)a.dodges++;else{a.armor+=amount*armor;a.shield+=Math.max(0,shield-R.shieldHP);a.health+=Math.max(0,hp-this.hp);}if(data.result)T.render();}return result;};
  const heal=Player.heal;Player.heal=function(...args){const before=this.hp,result=heal.apply(this,args);if(data&&Game.state==='playing')data.healing+=Math.max(0,this.hp-before);return result;};
@@ -30,6 +32,8 @@
  const tick=R.tick;R.tick=function(dt){const before=Player.mana,result=tick.call(this,dt);if(data)data.manaSpent+=Math.max(0,before-Player.mana);return result;};
  const collect=collectPickup;collectPickup=function(p){const before=Player.xp,gold=Player.gold,result=collect.call(this,p);if(data){if(['small','mid','big','giant'].includes(p.type))data.xpCollected+=Math.max(0,Player.xp-before);data.goldCollected+=Math.max(0,Player.gold-gold);}return result;};
  const progress=updateProgress;updateProgress=function(dt){const active=Game.state==='playing',result=rng.withStream('waves',()=>progress(dt));if(active)for(const e of enemies)if(e.boss&&!e.dead&&!e.ssBestiarySeen&&window.SurvivorBestiary?.seen(e))e.ssBestiarySeen=true;if(active)for(const combo of window.SurvivorBuildCombos?.active()||[])window.SurvivorKnowledge?.mark('combo:'+combo.id,combo.active);if(data&&active&&Number.isFinite(dt)&&dt>0){if(Player.mana<Player.manaMax*.2)data.lowManaSeconds+=dt;const live=enemies.filter(e=>!e.dead).length,hostile=R.bullets.filter(p=>p.hostile).length;data.peakEnemies=Math.max(data.peakEnemies,live);data.peakHostileProjectiles=Math.max(data.peakHostileProjectiles,hostile);if(live>=180)data.enemyCapSeconds+=dt;for(const at of [120,240,360])if(Game.time>=at&&!data.checkpoints.some(c=>c.at===at))data.checkpoints.push({at,time:Game.time,level:Player.level,hp:Player.hp,mana:Player.mana,kills:Player.kills,outgoing:data.outgoing.effective});}return result;};
- const win=winSequence;winSequence=function(...args){const result=win.apply(this,args);if(data){data.result='win';T.render();}return result;};
- const death=deathSequence;deathSequence=function(...args){const result=death.apply(this,args);if(data){data.result='dead';T.render();}return result;};
+ const win=winSequence;winSequence=function(...args){const result=win.apply(this,args);if(data){data.result='win';finalize();}return result;};
+ const death=deathSequence;deathSequence=function(...args){const result=death.apply(this,args);if(data){data.result='dead';finalize();}return result;};
+ // Final blows can trigger end screens inside damage; save after their counters settle.
+ R.damage=boundary(R.damage);Player.takeDamage=boundary(Player.takeDamage);updateProgress=boundary(updateProgress);
 })();

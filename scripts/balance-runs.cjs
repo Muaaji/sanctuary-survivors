@@ -28,6 +28,8 @@ function simulate(cls,seed,config={act:Number(arg('act')||1),heat:Number(arg('he
  function settle(){for(let guard=0;guard<100;guard++){
   if(g.state==='binding'){const code=Array.from({length:9},(_,i)=>'Digit'+(i+1)).find(c=>!p.skills.some(w=>w.binding===c));r.assignKey(code);actions++;}
   else if(g.state==='levelup'){const card=h.document.getElementById('levelup-cards').children.find(x=>typeof x.onclick==='function');if(!card)throw Error('No reward card');card.onclick();actions++;}
+  else if(g.state==='omens'){const card=h.document.getElementById('ss-omens-cards').children.find(x=>typeof x.onclick==='function');if(!card)throw Error('No omen card');card.onclick();actions++;}
+  else if(g.state==='evolution'){const card=h.document.getElementById('ss-evolution-cards').children.find(x=>typeof x.onclick==='function');if(!card)throw Error('No evolution card');card.onclick();actions++;}
   else if(g.state==='talents'){const tree=s.SurvivorCatalogue.trees[cls],starter=p.skills[0].id;const branches=[...tree].sort((a,b)=>Number(b.skills.includes(starter))-Number(a.skills.includes(starter)));for(const branch of branches)for(let i=0;i<branch.nodes.length;i++)if(r.canBuyTalent(branch,i)){r.buyTalent(branch,i);actions++;}h.document.getElementById('ss-talents-close').onclick();}
   else return;
  }throw Error('Reward loop exceeds bound');}
@@ -88,4 +90,4 @@ else{const started=performance.now(),runs=[];for(const seed of seeds)for(const c
  if(screen)for(const act of [1,5])for(const heat of [0,6,30])for(const gear of ['naked','high-offense'])for(const meta of ['none','max'])runs.push(simulate(cls,seed,{act,heat,gear,meta}));
  else runs.push(simulate(cls,seed));
  }
- console.log(JSON.stringify({protocol:'diagnostic-bot-v2-melee-approach',codeVersion,inputInterval:.2,rewardPolicy:'first displayed card',talentPolicy:'starter branch first then catalogue order',equipment:screen?'per-run configuration':arg('gear')||'none equipped, pickups allowed',meta:screen?'per-run configuration':arg('meta')||'fresh in-memory storage',elapsedWallSeconds:+((performance.now()-started)/1000).toFixed(3),runs},null,2));}
+ console.log(JSON.stringify({protocol:'diagnostic-bot-v3-omens',codeVersion,inputInterval:.2,rewardPolicy:'first displayed upgrade, omen or evolution card',talentPolicy:'starter branch first then catalogue order',equipment:screen?'per-run configuration':arg('gear')||'none equipped, pickups allowed',meta:screen?'per-run configuration':arg('meta')||'fresh in-memory storage',elapsedWallSeconds:+((performance.now()-started)/1000).toFixed(3),runs},null,2));}

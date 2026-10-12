@@ -104,3 +104,13 @@ Le cadre de vie et mana utilise l’image fournie, conservée dans `assets/ui/hu
 La case **Visée automatique**, disponible à la préparation et dans le HUD, choisit les cibles proches à la place du curseur. Décochée, les sorts ciblables suivent la souris. Ce choix est conservé entre les parties ; le lancement reste manuel avec le raccourci choisi.
 
 La révision Diablo II ajoute des synergies de classe, des recettes d’armes logiques, des effets animés et cinq rencontres de boss distinctes. La vie de base est réduite de 40 % et les soins sont raréfiés. Détails : `docs/revision-d2-bosses.md`.
+
+## Combos et suivi des parties
+
+Chaque classe possède un combo facultatif : deux compétences au rang 3 peuvent ouvrir une fenêtre de deux secondes, avec six secondes de recharge partagée. La bibliothèque distingue monstres rencontrés et vaincus, champions et boss, ainsi que combos découverts et déclenchés. Les cartes affichent les changements réels de statistiques avant/après.
+
+Les ennemis ont des rôles et des attaques annoncées ; les vagues privilégient les familles de chaque acte. Le bilan après une partie détaille dégâts utiles, sur-dégâts, protection, mana, XP et or. Les mesures et limites de validation sont décrites dans [docs/roadmap-status.md](docs/roadmap-status.md).
+
+Les dix armes communes gagnent désormais des évolutions distinctes : perforation, rebonds, couverture, salves ou orbites. Chaque champion de deux et quatre minutes propose trois **Présages**, avec avantage et contrepartie ; deux maximum par partie. Le choix peut être reporté et repris depuis le HUD.
+
+Sur la préparation, **Parcours du jour** fixe une seed par jour UTC, héros et acte. L'historique local garde dix parties et affiche les cinq dernières ; une dernière partie avec seed peut être reprise. Les actions, équipements, pactes et progression restent personnels et changent le résultat.

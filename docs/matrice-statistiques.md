@@ -1,6 +1,6 @@
 # Matrice réelle des statistiques — fondations de l’équilibrage
 
-État du moteur au 12 octobre 2026. Aucune valeur de combat n’est modifiée par ce livrable. Les nombres sont calculés avec les scripts actifs ; les observations ci-dessous distinguent valeurs de formule et rendement réel en combat.
+État du moteur au 12 octobre 2026. Cette matrice reflète les profils d’évolution spécifiques intégrés au moteur. Les nombres sont calculés avec les scripts actifs ; les observations ci-dessous distinguent valeurs de formule et rendement réel en combat.
 
 Reproduction : `node scripts/report-stats.cjs > docs/matrice-capacites.md`, puis `node tests/stats-foundations.test.cjs`. `--json` exporte également les sept profils complets. La [table des 270 états](matrice-capacites.md) couvre les 45 capacités aux rangs 1–5 et à l’ultime. Baseline : classe native, armes communes sur Sorcière, sans équipement, méta, passifs, synergies ni talents. L’ultime est isolé du bonus de son prérequis afin de montrer son effet marginal ; cette ligne n’est pas un build acquérable sans prérequis.
 
@@ -40,7 +40,7 @@ Le rang visible `r` est converti en rang interne `L = 1 + (r − 1) × 7/4`, pla
 | 4 | 45 % | 35 % | 10 points | 10 points |
 | 5 | 60 % | 60 % | 10 points | 10 points |
 
-Au rang 5, le bonus de portée propre vaut 20 % si arme commune ou capacité sans durée ; les compétences de classe avec durée gagnent 20 % de durée. L’ultime classe multiplie les dégâts par 1,50, le rayon par 1,25, le délai par 0,80 et les PV alliés par 1,50. L’ultime arme commune de mode `weapon` applique ×1,35 dégâts, ×1,15 rayon, ×0,85 délai et un changement de quantité/ricochet selon l’arme. Les autres modes communs, s’ils étaient réintroduits, n’ont pas ce multiplicateur générique dans `R.stats`.
+Au rang 5, le bonus de portée propre vaut 20 % si arme commune ou capacité sans durée ; les compétences de classe avec durée gagnent 20 % de durée. L’ultime classe multiplie les dégâts par 1,50, le rayon par 1,25, le délai par 0,80 et les PV alliés par 1,50. L’ultime arme commune de mode `weapon` passe par `SurvivorEvolutionContent.finalStats` après le bloc historique de `R.stats` : ce module neutralise ×1,35 dégâts, ×1,15 rayon, ×0,85 délai et le bonus de quantité/ricochet, puis applique les dix profils spécifiques. Les [budgets d’évolution](adaptations-evolutions.md) détaillent portée, perforations, ricochets, vitesse et quantité. Le rapport charge ce module et inclut les rebonds, la vitesse de projectile de référence et l’intervalle entre frappes (0,12 s pour la masse ultime, 0,18 s par défaut). La vitesse effective des projectiles reste ajustée par leur famille dans `castWeapon` ; l’intervalle de frappe ne concerne que les attaques de mêlée répétées, pas les orbites ni les tirs. Les autres modes communs, s’ils étaient réintroduits, n’ont pas ce multiplicateur générique dans `R.stats`.
 
 ## Mana et compagnons : effets réellement exécutés
 

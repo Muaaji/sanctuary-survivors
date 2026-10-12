@@ -21,7 +21,7 @@ const storage=new Map(),events=new Map();
 const sandbox={console,document,Image:ImageMock,URLSearchParams,location:{search:'',reload(){}},innerWidth:1280,innerHeight:720,performance:{now:()=>0},requestAnimationFrame(){},addEventListener(type,handler){if(!events.has(type))events.set(type,[]);events.get(type).push(handler);},setTimeout(){},navigator:{},localStorage:{getItem(key){return storage.get(key)||null;},setItem(key,value){storage.set(key,value);}},fetch:()=>Promise.resolve({ok:true,json:()=>Promise.resolve({maps:[]})})};
 sandbox.window=sandbox;vm.createContext(sandbox);
 for(const f of ['survivors/run-economy','survivors/run-rng','helpers','systems','art','assets','data','entities','levels','main'])vm.runInContext(fs.readFileSync(path.join(root,'js',f+'.js'),'utf8'),sandbox,{filename:f+'.js'});
-for(const f of ['catalog','bosses','runtime','equipment','stats','weapon-art','spell-art','act-waves','encounters','ultimate-offers','build-combos','wave-director','enemy-roles','bestiary','upgrade-preview','integration','equipment-ui','run-observer','hud-controls'])vm.runInContext(fs.readFileSync(path.join(root,'js/survivors',f+'.js'),'utf8'),sandbox,{filename:f+'.js'});
+for(const f of ['catalog','bosses','runtime','equipment','stats','weapon-art','spell-art','act-waves','encounters','ultimate-offers','build-combos','wave-director','enemy-roles','bestiary','upgrade-preview','run-omens','integration','equipment-ui','run-observer','hud-controls'])vm.runInContext(fs.readFileSync(path.join(root,'js/survivors',f+'.js'),'utf8'),sandbox,{filename:f+'.js'});
 const run=src=>vm.runInContext(src,sandbox);
 const C=sandbox.SurvivorCatalogue,R=sandbox.SurvivorRuntime;
 const player=run('Player'),game=run('Game'),enemies=run('enemies');
@@ -345,7 +345,7 @@ test('encounters appear once at two, four and six minutes while waves continue',
  const acts=sandbox.SurvivorActs;acts.selected=0;reset();run('updateProgress(119.9)');assert.equal(enemies.filter(e=>e.boss).length,0);run('updateProgress(.1)');assert.equal(enemies.filter(e=>e.boss).length,1);run('updateProgress(120)');assert.equal(enemies.filter(e=>e.boss).length,2);run('updateProgress(120)');assert.equal(enemies.filter(e=>e.boss).length,3);assert.equal(acts.boss.id,'butcher');assert.equal(acts.remaining(),null);const count=enemies.length;run('Wave.update(1)');assert.ok(enemies.length>count);run('updateProgress(0)');assert.equal(enemies.filter(e=>e.boss).length,3);run('updateHUD()');assert.ok(document.getElementById('ss-boss-timer').textContent.includes('pression'));reset();
 });
 test('mini boss death never advances an act and final death wins immediately',()=>{
- const acts=sandbox.SurvivorActs;acts.selected=0;reset();run('updateProgress(120)');R.damage(acts.boss,1e9);assert.equal(game.state,'playing');assert.equal(acts.index,0);run('updateProgress(240)');const final=sandbox.SurvivorEncounters.state.final;assert.ok(enemies.some(e=>e.boss&&!e.dead&&e!==final));R.damage(final,1e9);assert.equal(game.state,'win');assert.equal(acts.index,0);assert.equal(acts.phase,'finished');reset();
+ const acts=sandbox.SurvivorActs;acts.selected=0;reset();run('updateProgress(120)');R.damage(acts.boss,1e9);assert.equal(game.state,'omens');document.getElementById('ss-omens-defer').onclick();assert.equal(game.state,'playing');assert.equal(acts.index,0);run('updateProgress(240)');const final=sandbox.SurvivorEncounters.state.final;assert.ok(enemies.some(e=>e.boss&&!e.dead&&e!==final));R.damage(final,1e9);assert.equal(game.state,'win');assert.equal(acts.index,0);assert.equal(acts.phase,'finished');reset();
 });
 test('intermediates use distinct monster champions, ordinary AI and one heat/time scale',()=>{
  const acts=sandbox.SurvivorActs,heat=sandbox.SurvivorHeat,B=sandbox.SurvivorBosses;const tick=B.tick;let bossTicks=0;B.tick=()=>bossTicks++;
@@ -354,7 +354,7 @@ test('intermediates use distinct monster champions, ordinary AI and one heat/tim
   assert.equal(champs.length,2);assert.notEqual(champs[0].ssChampionSprite,champs[1].ssChampionSprite);
   for(const [i,e] of champs.entries()){assert.ok(e.ssChampion&&e.boss&&!e.elite);assert.ok(e.spriteSize>32);assert.ok(e.r>run('ENEMY_BASE')[e.type].r);assert.ok(e.ssActScale.damage>=run('ENEMY_BASE')[e.type].dmg*heat.factors().damage*1.6-1e-8);assert.ok(Math.abs(e.hpMax-(i?1000:500)*heat.factors().hp*sandbox.SurvivorActWaves.factors((i+1)*120).hp)<1e-8);}
   const old={x:champs[0].x,y:champs[0].y};R.now+=.1;R.updateEnemies(.1);assert.ok(champs[0].x!==old.x||champs[0].y!==old.y);assert.equal(bossTicks,0);assert.ok(!champs.some(e=>e.lastMechanic));
-  R.damage(champs[0],1e9);assert.equal(run('pickups.filter(p=>p.type==="chest").length'),1);assert.equal(game.state,'playing');
+  R.damage(champs[0],1e9);assert.equal(run('pickups.filter(p=>p.type==="chest").length'),1);assert.equal(game.state,'omens');document.getElementById('ss-omens-defer').onclick();assert.equal(game.state,'playing');
  }
   acts.selected=0;reset();player.x=player.y=32;run('updateProgress(240)');for(const c of sandbox.SurvivorEncounters.state.encounters.slice(0,2))assert.ok(Math.hypot(c.entity.x-player.x,c.entity.y-player.y)>=300);
  } finally {B.tick=tick;acts.selected=0;heat.set(0);reset();}

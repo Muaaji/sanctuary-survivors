@@ -442,7 +442,7 @@ Les objectifs 40–70 % de victoire et <90 s de boss du plan restent des proposi
 | 5 — Progression et chaleur | Équipement, méta, revenus et vecteurs de pactes évalués sur la base stabilisée | Jeu de base viable ; progression utile et difficulté maximale cohérente |
 | 6 — Extensions | Bestiaire, affixes, événements, fusions ou modificateurs majeurs choisis un par un | Chaque ajout apporte une décision nouvelle plutôt qu’une seconde version d’un système existant |
 
-**Première tâche à lancer après validation du plan :** implémenter le contrat utilisateur désormais fixé, puis produire la table d’application des stats et les mesures de six minutes depuis ce moteur. Ce document n’applique aucun des lots. Aucun asset Vampire Survivors n’a été importé lors de cette revue.
+**Suivi d’implémentation :** le contrat utilisateur et les fondations sont désormais livrés. Voir [roadmap-status.md](roadmap-status.md) et les mesures brutes. Les conditions de calibration humaine restent ouvertes ; ce plan décrit la cible et ne prouve pas à lui seul son atteinte. Aucun asset Vampire Survivors n’a été importé.
 
 ### Références supplémentaires examinées
 

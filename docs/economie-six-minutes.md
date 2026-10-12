@@ -16,7 +16,7 @@ node scripts/balance-runs.cjs --seeds=baseline-1,baseline-2,baseline-3 --seconds
 node scripts/balance-runs.cjs --equipment-profiles
 ```
 
-Acte I, aucun équipement équipé, méta vierge, chaleur 0, trois seeds identiques au premier rapport, `dt=.05`, entrées toutes les .2 s, première carte affichée, talents du starter en priorité. Pas de boutique ni mort retardée. Les niveaux des checkpoints ne concernent que les runs les atteignant.
+**Relevé intermédiaire historique, avant finalisation des rôles ennemis :** acte I, aucun équipement équipé, méta vierge, chaleur 0, trois seeds identiques au premier rapport, `dt=.05`, entrées toutes les .2 s, première carte affichée, talents du starter en priorité. Pas de boutique ni mort retardée. Les niveaux des checkpoints ne concernent que les runs les atteignant.
 
 | Classe | Niveaux à 120 s | Niveaux à 240 s | Niveaux à 360 s | Or final par seed |
 |---|---|---|---|---|
@@ -29,6 +29,8 @@ Acte I, aucun équipement équipé, méta vierge, chaleur 0, trois seeds identiq
 | assassin | 8 / 8 / 8 | — / — / — | — / — / — | 572 / 796 / 576 |
 
 Les premières mesures du paladin donnaient deux survivants à 120 s au niveau 3 ; le nouveau placement donne trois survivants aux niveaux 8/7/7 sans changer un seul montant d’XP. Le barbare donne 8/8/8 et l’assassin 8/8/8 à 120 s. Cela identifie un biais du bot et interdit d’interpréter directement le premier écart paladin/amazone comme un manque de progression. Cela ne valide pas leur survie au boss : 17/21 runs meurent avant la limite, quatre restent en combat à 360 s, aucune victoire.
+
+Les chiffres ci-dessus documentent le biais de placement à une étape du développement. Pour les mesures finales figées et leurs empreintes de sources, utiliser [mesures-equilibrage.md](mesures-equilibrage.md) et les JSON associés.
 
 ## Or et stock
 
