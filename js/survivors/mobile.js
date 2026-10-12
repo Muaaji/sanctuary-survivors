@@ -5,16 +5,12 @@
   const $=id=>document.getElementById(id),R=SurvivorRuntime;
   const mobile=window.SurvivorMobile={enabled:false};
   const style=document.createElement('link');style.rel='stylesheet';style.href='css/mobile.css';document.head.appendChild(style);
-  const offer=document.createElement('div');offer.id='ss-mobile-offer';offer.className='overlay hidden';
-  offer.innerHTML='<div class="ss-mobile-panel"><h2>Jouer sur téléphone</h2><p>En paysage : joystick à gauche, sorts à droite et visée automatique. Les armes continuent d’attaquer seules.</p><button class="btn" id="ss-mobile-accept">Activer le mode tactile</button><button class="btn small" id="ss-mobile-dismiss">Garder les commandes clavier</button></div>';
-  $('game-container').appendChild(offer);
-  const rotate=document.createElement('div');rotate.id='ss-mobile-rotate';rotate.className='overlay hidden';
-  rotate.innerHTML='<div class="ss-mobile-panel"><h2>Tourne ton téléphone</h2><p>Le mode tactile se joue en paysage.</p></div>';$('game-container').appendChild(rotate);
+  const rotate=document.createElement('p');rotate.id='ss-mobile-rotate';rotate.className='hidden';rotate.textContent='Tourne ton téléphone en paysage pour reprendre le combat.';$('pause-overlay').appendChild(rotate);
   const controls=document.createElement('div');controls.id='ss-touch-controls';controls.className='hidden';
   controls.innerHTML='<div id="ss-joystick" role="group" aria-label="Joystick de déplacement"><span id="ss-joystick-knob"></span></div><div id="ss-touch-spells" aria-label="Sorts tactiles"></div><button type="button" id="ss-touch-shop" class="btn small hidden">Commerçant</button>';
   $('game-container').appendChild(controls);
   const pad=$('ss-joystick'),knob=$('ss-joystick-knob');
-  let pointer=null,offered=false,lastState=Game.state,portrait=false;
+  let pointer=null,lastState=Game.state,portrait=false;
   function resetMovement(){
     const captured=pointer;pointer=null;
     if(captured!==null&&pad.hasPointerCapture(captured))pad.releasePointerCapture(captured);
@@ -55,32 +51,32 @@
   function orientation(){
     if(!mobile.enabled)return;
     portrait=innerHeight>innerWidth;
-    rotate.classList.toggle('hidden',!portrait);
+    rotate.classList.toggle('hidden',!portrait||Game.state!=='paused');
+    $('resume-btn').disabled=portrait;
     resetMovement();
     if(portrait&&Game.state==='playing')pauseGame();
     resizeCanvas();sync();
   }
   function enable(){
-    mobile.enabled=true;offer.classList.add('hidden');document.body.classList.add('ss-mobile');
+    if(mobile.enabled)return;
+    mobile.enabled=true;document.body.classList.add('ss-mobile');
     enforceAutoAim();
-    const hint=$('title-screen').querySelector('.controls-hint'),start=$('ss-start');
-    hint.textContent='Déplace-toi avec le joystick. Touche un sort pour le lancer : la visée est automatique. ';hint.appendChild(document.createElement('br'));hint.appendChild(start);
+    const hint=$('title-screen').querySelector('.controls-hint');
+    for(const node of [...hint.childNodes])if(node.nodeType!==1||!node.matches('#ss-start,.ss-title-actions'))node.remove();
+    const help=document.createElement('span');help.textContent='Déplace-toi avec le joystick. Touche un sort pour le lancer : la visée est automatique.';hint.prepend(help);
     const binding=$('ss-bind-overlay');binding.querySelector('p').textContent='Tes sorts se lancent avec les boutons à droite.';
     binding.querySelector('small').textContent='La visée est automatique en mode tactile.';
     if(Game.state==='binding')$('ss-bind-default').click();
     orientation();
   }
-  $('ss-mobile-accept').onclick=enable;
-  $('ss-mobile-dismiss').onclick=()=>offer.classList.add('hidden');
   const touchDevice=()=>matchMedia('(pointer: coarse)').matches||navigator.maxTouchPoints>0&&Math.min(innerWidth,innerHeight)<=600;
-  function propose(){if(offered||!touchDevice())return;offered=true;offer.classList.remove('hidden');}
-  // The entry remains available after declining, and on hybrid devices.
-  const entry=document.createElement('button');entry.type='button';entry.className='btn small';entry.textContent='Mode tactile';
-  entry.onclick=()=>{offered=true;offer.classList.remove('hidden');};$('title-screen').appendChild(entry);
-  addEventListener('resize',()=>{orientation();if(!mobile.enabled&&Game.state==='title')propose();});
-  document.addEventListener('pointerdown',e=>{if(e.pointerType==='touch'&&Game.state==='title'&&!offered){offered=true;offer.classList.remove('hidden');}},{passive:true});
+  addEventListener('resize',()=>{if(!mobile.enabled&&touchDevice())enable();else orientation();});
+  document.addEventListener('pointerdown',e=>{if(!mobile.enabled&&e.pointerType==='touch')enable();},{passive:true});
   function sync(){
     if(!mobile.enabled)return;
+    if(portrait&&Game.state==='playing'){pauseGame();resetMovement();}
+    rotate.classList.toggle('hidden',!portrait||Game.state!=='paused');
+    $('resume-btn').disabled=portrait;
     const playing=Game.state==='playing'&&!portrait;
     if(Game.state!==lastState){resetMovement();lastState=Game.state;}
     controls.classList.toggle('hidden',!playing);
@@ -107,5 +103,5 @@
   // Menus can stop the loop's HUD refresh: clear held movement immediately.
   const observer=new MutationObserver(()=>{if(mobile.enabled&&Game.state!==lastState)sync();});
   observer.observe($('game-container'),{subtree:true,attributes:true,attributeFilter:['class']});
-  propose();
+  if(touchDevice())enable();
 })();

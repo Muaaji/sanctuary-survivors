@@ -55,7 +55,7 @@ Les cartes et les sprites externes se trouvent dans `assets/`. Les effets des so
 
 ## Téléphone en paysage
 
-À l’ouverture sur un appareil tactile, le jeu propose d’activer le mode tactile. Le bouton « Mode tactile » sur l’écran titre permet aussi de l’activer après avoir refusé la proposition. Ce choix vaut pour la page ouverte et ne modifie pas la préférence de visée enregistrée sur ordinateur.
+Le mode tactile s’active automatiquement sur les appareils détectés comme tactiles, ou au premier contact tactile. Aucun bouton d’activation n’est affiché. Les menus restent accessibles en portrait ; le combat demande le paysage. Ce mode ne modifie pas la préférence de visée enregistrée sur ordinateur.
 
 Le joystick à gauche gère les déplacements ; les boutons à droite lancent les sorts actifs ou activent les auras. Les sorts passifs restent automatiques. La visée est toujours automatique dans ce mode, et les nouveaux sorts reçoivent un raccourci sans demander de clavier. Un bouton permet de parler au commerçant lorsqu’il est à portée. Les menus en haut donnent accès aux talents, aux statistiques, à l’inventaire et à la pause.
 

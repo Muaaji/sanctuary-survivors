@@ -1,0 +1,166 @@
+/* Final menu layer: consistent surfaces, spacing, readable controls and scrolling. */
+:root{--menu-border:#756044;--menu-text:#e0d2b9;--menu-muted:#b2a38e;--menu-gap:20px}
+#game-container>.ss-menu-screen{padding:24px;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;overflow:auto;overscroll-behavior:contain;background:rgba(8,7,7,.94);color:var(--menu-text);scrollbar-gutter:stable;isolation:isolate}
+#game-container>.ss-menu-screen>*{flex-shrink:0;min-width:0}
+.ss-menu-shell,.ss-commerce-panel,.settings-panel,.ss-setup-panel,.ss-talent-panel,.ss-library-panel,.ss-stats-panel,.ss-binding-panel,.eq-panel{width:min(1060px,100%);margin:auto;max-width:100%;padding:28px;border:1px solid var(--menu-border);background:linear-gradient(145deg,#29221beF,#141211f5);box-shadow:0 20px 70px #0009;color:var(--menu-text);border-radius:8px;min-width:0}
+.ss-menu-screen :is(h1,h2,h3){line-height:1.25;overflow-wrap:anywhere}
+.ss-menu-screen :is(p,small,.si-desc){line-height:1.55}
+.ss-menu-screen h2{font-family:'Cinzel',serif;color:#e2c181;font-size:clamp(23px,3vw,32px)!important;margin:0 0 12px;letter-spacing:.5px}
+.ss-menu-screen :is(button,input,select){font:inherit;max-width:100%}
+.ss-menu-screen .btn{min-height:44px;padding:12px 18px;font:600 13px/1.4 'Cinzel',serif;letter-spacing:.6px;border-width:1px;border-radius:4px;white-space:normal;overflow-wrap:anywhere;transition:background .15s,border-color .15s}
+.ss-menu-screen .btn:active{transform:none}
+.ss-menu-screen :is(button,input,select):focus-visible{outline:2px solid #efd292;outline-offset:3px}
+.ss-menu-screen [data-primary]{background:linear-gradient(#67472a,#3c291b);border-color:#d5ad6c;color:#ffebc4}
+.ss-menu-screen .ss-menu-intro{margin:0 0 24px;color:var(--menu-muted);font:14px/1.5 system-ui,sans-serif}
+.ss-menu-actions,.ss-setup-actions{display:flex;flex-wrap:wrap;justify-content:center;align-items:stretch;gap:12px;margin:24px 0 0}
+.ss-menu-actions>.btn,.ss-setup-actions>.btn{flex:1 1 190px}
+#title-screen{background:linear-gradient(#090807a0,#090807e8)}
+#title-screen .ss-menu-shell{width:min(760px,100%);padding:42px 48px;text-align:center;border-top:2px solid #a78a54}
+#title-screen .title{font-size:clamp(30px,5vw,48px);letter-spacing:1px;line-height:1.2;margin:0;color:#c36c52}
+#title-screen .subtitle{font-size:12px;letter-spacing:2px;line-height:1.8;margin:14px 0 0}
+#title-screen .press-start{animation:none;margin:20px 0!important;font:15px/1.5 system-ui;color:#d2c2a9}
+#ss-start{width:100%;margin:0!important;min-height:54px;font-size:17px;padding:14px 20px}
+.ss-title-primary{margin:26px 0 16px}
+#title-screen .ss-title-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:0}
+#title-screen .ss-title-actions .btn{width:100%;min-height:48px}
+#title-screen .ss-help{border-top:1px solid #5c4b35;margin:24px 0 0;padding-top:18px;font:12px/1.8 system-ui;color:var(--menu-muted)}
+#class-screen .ss-menu-shell{width:min(1160px,100%)}
+#class-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin:0 0 24px;max-width:none}
+#class-cards .class-card{width:100%;min-height:260px;padding:22px 16px;display:flex;flex-direction:column;align-items:center;gap:12px;border:1px solid #756044;border-radius:6px;color:var(--menu-text);font:14px/1.5 system-ui;background:linear-gradient(#30271e,#1b1714);transition:border-color .15s,background .15s}
+#class-cards .class-card:hover{transform:none;background:linear-gradient(#3d3021,#241b15);box-shadow:0 0 0 1px #bda16e}
+#class-cards .class-card img{width:64px;height:64px;object-fit:contain;margin:0}
+#class-cards .class-card h3{font:600 18px/1.3 'Cinzel',serif;margin:0}
+#class-cards .class-card p{font-size:13px;color:#c1b19b;flex:1;margin:0}
+#class-cards .class-card small{font-size:11px;margin:0;color:#9f907d}
+#class-back{display:block;min-width:180px;margin:auto}
+#ss-run-setup .ss-setup-panel{width:min(1040px,100%)}
+.ss-step{font:11px/1.4 'Cinzel',serif;letter-spacing:2px;margin:0 0 16px;color:#a9936f}
+.ss-setup-hero{margin:0 0 20px;padding:0 0 20px;gap:20px}
+#ss-setup-portrait{flex:none;object-fit:contain;width:72px;height:72px}
+.ss-setup-hero>div{min-width:0}
+.ss-gate-layout{grid-template-columns:minmax(230px,.9fr) minmax(0,1.1fr);gap:28px;align-items:start}
+.ss-single-gate .ss-gargoyle{width:min(270px,100%)}
+.ss-individual-pacts #ss-contracts{gap:10px}
+.ss-individual-pacts .ss-contract{display:grid;grid-template-columns:minmax(0,1fr) 100px 32px;gap:10px;padding:12px;border:1px solid #544635;border-radius:4px;margin:0;font:13px/1.4 system-ui}
+.ss-contract span,.ss-contract input{min-width:0;width:100%}
+.ss-contract small{font-size:11px;margin:4px 0 0}
+.ss-contract output{text-align:right;font:12px/1.4 system-ui;color:#dbc58b}
+.ss-act-navigation{grid-template-columns:44px minmax(0,1fr) 44px;gap:8px}
+.ss-act-navigation h3{font-size:17px}
+.ss-heat-total{font:13px/1.5 system-ui;min-height:44px}
+#ss-act-progress{font:12px/1.5 system-ui;padding:12px!important;margin:0 0 20px!important;background:#121110;border:1px solid #4e4433;border-radius:4px}
+#ss-act-progress>div{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin:10px 0 0}
+#ss-act-progress .ss-act-badge{margin:0}
+#ss-setup-options>.ss-aim-control{display:flex;justify-content:center;align-items:center;gap:10px;font:13px/1.5 system-ui;margin-top:20px}
+.ss-commerce-panel{width:min(880px,100%);max-height:calc(100dvh - 48px);display:flex;flex-direction:column;overflow:hidden;text-align:left;padding:24px;gap:12px}
+.ss-commerce-panel h2{margin:0;text-align:left}
+.ss-commerce-panel .shop-sub{font:13px/1.5 system-ui;margin:0;color:var(--menu-muted)}
+.ss-commerce-panel .shop-money{justify-content:flex-start;gap:12px;margin:0;padding:10px 0;font-size:16px;border-bottom:1px solid #57472f;flex-shrink:0}
+.ss-commerce-panel .eq-shop-link{margin:0;flex-shrink:0}
+.ss-commerce-panel .shop-items{flex:1 1 auto;min-height:80px;max-height:none;overflow-y:auto;overflow-x:hidden;margin:0;padding:3px 6px 3px 0;gap:10px;scrollbar-gutter:stable}
+.ss-commerce-panel .shop-item{display:grid;grid-template-columns:40px minmax(0,1fr) 75px 132px;gap:12px;align-items:center;padding:14px;border-radius:4px;flex-shrink:0;min-width:0}
+.shop-item>:nth-child(2){min-width:0;overflow-wrap:anywhere}
+.ss-commerce-panel .shop-item img{width:32px;height:32px}
+.ss-commerce-panel .shop-item .si-name{font:600 14px/1.4 'Cinzel',serif}
+.ss-commerce-panel .shop-item .si-desc{font:12px/1.5 system-ui;color:#b5a58e;margin-top:5px}
+.ss-commerce-panel .shop-item :is(.si-cost,span){margin:0;justify-content:flex-end;text-align:right;white-space:nowrap;font:600 13px/1.4 system-ui;color:#e1c181}
+.ss-commerce-panel .shop-item .btn{width:100%;min-height:44px;font-size:11px;letter-spacing:0;padding:9px 8px}
+.ss-commerce-panel>.btn{align-self:flex-end;flex-shrink:0;min-width:220px;margin:0}
+.ss-commerce-panel #sanct-spells{font:12px/1.5 system-ui;flex-shrink:0}
+#levelup-overlay .ss-menu-shell,#evolution-overlay .ss-menu-shell{width:min(960px,100%)}
+#levelup-cards,#ss-evolution-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin:24px 0;align-items:stretch}
+.ss-menu-screen .ss-card{width:100%;min-height:300px;padding:24px 18px;gap:12px;border-radius:6px;font:14px/1.5 system-ui}
+.ss-menu-screen .ss-card:hover{transform:none}
+.ss-menu-screen .ss-card :is(h3,p,img,small){margin:0}
+.ss-menu-screen .ss-card h3{font:600 18px/1.35 'Cinzel',serif}
+.ss-menu-screen .ss-card p{font-size:13px}
+.ss-menu-screen .ss-card small{font-size:12px;line-height:1.5}
+.ss-menu-screen .ss-card .lvl-ind{margin-top:auto;padding:10px 0 0;line-height:1.5;font-size:10px}
+#pause-overlay .ss-menu-shell{width:min(560px,100%)}
+#pause-overlay .ss-menu-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+#pause-overlay #resume-btn{grid-column:1/-1}
+#kill-screen .ss-menu-shell,#win-screen .ss-menu-shell{width:min(780px,100%)}
+.ss-menu-screen .stats-table{width:100%;max-width:520px;margin:24px auto;font:14px/1.5 system-ui}
+.settings-panel{width:min(540px,100%);min-width:0;padding:28px}
+.settings-panel .set-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;margin:20px 0;align-items:center}
+.settings-panel .set-row label{width:auto;font:13px/1.5 system-ui}
+.settings-panel .set-row input{width:100%}
+.settings-panel .set-row input[type=checkbox]{width:22px;height:22px;justify-self:end}
+.ss-talent-panel{width:min(1140px,100%)}
+#ss-talent-tree{gap:18px;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:24px}
+.ss-talent-branch{min-width:0}.ss-talent-branch h3{margin-bottom:10px}
+.ss-menu-screen .ss-talent{font:13px/1.5 system-ui;padding:14px}
+.ss-menu-screen .ss-talent b{font-size:14px}.ss-menu-screen .ss-talent span{font-size:12px}
+.ss-binding-panel{width:min(540px,100%)}
+.ss-library-panel{width:min(1140px,100%)}
+#ss-library-close{position:static;margin:24px auto 0}
+.ss-library-grid{grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px}
+.ss-library-entry{font:13px/1.5 system-ui;padding:18px}
+.eq-panel{width:min(1180px,100%);max-height:none;overflow:visible}
+.eq-header{align-items:flex-start;flex-wrap:wrap;gap:16px}.eq-header h2{margin:8px 0 0}
+.eq-layout{grid-template-columns:240px minmax(0,1fr) 240px;gap:16px}
+.eq-toolbar{font:13px/1.5 system-ui;gap:14px}
+.eq-toolbar label{display:flex;gap:8px;align-items:center;min-width:0}
+.eq-panel select{margin:0;min-width:0}
+.eq-layout :is(.eq-detail,.eq-help,.eq-unlocks,.eq-bonuses){font-family:system-ui,sans-serif}
+body.ss-mobile #game-container>.ss-menu-screen{padding:16px max(16px,env(safe-area-inset-right)) 16px max(16px,env(safe-area-inset-left));justify-content:flex-start}
+body.ss-mobile .ss-menu-screen .btn{min-height:44px}
+body.ss-mobile .eq-panel{max-height:none;padding:20px}
+@media(max-width:1050px){#class-cards{grid-template-columns:repeat(3,minmax(0,1fr))}.eq-layout{grid-template-columns:220px minmax(0,1fr)}.eq-detail{grid-column:1/-1}}
+@media(max-width:740px){#game-container>.ss-menu-screen{padding:16px}.ss-menu-shell,.ss-setup-panel,.settings-panel,.ss-talent-panel,.ss-library-panel,.ss-stats-panel,.ss-binding-panel,.eq-panel{padding:22px}#title-screen .ss-menu-shell{padding:30px 24px}#class-cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}#class-cards .class-card{min-height:240px;padding:18px 12px}.ss-gate-layout{grid-template-columns:1fr;gap:24px}.ss-single-gate .ss-gargoyle{width:210px}.ss-commerce-panel{max-height:calc(100dvh - 32px);padding:18px}.ss-commerce-panel .shop-item{grid-template-columns:32px minmax(0,1fr) 68px;gap:10px;padding:12px}.ss-commerce-panel .shop-item>.btn{grid-column:2/-1}.ss-commerce-panel>.btn{width:100%;min-width:0}#ss-talent-tree,body.ss-mobile #ss-talent-tree{grid-template-columns:1fr}.eq-layout{grid-template-columns:1fr}.eq-detail{grid-column:auto}.ss-menu-screen .ss-card{min-height:260px;padding:20px 16px}#levelup-cards,#ss-evolution-cards{grid-template-columns:1fr}.ss-setup-actions>.btn{flex-basis:100%}}
+@media(max-width:440px){#class-cards{grid-template-columns:1fr}#class-cards .class-card{min-height:220px}#title-screen .ss-title-actions,#pause-overlay .ss-menu-actions{grid-template-columns:1fr}#pause-overlay #resume-btn{grid-column:auto}.ss-individual-pacts .ss-contract{grid-template-columns:minmax(0,1fr) 75px 28px;gap:8px;padding:10px}.ss-setup-hero{gap:12px}#ss-setup-portrait{width:52px;height:52px}.ss-setup-hero h2{font-size:24px!important}.ss-menu-actions>.btn{flex-basis:100%}.ss-commerce-panel h2{font-size:22px!important}.ss-library-grid{grid-template-columns:1fr 1fr}.ss-library-entry{padding:12px}.settings-panel .set-row{gap:12px}.eq-header .btn{width:100%}}
+@media(max-height:500px){#game-container>.ss-menu-screen{padding:12px}.ss-commerce-panel{max-height:calc(100dvh - 24px);padding:14px;gap:8px}.ss-commerce-panel .shop-sub{display:none}.ss-commerce-panel .shop-money{padding:4px 0}.ss-commerce-panel h2{font-size:22px!important}.ss-commerce-panel .eq-shop-link .btn{padding:7px 12px;min-height:40px}.ss-commerce-panel .shop-items{min-height:48px}}
+@media(prefers-reduced-motion:reduce){.ss-menu-screen *{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+#game-container>.ss-menu-screen { font-family:system-ui,sans-serif; }
+.ss-menu-screen h3 { font-family:'Cinzel',serif; }
+#ss-run-setup .ss-setup-panel { padding:22px; }
+#ss-run-setup .ss-step { margin-bottom:8px; }
+#ss-run-setup .ss-setup-hero { margin-bottom:16px; padding-bottom:12px; }
+#ss-run-setup #ss-setup-portrait { width:56px; height:56px; }
+#ss-run-setup #ss-setup-profile { font:12px/1.45 system-ui; margin-top:4px; }
+#ss-run-setup .ss-individual-pacts .ss-contract { padding:8px 12px; font-size:12px; }
+#ss-run-setup .ss-contract small { font-size:10.5px; line-height:1.35; margin-top:3px; }
+#ss-run-setup .ss-individual-pacts #ss-heat-desc { font:12px/1.4 system-ui; margin:8px 0 12px; }
+#ss-run-setup .ss-setup-actions { margin-top:16px; }
+#ss-run-setup #ss-setup-options>.ss-aim-control { margin-top:12px; }
+#game-container>#ss-run-setup{overflow:hidden}
+#ss-run-setup .ss-setup-panel{display:flex;flex-direction:column;max-height:calc(100dvh - 48px);overflow:hidden}
+#ss-run-setup .ss-setup-panel>.ss-step,#ss-run-setup .ss-setup-hero,#ss-run-setup .ss-setup-actions{flex-shrink:0}
+#ss-setup-options{flex:1 1 auto;min-height:70px;overflow-y:auto;overflow-x:hidden;padding:3px 6px 3px 0;scrollbar-gutter:stable}
+#ss-run-setup .ss-setup-actions{border-top:1px solid #55462f;padding-top:14px;gap:12px}
+@media(max-width:740px){#ss-run-setup .ss-setup-panel{max-height:calc(100dvh - 32px)}}
+@media(max-height:500px){#ss-run-setup .ss-setup-panel{max-height:calc(100dvh - 24px);padding:14px}#ss-run-setup .ss-step{display:none}#ss-run-setup .ss-setup-hero{margin-bottom:8px;padding-bottom:8px}#ss-run-setup #ss-setup-portrait{width:40px;height:40px}#ss-run-setup .ss-setup-actions{margin-top:8px;padding-top:8px}}
+
+#ss-mobile-rotate { background:none; color:#e2bd7e; font:13px/1.5 system-ui; margin:18px 0 0; padding:12px; border:1px solid #675238; border-radius:4px; }
+
+.ss-menu-screen,.ss-menu-screen * { scrollbar-color:#a38a5f #1c1813; scrollbar-width:thin; }
+.ss-menu-screen ::-webkit-scrollbar { width:9px; }
+.ss-menu-screen ::-webkit-scrollbar-thumb { background:#a38a5f; border:2px solid #1c1813; border-radius:8px; }
+
+#game-container>#knowledge-overlay,#game-container>#talents-overlay{overflow:hidden}
+#knowledge-overlay .ss-library-panel,#talents-overlay .ss-talent-panel{display:flex;flex-direction:column;max-height:calc(100dvh - 48px);overflow:hidden}
+#knowledge-overlay .ss-library-panel>h2,#knowledge-overlay .ss-library-panel>p,#ss-library-close,#talents-overlay h2,#ss-talent-summary,#ss-talents-close{flex-shrink:0}
+#ss-library-items,#ss-talent-tree{flex:1 1 auto;min-height:60px;overflow:auto;padding:3px 6px 3px 0;scrollbar-gutter:stable}
+#ss-talents-close,#ss-library-close{margin:16px 0 0;align-self:center}
+@media(max-width:740px){#knowledge-overlay .ss-library-panel,#talents-overlay .ss-talent-panel{max-height:calc(100dvh - 32px)}}
+@media(max-height:500px){#knowledge-overlay .ss-library-panel,#talents-overlay .ss-talent-panel{max-height:calc(100dvh - 24px)}}
+.ss-menu-screen .ss-card .lvl-ind{order:-1;margin:0;padding:0 0 10px;width:100%;border-bottom:1px solid #695438;font:600 11px/1.45 system-ui,sans-serif;letter-spacing:1px}
+.ss-menu-screen .eq-cell{min-height:44px}
+@media(max-height:500px) and (min-width:500px){
+ #ss-run-setup .ss-setup-actions>.btn{flex:1 1 0}
+ #ss-run-setup .ss-gate-layout{grid-template-columns:minmax(160px,.85fr) minmax(0,1.15fr);gap:16px}
+ #ss-run-setup .ss-single-gate .ss-gargoyle{width:130px}
+ #ss-run-setup .ss-act-navigation{grid-template-columns:36px minmax(0,1fr) 36px;gap:6px}
+ #ss-run-setup .ss-gate-arrow{height:44px;font-size:28px}
+ #ss-run-setup .ss-act-navigation h3{font-size:13px}
+ #ss-run-setup .ss-act-navigation p,#ss-run-setup .ss-act-navigation small{font-size:10px}
+ #ss-run-setup .ss-individual-pacts .ss-contract{grid-template-columns:minmax(0,1fr) 60px 26px;gap:6px;padding:6px;font-size:11px}
+ #ss-run-setup .ss-individual-pacts h3{font-size:14px}
+ #ss-run-setup .ss-heat-total{font-size:11px;margin-top:12px}
+}
+.ss-menu-screen .ss-gate-arrow{font:bold 28px/1 serif}
+/* Override the older equipment-shop rule that introduced a second scrollbar. */
+.ss-menu-screen .ss-commerce-panel{overflow:hidden;max-height:calc(100dvh - 48px)}
+@media(max-width:740px){.ss-menu-screen .ss-commerce-panel{max-height:calc(100dvh - 32px)}}
+@media(max-height:500px){.ss-menu-screen .ss-commerce-panel{max-height:calc(100dvh - 24px)}}

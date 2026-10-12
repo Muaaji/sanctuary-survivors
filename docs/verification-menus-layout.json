@@ -1,0 +1,242 @@
+[
+  {
+    "controls": 5,
+    "horizontalOverflow": false,
+    "overlaps": [],
+    "screen": "title-screen",
+    "size": [
+      1280,
+      720
+    ]
+  },
+  {
+    "controls": 6,
+    "horizontalOverflow": false,
+    "overlaps": [],
+    "screen": "shop-overlay",
+    "size": [
+      1280,
+      720
+    ]
+  },
+  {
+    "controls": 4,
+    "horizontalOverflow": false,
+    "overlaps": [],
+    "screen": "levelup-overlay",
+    "size": [
+      1280,
+      720
+    ]
+  },
+  {
+    "controls": 5,
+    "horizontalOverflow": false,
+    "overlaps": [],
+    "screen": "pause-overlay",
+    "size": [
+      1280,
+      720
+    ]
+  },
+  {
+    "controls": 5,
+    "horizontalOverflow": false,
+    "overlaps": [],
+    "screen": "win-screen",
+    "size": [
+      1280,
+      720
+    ]
+  },
+  {
+    "controls": 3,
+    "horizontalOverflow": false,
+    "overlaps": [],
+    "screen": "kill-screen",
+    "size": [
+      1280,
+      720
+    ]
+  },
+  {
+    "controls": 7,
+    "horizontalOverflow": false,
+    "overlaps": [],
+    "screen": "class-screen",
+    "size": [
+      1280,
+      720
+    ]
+  },
+  {
+    "controls": 9,
+    "horizontalOverflow": false,
+    "overlaps": [],
+    "screen": "ss-run-setup",
+    "size": [
+      1280,
+      720
+    ]
+  },
+  {
+    "controls": 5,
+    "horizontalOverflow": false,
+    "overlaps": [],
+    "screen": "title-screen",
+    "size": [
+      390,
+      844
+    ]
+  },
+  {
+    "controls": 5,
+    "horizontalOverflow": false,
+    "overlaps": [],
+    "screen": "shop-overlay",
+    "size": [
+      390,
+      844
+    ]
+  },
+  {
+    "controls": 3,
+    "horizontalOverflow": false,
+    "overlaps": [],
+    "screen": "levelup-overlay",
+    "size": [
+      390,
+      844
+    ]
+  },
+  {
+    "controls": 5,
+    "horizontalOverflow": false,
+    "overlaps": [],
+    "screen": "pause-overlay",
+    "size": [
+      390,
+      844
+    ]
+  },
+  {
+    "controls": 5,
+    "horizontalOverflow": false,
+    "overlaps": [],
+    "screen": "win-screen",
+    "size": [
+      390,
+      844
+    ]
+  },
+  {
+    "controls": 3,
+    "horizontalOverflow": false,
+    "overlaps": [],
+    "screen": "kill-screen",
+    "size": [
+      390,
+      844
+    ]
+  },
+  {
+    "controls": 3,
+    "horizontalOverflow": false,
+    "overlaps": [],
+    "screen": "class-screen",
+    "size": [
+      390,
+      844
+    ]
+  },
+  {
+    "controls": 6,
+    "horizontalOverflow": false,
+    "overlaps": [],
+    "screen": "ss-run-setup",
+    "size": [
+      390,
+      844
+    ]
+  },
+  {
+    "controls": 5,
+    "horizontalOverflow": false,
+    "overlaps": [],
+    "screen": "title-screen",
+    "size": [
+      844,
+      390
+    ]
+  },
+  {
+    "controls": 4,
+    "horizontalOverflow": false,
+    "overlaps": [],
+    "screen": "shop-overlay",
+    "size": [
+      844,
+      390
+    ]
+  },
+  {
+    "controls": 3,
+    "horizontalOverflow": false,
+    "overlaps": [],
+    "screen": "levelup-overlay",
+    "size": [
+      844,
+      390
+    ]
+  },
+  {
+    "controls": 5,
+    "horizontalOverflow": false,
+    "overlaps": [],
+    "screen": "pause-overlay",
+    "size": [
+      844,
+      390
+    ]
+  },
+  {
+    "controls": 0,
+    "horizontalOverflow": false,
+    "overlaps": [],
+    "screen": "win-screen",
+    "size": [
+      844,
+      390
+    ]
+  },
+  {
+    "controls": 0,
+    "horizontalOverflow": false,
+    "overlaps": [],
+    "screen": "kill-screen",
+    "size": [
+      844,
+      390
+    ]
+  },
+  {
+    "controls": 3,
+    "horizontalOverflow": false,
+    "overlaps": [],
+    "screen": "class-screen",
+    "size": [
+      844,
+      390
+    ]
+  },
+  {
+    "controls": 6,
+    "horizontalOverflow": false,
+    "overlaps": [],
+    "screen": "ss-run-setup",
+    "size": [
+      844,
+      390
+    ]
+  }
+]
