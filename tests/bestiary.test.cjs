@@ -1,0 +1,33 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
+const {createHarness}=require('./helpers/game-harness.cjs');
+const h=createHarness({seed:17}),{sandbox:c,run}=h;
+if(!c.SurvivorBestiary)vm.runInContext(fs.readFileSync(path.resolve(__dirname,'../js/survivors/bestiary.js'),'utf8'),c);
+if(!c.SurvivorEnemyRoles)vm.runInContext(fs.readFileSync(path.resolve(__dirname,'../js/survivors/enemy-roles.js'),'utf8'),c);
+const B=c.SurvivorBestiary,K=c.SurvivorKnowledge;
+// Catalogue fixture also exercises older encounter modules until the runtime hook is connected.
+if(!c.SurvivorEncounters.catalog)c.SurvivorEncounters.catalog=()=>[{type:'fallen',sprite:'fallen-champion',name:'Chef des déchus',act:0,index:0}];
+K.entries={};assert.ok(B.entries().length>=22);assert.ok(B.entries().every(e=>e.status===0));
+const normal={type:'zombie'};assert.equal(B.seen(normal),true);assert.equal(K.status('enemy:zombie'),1);
+assert.equal(B.defeated(normal),true);assert.equal(K.status('enemy:zombie'),2);B.seen(normal);assert.equal(K.status('enemy:zombie'),2);
+const champ={type:'fallen',id:'champion-fallen-champion',boss:true,ssChampion:true,ssChampionSprite:'fallen-champion'};
+assert.equal(B.seen(champ),true);assert.equal(K.status('champion:fallen-champion'),1);assert.equal(K.status('enemy:fallen'),0);
+assert.equal(B.defeated(champ),true);assert.equal(K.status('champion:fallen-champion'),2);
+assert.equal(B.defeated({boss:true,id:'butcher'}),true);assert.equal(K.status('boss:butcher'),2);
+const saved=JSON.parse(h.storage.get('survivors_knowledge'));assert.equal(saved['enemy:zombie'],2);assert.equal(saved['champion:fallen-champion'],2);
+run("Game.reset('druid');");assert.equal(K.status('enemy:zombie'),2);assert.equal(K.status('boss:butcher'),2);
+assert.equal(B.seen({type:'invented'}),false);assert.equal(B.seen(null),false);assert.equal(B.seen({boss:true,id:'invented'}),false);
+const zombies=B.entries().find(e=>e.key==='enemy:zombie');assert.equal(zombies.role,'bulwark');assert.equal(zombies.imagePath,null);
+assert.ok(B.entries().filter(e=>e.family==='Boss finaux').every(e=>!('hp'in e)&&!e.desc.includes('4000')));
+const snapshot=JSON.stringify(K.entries);B.entries();assert.equal(JSON.stringify(K.entries),snapshot);
+c.SurvivorKnowledge=null;assert.equal(B.seen(normal),false);assert.ok(B.entries().every(e=>e.status===0));
+console.log('PASS bestiary: identity, discovery tiers, persistence, unknown guards and authoritative descriptions');
+
+const {inventory,pngFacts}=require('../scripts/inventory-assets.cjs');
+const manifest=inventory();
+assert.equal(manifest.assets.filter(a=>a.provenance.origin==='imagegen-generated-project-champion').length,10);
+assert.ok(manifest.assets.every(a=>a.decodedBytesRGBA===a.width*a.height*4));
+assert.ok(manifest.assets.every(a=>a.fileBytes>0&&!a.provenance.externalReferenceImport));
+assert.ok(manifest.assets.some(a=>a.frameCount>1&&a.technicalReuse.includes('crop')));
+assert.equal(pngFacts(Buffer.from('not a png')),null);
+console.log('PASS local PNG manifest: dimensions, memory, frames and separate provenance');

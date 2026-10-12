@@ -10,6 +10,7 @@ window.SurvivorRuntime = (() => {
     cooldowns: {}, hits: {}, casts: {}, venomUntil: 0, frenzyUntil: 0,
     shieldHP: 0, shieldUntil: 0, healBudget: 0, healSecond: -1,
     reset() {
+      window.SurvivorBuildCombos?.reset();window.SurvivorEnemyRoles?.reset();window.SurvivorWaveDirector?.reset();
       this.playerPoisonUntil=0;this.playerPoisonNext=0;this.hazards=[];this.enemySlowUntil=0;this.now=0; this.bullets=[]; this.fields=[]; this.allies=[]; this.corpses=[];
       this.fx=[]; this.jobs=[]; this.pendingLevels=0; this.pendingChests=0;
       this.talentPoints=0; this.talents=new Set(); this.ultimate=null; this.deferredTalents=false; this.talentResume="playing";
@@ -82,7 +83,7 @@ window.SurvivorRuntime = (() => {
         if(w.evolved){s.dmg*=1.35;s.radius*=1.15;s.cd*=.85;if(!['axe','sling'].includes(d.weaponKind))s.count++;if(d.weaponKind==='sling')s.ricochet+=2;}
       }
       if(w.evolved&&!common){s.dmg*=1.5;s.radius*=1.25;s.cd*=.8;if(s.allyHP)s.allyHP*=1.5;}
-      return s;
+      return window.SurvivorBuildCombos?SurvivorBuildCombos.apply(s):s;
     },
     context(s, extra={}) { return {id:s.id,s,secondary:false,periodic:false,ally:false,...extra}; },
     alive() { return enemies.filter(e=>!e.dead); },
@@ -161,10 +162,10 @@ window.SurvivorRuntime = (() => {
       this.cast(w,s,false,Player,point);w.cd=s.cd;return true;
     },
     basicAttack(dt){
-      this.basicCD=Math.max(0,(this.basicCD||0)-dt);if(this.basicCD>0)return;
+      this.basicCD=(this.basicCD||0)-dt;if(this.basicCD>0)return;
       const melee=['paladin','barbarian','assassin'].includes(Player.classId),target=this.nearest(Player.x,Player.y,melee?65:300);if(!target)return;
       const a=SurvivorStats.get(),s={id:'basic_'+Player.classId,basic:true,mode:'projectile',element:'physical',mods:{},dmg:(melee?7:5)*(1+a.power+(melee?a.melee:a.ranged)),crit:a.crit,critDamage:a.critDamage,pierce:0,speed:330};
-      Player.attackAnimT=.12;this.basicCD=1.35/Math.max(.5,1+a.attackSpeed);
+      Player.attackAnimT=.12;this.basicCD=Math.max(this.basicCD,-dt)+1.35/Math.max(.5,1+a.attackSpeed);
       if(melee){this.damage(target,s.dmg,this.context(s));this.effect(target.x,target.y,12,'#cfc3a6',.15,'slash');}
       else this.bullet(s,Player.x,Player.y,angleTo(Player.x,Player.y,target.x,target.y),this.context(s),{mode:'projectile',life:1.4});
     },
@@ -189,6 +190,7 @@ window.SurvivorRuntime = (() => {
     burst(s,x,y,extra={}) { this.field(s,x,y,this.context(s,extra),{once:true,until:this.now+.15}); },
     cast(w,s,secondary=false, origin=Player,aim=null) {
       const ctx=this.context(s,{secondary}),nearest=aim?this.nearest(aim.x,aim.y,150):this.nearest(origin.x,origin.y,this.targetRange(),new Set(),s.id==='amazon_guided'),target=aim?{x:aim.x,y:aim.y}:nearest;
+      window.SurvivorBuildCombos?.onCast(s,ctx);
       const a=target?angleTo(origin.x,origin.y,target.x,target.y):0;
       if(!secondary)this.casts[w.id]=(this.casts[w.id]||0)+1;
       Player.attackAnimT=.18;
@@ -415,45 +417,49 @@ window.SurvivorRuntime = (() => {
     updateFields(dt) {
       for(let i=this.fields.length-1;i>=0;i--) {
         const f=this.fields[i],s=f.ctx.s;
-        if(f.until<=this.now){this.fields.splice(i,1);continue;}
+        if(f.until<=this.now&&f.next>=f.until){this.fields.splice(i,1);continue;}
         if(f.follow){f.x=Player.x;f.y=Player.y;}
-        if(f.next>this.now)continue;f.next=this.now+f.interval;
-        if(f.grow)f.r=Math.min(s.radius*1.5,f.r+dt*30);
-        if(!f.ctx.secondary&&s.mods.special==='livingCyclone'&&this.gate('cyclone',2)) {
-          const w=this.state('druid_tornado');const ts=w?this.stats(w):{...C.spells.druid_tornado,mods:{},dmg:s.dmg*2,speed:300,pierce:4};
-          const t=this.nearest();if(t)this.bullet(ts,Player.x,Player.y,angleTo(Player.x,Player.y,t.x,t.y),this.context(ts,{secondary:true}),{mode:'tornado',dmg:ts.dmg*.5});
-        }
-        if(!f.ctx.secondary&&s.mods.special==='steelStorm'&&this.gate('steelTrail',.5))this.field({...s,duration:1,radius:22,dmg:s.dmg*.4},Player.x,Player.y,this.context(s,{secondary:true,periodic:true}),{follow:false});
-        let impacted=0;
-        for(const e of enemies) {
-          if(impacted>=(f.ctx.maxTargets||Infinity))break;
-          if(e.dead||e===f.ctx.exclude||f.hitSet.has(e)||dist2(e.x,e.y,f.x,f.y)>(f.r+e.r)**2)continue;
-          impacted++;
-          e.ssZoneHits=e.ssZoneHits||{};
-          if(!f.once&&(e.ssZoneHits[s.id]||0)>this.now)continue;
-          e.ssZoneHits[s.id]=this.now+f.interval;
-          if(s.element==='poison')this.dot(e,'poison',s.id,s.dmg,s.duration||2,f.ctx);
-          else this.damage(e,f.dmg*(f.once?1:f.interval),{...f.ctx,periodic:f.ctx.periodic||!f.once});
-          if(f.slow||s.slow)this.control(e,'slow',2,Math.max(f.slow||0,s.slow||0));
-          if(s.id==='common_seal'&&s.level>=6)this.control(e,'slow',2,.15);
-          if(f.once)f.hitSet.add(e);
+        if(f.grow)f.r=Math.min(s.radius*1.5,s.radius+(Math.min(this.now,f.until)-f.start)*30);
+        if(f.next>this.now+1e-9||f.next>=f.until)continue;
+        while(f.next<=this.now+1e-9&&f.next<f.until){
+          const tickAt=f.next;f.next+=f.interval;
+          if(!f.ctx.secondary&&s.mods.special==='livingCyclone'&&this.gate('cyclone',2)) {
+            const w=this.state('druid_tornado');const ts=w?this.stats(w):{...C.spells.druid_tornado,mods:{},dmg:s.dmg*2,speed:300,pierce:4};
+            const t=this.nearest();if(t)this.bullet(ts,Player.x,Player.y,angleTo(Player.x,Player.y,t.x,t.y),this.context(ts,{secondary:true}),{mode:'tornado',dmg:ts.dmg*.5});
+          }
+          if(!f.ctx.secondary&&s.mods.special==='steelStorm'&&this.gate('steelTrail',.5))this.field({...s,duration:1,radius:22,dmg:s.dmg*.4},Player.x,Player.y,this.context(s,{secondary:true,periodic:true}),{follow:false});
+          let impacted=0;
+          for(const e of enemies) {
+            if(impacted>=(f.ctx.maxTargets||Infinity))break;
+            if(e.dead||e===f.ctx.exclude||f.hitSet.has(e)||dist2(e.x,e.y,f.x,f.y)>(f.r+e.r)**2)continue;
+            impacted++;
+            e.ssZoneHits=e.ssZoneHits||{};
+            if(!f.once&&(e.ssZoneHits[s.id]||0)>tickAt+1e-9)continue;
+            e.ssZoneHits[s.id]=tickAt+f.interval;
+            if(s.element==='poison')this.dot(e,'poison',s.id,s.dmg,s.duration||2,f.ctx);
+            else this.damage(e,f.dmg*(f.once?1:f.interval),{...f.ctx,periodic:f.ctx.periodic||!f.once});
+            if(f.slow||s.slow)this.control(e,'slow',2,Math.max(f.slow||0,s.slow||0));
+            if(s.id==='common_seal'&&s.level>=6)this.control(e,'slow',2,.15);
+            if(f.once)f.hitSet.add(e);
+          }
         }
       }
     },
     dot(e,family,source,dps,duration,ctx) {
       if(e.dead)return;e.ssDots=e.ssDots||[];
       const current=e.ssDots.find(d=>d.family===family&&d.source===source);
-      if(current){current.until=this.now+duration;current.dps=Math.max(current.dps,dps);return;}
+      if(current&&current.until>this.now){current.until=this.now+duration;current.dps=Math.max(current.dps,dps);return;}
+      if(current)e.ssDots.splice(e.ssDots.indexOf(current),1);
       const same=e.ssDots.filter(d=>d.family===family&&d.until>this.now);
       if(same.length>=3){const least=same.reduce((a,b)=>a.dps<b.dps?a:b);if(least.dps>=dps)return;e.ssDots.splice(e.ssDots.indexOf(least),1);}
-      e.ssDots.push({family,source,dps,until:this.now+duration,ctx:{...ctx,periodic:true}});
+      e.ssDots.push({family,source,dps,until:this.now+duration,last:this.now,ctx:{...ctx,periodic:true}});
     },
     control(e,type,time,value=0) {
       if(e.dead)return;
-      if(type==='slow'){e.ssSlow=Math.max(e.ssSlowUntil>this.now?e.ssSlow:0,Math.min(e.boss?.15:1,value));e.ssSlowUntil=this.now+time;return;}
-      if(e.boss)return;
+      if(type==='slow'){e.ssSlow=Math.max(e.ssSlowUntil>this.now?e.ssSlow:0,Math.min(e.ssChampion?.35:e.boss?.15:1,value));e.ssSlowUntil=this.now+time;return;}
+      if(e.boss&&!e.ssChampion)return;
       if(type==='freeze'&&(e.ssFreezeReady||0)>this.now)return;
-      e.ssStopUntil=Math.max(e.ssStopUntil||0,this.now+time*(e.elite?.5:1));
+      e.ssStopUntil=Math.max(e.ssStopUntil||0,this.now+time*((e.elite||e.ssChampion)?.5:1));
       if(type==='freeze')e.ssFreezeReady=this.now+6;
     },
     damage(e,amount,ctx={secondary:false,periodic:false}) {
@@ -492,7 +498,7 @@ window.SurvivorRuntime = (() => {
           const s=this.stats(nova);this.field({...s,radius:48,duration:2,dmg:s.dmg*s.duration*.2},e.x,e.y,this.context(s,{secondary:true,periodic:true}));
         }
         const flask=this.state('common_flasks');
-        if(flask&&flask.evolved&&e.ssDots&&e.ssDots.some(d=>d.family==='poison'&&d.source===flask.id)) {
+        if(flask&&flask.evolved&&e.ssDots&&e.ssDots.some(d=>d.family==='poison'&&d.source===flask.id&&d.until>this.now)) {
           const target=this.nearest(e.x,e.y,120,new Set([e]));if(target){const s=this.stats(flask);this.dot(target,'poison',flask.id,s.dmg,2,this.context(s,{secondary:true}));}
         }
         const holy=this.state('paladin_holyfire');
@@ -509,8 +515,11 @@ window.SurvivorRuntime = (() => {
     companionTick(w,s) {
       const count=this.allies.filter(a=>a.id===s.id&&!a.dead).length;
       if(count>=s.count||w.cd>0)return;
+      let need=Math.min(w.initialized?1:s.count-count,Math.max(0,8-this.allies.filter(a=>!a.turret&&!a.decoy&&!a.dead).length));
+      if(s.id==='necromancer_skeletons')need=Math.min(need,this.corpses.length);
+      if(!need)return;
       const cost=SurvivorStats.manaCost(s);if(Player.mana<cost){this.manaWaits++;return;}Player.mana-=cost;
-      let need=w.initialized?1:s.count-count;w.initialized=true;if(s.id==='necromancer_skeletons'){need=Math.min(need,this.corpses.length);if(!need)return;this.corpses.splice(0,need);}
+      w.initialized=true;if(s.id==='necromancer_skeletons')this.corpses.splice(0,need);
       for(let i=0;i<need&&this.allies.filter(a=>!a.turret&&!a.decoy&&!a.dead).length<8;i++) {
         this.allies.push({id:s.id,x:Player.x+Math.cos(i*2.4)*30,y:Player.y+Math.sin(i*2.4)*30,
           hp:s.allyHP,hpMax:s.allyHP,cd:.2,dead:false,hits:0});
@@ -557,10 +566,10 @@ window.SurvivorRuntime = (() => {
             const fire=s.id==='sorceress_hydra',wave=s.id==='assassin_wake';
             this.bullet({...s,mode:'projectile'},ally.x,ally.y,a+(j-(count-1)/2)*.16,this.context(s,{ally:true}),{mode:'projectile',life:wave?.7:1.2,speed:wave?180:360,pierce:s.id==='assassin_sentry'?5:wave?3:0,burn:s.mods.burn,dmg:s.dmg*(fire?.55:1)});
           }
-          ally.cd=s.id==='sorceress_hydra'?.85:1;continue;
+          ally.cd=Math.max(ally.cd,-dt)+(s.id==='sorceress_hydra'?.85:1);continue;
         }
         if(dist2(ally.x,ally.y,target.x,target.y)>(s.radius+target.r)**2)continue;
-        ally.cd=s.cd;ally.hits++;
+        ally.cd=Math.max(ally.cd,-dt)+s.cd;ally.hits++;
         let dmg=s.dmg;
         if(s.mods.special==='commander'&&this.now%8<3&&this.allies.find(a=>a.id===s.id&&!a.dead)===ally)dmg*=2;
         const ctx=this.context(s,{ally:true});
@@ -581,8 +590,12 @@ window.SurvivorRuntime = (() => {
         const e=enemies[i];if(e.dead){enemies.splice(i,1);continue;}
         e.t+=dt;e.flash=Math.max(0,e.flash-dt);
         if(e.ssDots) {
+          for(const dot of e.ssDots) {
+            const end=Math.min(this.now,dot.until),start=Math.max(this.now-dt,dot.last??this.now-dt);
+            if(end>start)this.damage(e,dot.dps*(end-start),dot.ctx);
+            dot.last=this.now;
+          }
           e.ssDots=e.ssDots.filter(d=>d.until>this.now);
-          for(const dot of e.ssDots)this.damage(e,dot.dps*dt,dot.ctx);
           if(e.dead)continue;
         }
         let target=Player;
@@ -591,13 +604,22 @@ window.SurvivorRuntime = (() => {
           const pet=this.allies.find(a=>!a.turret&&!a.dead&&!a.decoy&&dist2(a.x,a.y,e.x,e.y)<36**2);if(pet)target=pet;
         }
         const dx=target.x-e.x,dy=target.y-e.y,d=Math.hypot(dx,dy)||1;
-        const stopped=!e.boss&&(e.ssStopUntil||0)>this.now;
-        const slow=e.ssSlowUntil>this.now?e.ssSlow||0:0;
+        const stopped=(!e.boss||e.ssChampion)&&(e.ssStopUntil||0)>this.now;
         let bossLocked=false;if(e.boss&&!e.ssChampion){SurvivorBosses.tick(e,dt,this);bossLocked=SurvivorBosses.locked(e,this.now);}
         const ranged=['boneMage','skeletonArcher'].includes(e.type);
-        if(!stopped&&!bossLocked&&(!ranged&&e.id!=='summoner'||d>220)) {const sp=e.speed*(1-Math.min(e.boss?.15:1,slow));e.x+=dx/d*sp*dt;e.y+=dy/d*sp*dt;}
-        if(!e.boss&&e.knock){e.x+=e.knock.x*dt;e.y+=e.knock.y*dt;e.knock.x*=.86;e.knock.y*=.86;}
-        if(dist2(e.x,e.y,target.x,target.y)<(e.r+(target===Player?Player.r:14))**2&&!stopped) {
+        if(!bossLocked&&!e.ssRoleAction&&(!ranged&&e.id!=='summoner'||d>220)) {
+          const start=this.now-dt,moveStart=e.boss&&!e.ssChampion?start:Math.max(start,Math.min(this.now,e.ssStopUntil||0));
+          const moving=Math.max(0,this.now-moveStart),slowed=Math.max(0,Math.min(this.now,e.ssSlowUntil||0)-moveStart);
+          const travel=e.speed*(moving-slowed*Math.min(e.ssChampion?.35:e.boss?.15:1,e.ssSlow||0));
+          const steer=target===Player&&e.ssRoleSteer;
+          e.x+=(steer?steer.x:dx/d)*travel;e.y+=(steer?steer.y:dy/d)*travel;
+        }
+        if(!e.boss&&!e.ssRoleAction&&e.knock){
+          // Preserve the 60 Hz displacement and decay, integrated over elapsed time.
+          const decay=Math.pow(.86,dt*60),travel=(1-decay)/(60*(1-.86));
+          e.x+=e.knock.x*travel;e.y+=e.knock.y*travel;e.knock.x*=decay;e.knock.y*=decay;
+        }
+        if(dist2(e.x,e.y,target.x,target.y)<(e.r+(target===Player?Player.r:14))**2&&!stopped&&!e.ssRoleAction) {
           if(target===Player)Player.takeDamage(e.dmg);
           else if((e.ssPetAttack||0)<this.now){target.hp-=e.dmg;e.ssPetAttack=this.now+.7;}
         }

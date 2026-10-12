@@ -73,7 +73,7 @@ window.SurvivorEquipment=(()=>{
  function save(){try{localStorage.setItem(KEY,JSON.stringify(state));error='';return true;}catch(e){error='Sauvegarde indisponible : garde cette page ouverte.';return false;}}
  function fail(message){error=message;return false;}
  function fits(b,slot){return b.slot==='weapon'?['mainhand','offhand'].includes(slot)&&(slot!=='offhand'||b.hands===1):b.slot==='ring'?['ring1','ring2'].includes(slot):b.slot===slot;}
- function generate({rarity,level=1,baseId,rng=Math.random,boss=false}={}){
+ function generate({rarity,level=1,baseId,rng=()=>window.SurvivorRunRng?SurvivorRunRng.random('loot'):Math.random(),boss=false}={}){
   if(!Number.isInteger(rarity)||rarity<0||rarity>5){const weights=boss?[.12,.25,.3,.25,.07,.01]:[.47,.28,.16,.07,.018,.002];let roll=rng();rarity=weights.findIndex(w=>(roll-=w)<0);if(rarity<0)rarity=5;}
   level=Math.max(1,Math.min(40,Math.floor(level)||1));
   const pool=rarity>=4&&!baseId?uniques.map(u=>bases.find(b=>b.id===u.base)):bases;
@@ -96,11 +96,14 @@ window.SurvivorEquipment=(()=>{
  function unequip(cls,slot,destination){const hero=state.heroes[cls];if(!hero?.[slot])return false;if(destination!==undefined&&(!Number.isInteger(destination)||destination<0||destination>=state.stash.length||state.stash[destination]))return fail('Dépose cet objet dans une case vide du coffre.');const pos=destination===undefined?state.stash.indexOf(null):destination;if(pos<0)return fail('Coffre plein : impossible de retirer cet objet.');state.stash[pos]=hero[slot];hero[slot]=null;save();return true;}
  function moveCell(from,to){if(!Number.isInteger(from)||!Number.isInteger(to)||from<0||to<0||from>=state.stash.length||to>=state.stash.length||!state.stash[from])return fail('Déplacement invalide.');[state.stash[from],state.stash[to]]=[state.stash[to],state.stash[from]];save();return true;}
  function move(index,page){if(!Number.isInteger(page)||page<0||page>=state.tabs||!state.stash[index])return fail('Destination invalide.');if(Math.floor(index/PAGE_SIZE)===page)return true;const start=page*PAGE_SIZE;const offset=state.stash.slice(start,start+PAGE_SIZE).indexOf(null);if(offset<0)return fail('Cet onglet est plein.');state.stash[start+offset]=state.stash[index];state.stash[index]=null;save();return true;}
- function totals(cls){const sum={};for(const it of Object.values(state.heroes[cls]||{}))if(it)add(sum,it.stats);return sum;}
+ // Budget applies to aggregate combat bonuses, preserving collectible item rolls.
+ const gearCaps=Object.freeze({power:.35,melee:.25,ranged:.25,attackSpeed:.30,crit:.15,critDamage:.40,cdr:.20,dodge:.10,moveSpeed:.15,hp:80,armor:8,manaMax:45,manaRegen:3});
+ function rawTotals(cls){const sum={};for(const it of Object.values(state.heroes[cls]||{}))if(it)add(sum,it.stats);return sum;}
+ function totals(cls){const sum=rawTotals(cls);for(const key of Object.keys(sum))if(Number.isFinite(gearCaps[key]))sum[key]=Math.min(gearCaps[key],sum[key]);return sum;}
  function replacements(cls,index,slot){const it=state.stash[index],hero=state.heroes[cls];if(!it||!hero)return [];const b=bases.find(b=>b.id===it.baseId);const out=hero[slot]?[hero[slot]]:[];if(slot==='mainhand'&&b.hands===2&&hero.offhand)out.push(hero.offhand);if(slot==='offhand'&&bases.find(b=>b.id===hero.mainhand?.baseId)?.hands===2)out.push(hero.mainhand);return out;}
  function value(it){return Math.round((8+it.level*1.2)*[1,1.8,3.2,5.5,12,24][it.rarity]);}
  function sell(index){const it=state.stash[index];if(!it)return false;state.stash[index]=null;save();return value(it);}
- load();return {KEY,PAGE_SIZE,classes:CLASSES,slots,rarities,stats,affixes,bases,uniques,milestones,get state(){return state;},get error(){return error;},save,load,generate,insert,equip,unequip,totals,replacements,value,sell,move,moveCell,progress,fits,
+ load();return {KEY,PAGE_SIZE,classes:CLASSES,slots,rarities,stats,affixes,bases,uniques,milestones,get state(){return state;},get error(){return error;},save,load,generate,insert,equip,unequip,totals,rawTotals,gearCaps,replacements,value,sell,move,moveCell,progress,fits,
   bossKill(){state.counts.bosses++;const unlocked=progress();save();return unlocked;},
   label(k,v){return '+'+(stats[k].percent?Math.round(v*1000)/10+' %':Math.round(v*100)/100)+' '+stats[k].name;},
   dropChance(enemy){return enemy.boss?1:enemy.elite?.15:.003;}

@@ -14,6 +14,7 @@
   const images = {};
   if (typeof Image !== 'undefined') for (const champion of champions.flat()) {
     const img = images[champion.sprite] = new Image();
+    img.onload=()=>{const texture=document.createElement('canvas');texture.width=texture.height=64;const ctx=texture.getContext('2d');ctx.imageSmoothingEnabled=false;ctx.drawImage(img,0,0,64,64);images[champion.sprite]=texture;};
     img.src = 'assets/sprites/champions/' + champion.sprite + '.png';
   }
   const finalHP = [1800, 1900, 1800, 2000, 2200];
@@ -21,6 +22,9 @@
   let serial = 0;
   const E = window.SurvivorEncounters = {
     state: null,
+    image(sprite){return images[sprite];},
+    catalog(){return champions.flatMap((list,act)=>list.map((c,index)=>({...c,act,index,hp:index===0?500:1000,xp:index===0?80:120})));},
+    finalCatalog(){return BOSSES.map((b,act)=>({id:b.id,name:b.name,sprite:b.sprite,act,hp:finalHP[act],xp:180}));},
     reset(actIndex = 0) {
       const act = Math.max(0, Math.min(4, Math.floor(Number(actIndex) || 0)));
       this.state = { actIndex: act, runId: ++serial, elapsed: 0, phase: 'waves', status: 'playing', encounters: [], final: null };
@@ -59,7 +63,7 @@
         entity.ssChampion = true;
         entity.id = 'champion-' + champion.sprite;
         entity.name = champion.name;
-        entity.ssChampionImage = images[champion.sprite];
+        entity.ssChampionImage = undefined;
         entity.ssChampionSprite = champion.sprite;
         entity.spriteSize = index === 0 ? 56 : 64;
         entity.r *= 1.65;

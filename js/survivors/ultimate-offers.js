@@ -47,7 +47,7 @@ window.SurvivorUltimateOffers = (() => {
       return true;
     });
     while (picked.length < limit && pool.length) {
-      picked.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0]);
+      picked.push(pool.splice(Math.floor((window.SurvivorRunRng?SurvivorRunRng.random('offers'):Math.random()) * pool.length), 1)[0]);
     }
     return picked;
   }

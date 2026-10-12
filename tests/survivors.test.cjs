@@ -20,8 +20,8 @@ class ImageMock {
 const storage=new Map(),events=new Map();
 const sandbox={console,document,Image:ImageMock,URLSearchParams,location:{search:'',reload(){}},innerWidth:1280,innerHeight:720,performance:{now:()=>0},requestAnimationFrame(){},addEventListener(type,handler){if(!events.has(type))events.set(type,[]);events.get(type).push(handler);},setTimeout(){},navigator:{},localStorage:{getItem(key){return storage.get(key)||null;},setItem(key,value){storage.set(key,value);}},fetch:()=>Promise.resolve({ok:true,json:()=>Promise.resolve({maps:[]})})};
 sandbox.window=sandbox;vm.createContext(sandbox);
-for(const f of ['helpers','systems','art','assets','data','entities','levels','main'])vm.runInContext(fs.readFileSync(path.join(root,'js',f+'.js'),'utf8'),sandbox,{filename:f+'.js'});
-for(const f of ['catalog','bosses','runtime','equipment','stats','weapon-art','spell-art','act-waves','encounters','ultimate-offers','integration','equipment-ui','hud-controls'])vm.runInContext(fs.readFileSync(path.join(root,'js/survivors',f+'.js'),'utf8'),sandbox,{filename:f+'.js'});
+for(const f of ['survivors/run-economy','survivors/run-rng','helpers','systems','art','assets','data','entities','levels','main'])vm.runInContext(fs.readFileSync(path.join(root,'js',f+'.js'),'utf8'),sandbox,{filename:f+'.js'});
+for(const f of ['catalog','bosses','runtime','equipment','stats','weapon-art','spell-art','act-waves','encounters','ultimate-offers','build-combos','wave-director','enemy-roles','bestiary','upgrade-preview','integration','equipment-ui','run-observer','hud-controls'])vm.runInContext(fs.readFileSync(path.join(root,'js/survivors',f+'.js'),'utf8'),sandbox,{filename:f+'.js'});
 const run=src=>vm.runInContext(src,sandbox);
 const C=sandbox.SurvivorCatalogue,R=sandbox.SurvivorRuntime;
 const player=run('Player'),game=run('Game'),enemies=run('enemies');
@@ -244,7 +244,7 @@ test('spell sheets exist for all 35 class skills and their declared aura modes',
  for(const spell of Object.values(C.spells).filter(s=>s.group!=='common')){assert.ok(fs.existsSync(path.join(root,'assets/survivors/spells',spell.id+'.png')));if(['aura','hurricane','whirl','shield','nova','curse','fissure','blizzard','corpse','cry','plague'].includes(spell.mode))assert.ok(fs.existsSync(path.join(root,'assets/survivors/spells',spell.id+'-ground.png')));}
 });
 test('amplify damage affects physical attacks, not fireballs; skeletons require corpses',()=>{
- reset('necromancer');R.tick(.1);assert.equal(R.allies.length,0);R.corpses.push({x:1030,y:1024,until:8});R.tick(.1);assert.equal(R.allies.length,1);
+ reset('necromancer');assert.equal(R.allies.length,1);R.allies=[];R.tick(.1);assert.equal(R.allies.length,0);R.corpses.push({x:1030,y:1024,until:8});R.tick(.1);assert.equal(R.allies.length,1);
  const e=enemy();e.hp=e.hpMax=1000;e.cursedUntil=10;e.curseBonus=.25;const oldRandom=run('Math.random');sandbox.restoreRandom=oldRandom;run('Math.random=()=>.99');R.damage(e,10,{id:'test',s:{element:'fire',mode:'fireball',crit:0}});assert.equal(e.hp,990);R.damage(e,10,{id:'test',s:{element:'physical',crit:0}});assert.equal(e.hp,977.5);run('Math.random=restoreRandom');
 });
 test('healing drops are rare across a deterministic five-thousand-monster sample',()=>{
@@ -353,7 +353,7 @@ test('intermediates use distinct monster champions, ordinary AI and one heat/tim
   acts.selected=act;acts.records.sorceress[act]=0;heat.set(5);reset();run('updateProgress(240)');const champs=sandbox.SurvivorEncounters.state.encounters.slice(0,2).map(c=>c.entity);
   assert.equal(champs.length,2);assert.notEqual(champs[0].ssChampionSprite,champs[1].ssChampionSprite);
   for(const [i,e] of champs.entries()){assert.ok(e.ssChampion&&e.boss&&!e.elite);assert.ok(e.spriteSize>32);assert.ok(e.r>run('ENEMY_BASE')[e.type].r);assert.ok(e.ssActScale.damage>=run('ENEMY_BASE')[e.type].dmg*heat.factors().damage*1.6-1e-8);assert.ok(Math.abs(e.hpMax-(i?1000:500)*heat.factors().hp*sandbox.SurvivorActWaves.factors((i+1)*120).hp)<1e-8);}
-  const old={x:champs[0].x,y:champs[0].y};R.updateEnemies(.1);assert.ok(champs[0].x!==old.x||champs[0].y!==old.y);assert.equal(bossTicks,0);assert.ok(!champs.some(e=>e.lastMechanic));
+  const old={x:champs[0].x,y:champs[0].y};R.now+=.1;R.updateEnemies(.1);assert.ok(champs[0].x!==old.x||champs[0].y!==old.y);assert.equal(bossTicks,0);assert.ok(!champs.some(e=>e.lastMechanic));
   R.damage(champs[0],1e9);assert.equal(run('pickups.filter(p=>p.type==="chest").length'),1);assert.equal(game.state,'playing');
  }
   acts.selected=0;reset();player.x=player.y=32;run('updateProgress(240)');for(const c of sandbox.SurvivorEncounters.state.encounters.slice(0,2))assert.ok(Math.hypot(c.entity.x-player.x,c.entity.y-player.y)>=300);

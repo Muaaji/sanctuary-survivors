@@ -1,0 +1,1579 @@
+{
+  "protocol": "diagnostic-bot-v2-melee-approach",
+  "codeVersion": {
+    "node": "v25.1.0",
+    "sha256": {
+      "js/survivors/run-economy.js": "4e203e8d8dfd182b4c2b82dcbdb5f4d958268726d4ba30f81f2598c994edf0f1",
+      "js/survivors/run-rng.js": "4e2b596fb580278106f1e629faaa6c0c8898cab1f99734e515014d04761a2497",
+      "js/helpers.js": "0bbd9e6983eb4ca985f98ba42ea021d63bb57f510ad42b6b8f5a57e4dd65fa8e",
+      "js/systems.js": "670dddbc1e91571fe928e6796010f7e7fcf9896bd80b953ebf0fe270f8fa7d8d",
+      "js/art.js": "284e3dc101fd6549acffc9782059ec73c2a1d82ba162fa7b6bf1a7850ad0bf43",
+      "js/assets.js": "9ef58664007190f9a418d664ce93afa69934e1b8be8dab2c56cbe20bdd6ae60a",
+      "js/data.js": "acfa6df052b0fe342cb28e4e9090be8cb9f0ba868811dd31f4f66b4d7bf75032",
+      "js/entities.js": "9f8886908fac0483d6cfc15b29e0e1d9327424628d4d240d813a615ec65a3b18",
+      "js/levels.js": "3bc6066f0aa4a64ef7c846cd459082f7cdf9d1b7f66b522fae27db518fa73ed2",
+      "js/main.js": "6ba1002df52cf3172a72e0d361f4c79a88316792a791d0c9620d0781f4f0bae8",
+      "js/survivors/catalog.js": "2568995e6ce94370a27f71d5e22002f0d0a4b660e9ea0028aa84de8f766c8265",
+      "js/survivors/bosses.js": "c0d3ffefa4b8076afe261981e844ee1fb498d084f2c0c236020874f4dd7e7e4c",
+      "js/survivors/runtime.js": "48a1c5ee84b1cbd95a22e206e1d56b330b1162b7918cec0066d1828aa2f052c4",
+      "js/survivors/equipment.js": "82b4d03d013c714abc1ec561b46b626d82b918b05aeb085b6a053dbf0767f79b",
+      "js/survivors/stats.js": "7a7bac04174802ae162a881342fb6767a91c8904c511499f8b47b4562b2031af",
+      "js/survivors/weapon-art.js": "ffb00356baf846901e065a911c1b0216caf52113cd47950164c7342f2e2f390c",
+      "js/survivors/spell-art.js": "25430b045e509d1147aa900ba019469712fe96b10f37067d1d0bf033ce6554b1",
+      "js/survivors/act-waves.js": "80e5ea12f73d505f8a4f588c339405c711747ee195131e9c2fccefa43cfe933b",
+      "js/survivors/encounters.js": "cf815e9dbd40fbf8f274b46762024ffb5878a26e79267fbb93ac0699b719e018",
+      "js/survivors/ultimate-offers.js": "aee5c00688c78aedb73a76d43d0d070a6059b1b942944b2397c99f88f9075dbd",
+      "js/survivors/build-combos.js": "6b93fb234b307aa4889979e7795c9db3f1b0a27076b800d1de7e0e8745f05499",
+      "js/survivors/wave-director.js": "b0994eea66e32e3f3c0a42d82c5310ea9bce3526fd5b6dfa7dfdbbb0dae97e17",
+      "js/survivors/enemy-roles.js": "cd4abce733af9675af6e58c846ace2d850e1af59236c269b55cb905a259b9273",
+      "js/survivors/bestiary.js": "16eff0e69239db5c841e532fc644909ed1e7cc622f48286c4e5bdeef0a9204fe",
+      "js/survivors/upgrade-preview.js": "57a3fe718e26e52e6331ab14c43383b812c36d84e31219d32858b980ce25fd4a",
+      "js/survivors/integration.js": "ec112f0db63c31e80d8a9ea4f960e5bf09e9a8d11834e6d69db6596f490f149e",
+      "js/survivors/equipment-ui.js": "f4c525727cd2b78e54c00f7368ec2d52058eaa48fc49dc1a0a402db7ed0ec6e2",
+      "js/survivors/run-observer.js": "f1da720548b0dd36aaa33033a091976757a8ffde1948b7dd6606212a7be2935c",
+      "js/survivors/hud-controls.js": "077335e7e0913c7ef0db1422fd1dd74a08b96050dde372eb08a7240ff4e4ef55",
+      "js/survivors/mobile.js": "027d432865e195e3bcf5d07d5e322401f1d5f6766c25fe1bdea8971b58ce4139",
+      "js/survivors/menu-layout.js": "bfbbaf7f5f62b5f9727af406431b65574267056e98e2db5ee3f3f9683ddd542f",
+      "scripts/balance-runs.cjs": "e00a4a4683be207957ff64524091b8ae1b761ccb0182a002659967e48cc90d48",
+      "tests/helpers/game-harness.cjs": "029d344523165e78274b971f19571ffa088d94014052ac01b1c8c99048c67010"
+    }
+  },
+  "inputInterval": 0.2,
+  "rewardPolicy": "first displayed card",
+  "talentPolicy": "starter branch first then catalogue order",
+  "equipment": "none equipped, pickups allowed",
+  "meta": "fresh in-memory storage",
+  "elapsedWallSeconds": 2.19,
+  "runs": [
+    {
+      "class": "paladin",
+      "seed": "duel-1",
+      "dt": 0.05,
+      "configuration": {
+        "act": 1,
+        "heat": 0,
+        "gear": "naked",
+        "meta": "none",
+        "heatVector": {
+          "hp": 0,
+          "damage": 0,
+          "speed": 0,
+          "elite": 0,
+          "xp": 0,
+          "rate": 0
+        }
+      },
+      "requestedDuration": 480,
+      "simulatedDuration": 128.5,
+      "actions": 7,
+      "checkpoints": [
+        {
+          "checkpoint": 120,
+          "activeTime": 120,
+          "state": "playing",
+          "level": 7,
+          "xp": 23,
+          "xpNext": 55,
+          "totalXpCollected": 211,
+          "hp": 44.37,
+          "mana": 95,
+          "damage": 2945.02,
+          "dps": 24.54,
+          "incomingHpDamage": 76.17,
+          "manaWaits": 0,
+          "kills": 137,
+          "damageBySkill": {
+            "basic_paladin": 600.3295953999993,
+            "paladin_zeal": 2344.6936920583257
+          },
+          "telemetry": {
+            "outgoing": {
+              "effective": 2945.023287458326,
+              "overkill": 1236.926712541676,
+              "bySkill": {
+                "basic_paladin": 600.3295953999993,
+                "paladin_zeal": 2344.6936920583257
+              }
+            },
+            "incoming": {
+              "attempts": 48,
+              "raw": 378.22133972499836,
+              "invulnerable": 37,
+              "dodges": 0,
+              "armor": 4.861736743749985,
+              "shield": 0,
+              "health": 76.16720898541642
+            },
+            "manaSpent": 0,
+            "lowManaSeconds": 0,
+            "xpCollected": 211,
+            "goldCollected": 151,
+            "healing": 42.53647160455557,
+            "checkpoints": [],
+            "peakEnemies": 61,
+            "peakHostileProjectiles": 0,
+            "enemyCapSeconds": 0,
+            "result": null,
+            "seed": "duel-1",
+            "classId": "paladin",
+            "act": 1,
+            "time": 119.99999999999532,
+            "level": 7,
+            "heat": {},
+            "casts": {
+              "paladin_zeal": 74
+            },
+            "manaWaits": 0
+          }
+        },
+        {
+          "checkpoint": 240,
+          "activeTime": 128.5,
+          "state": "dead",
+          "level": 7,
+          "xp": 39,
+          "xpNext": 55,
+          "totalXpCollected": 227,
+          "hp": 0,
+          "mana": 95,
+          "damage": 3265.6,
+          "dps": 25.41,
+          "incomingHpDamage": 120.54,
+          "manaWaits": 0,
+          "kills": 145,
+          "damageBySkill": {
+            "basic_paladin": 648.6295953999991,
+            "paladin_zeal": 2616.973412758324
+          },
+          "telemetry": {
+            "outgoing": {
+              "effective": 3265.6030081583253,
+              "overkill": 1329.1469918416776,
+              "bySkill": {
+                "basic_paladin": 648.6295953999991,
+                "paladin_zeal": 2616.973412758324
+              }
+            },
+            "incoming": {
+              "attempts": 79,
+              "raw": 661.2539364958291,
+              "invulnerable": 63,
+              "dodges": 0,
+              "armor": 7.69451433424996,
+              "shield": 0,
+              "health": 120.53647160455557
+            },
+            "manaSpent": 0,
+            "lowManaSeconds": 0,
+            "xpCollected": 227,
+            "goldCollected": 211,
+            "healing": 42.53647160455557,
+            "checkpoints": [
+              {
+                "at": 120,
+                "time": 120.04999999999532,
+                "level": 7,
+                "hp": 44.36926261913915,
+                "mana": 95,
+                "kills": 137,
+                "outgoing": 2945.023287458326
+              }
+            ],
+            "peakEnemies": 71,
+            "peakHostileProjectiles": 0,
+            "enemyCapSeconds": 0,
+            "result": "dead",
+            "seed": "duel-1",
+            "classId": "paladin",
+            "act": 1,
+            "time": 128.49999999999497,
+            "level": 7,
+            "heat": {},
+            "casts": {
+              "paladin_zeal": 81
+            },
+            "manaWaits": 0
+          },
+          "unreached": true
+        },
+        {
+          "checkpoint": 360,
+          "activeTime": 128.5,
+          "state": "dead",
+          "level": 7,
+          "xp": 39,
+          "xpNext": 55,
+          "totalXpCollected": 227,
+          "hp": 0,
+          "mana": 95,
+          "damage": 3265.6,
+          "dps": 25.41,
+          "incomingHpDamage": 120.54,
+          "manaWaits": 0,
+          "kills": 145,
+          "damageBySkill": {
+            "basic_paladin": 648.6295953999991,
+            "paladin_zeal": 2616.973412758324
+          },
+          "telemetry": {
+            "outgoing": {
+              "effective": 3265.6030081583253,
+              "overkill": 1329.1469918416776,
+              "bySkill": {
+                "basic_paladin": 648.6295953999991,
+                "paladin_zeal": 2616.973412758324
+              }
+            },
+            "incoming": {
+              "attempts": 79,
+              "raw": 661.2539364958291,
+              "invulnerable": 63,
+              "dodges": 0,
+              "armor": 7.69451433424996,
+              "shield": 0,
+              "health": 120.53647160455557
+            },
+            "manaSpent": 0,
+            "lowManaSeconds": 0,
+            "xpCollected": 227,
+            "goldCollected": 211,
+            "healing": 42.53647160455557,
+            "checkpoints": [
+              {
+                "at": 120,
+                "time": 120.04999999999532,
+                "level": 7,
+                "hp": 44.36926261913915,
+                "mana": 95,
+                "kills": 137,
+                "outgoing": 2945.023287458326
+              }
+            ],
+            "peakEnemies": 71,
+            "peakHostileProjectiles": 0,
+            "enemyCapSeconds": 0,
+            "result": "dead",
+            "seed": "duel-1",
+            "classId": "paladin",
+            "act": 1,
+            "time": 128.49999999999497,
+            "level": 7,
+            "heat": {},
+            "casts": {
+              "paladin_zeal": 81
+            },
+            "manaWaits": 0
+          },
+          "unreached": true
+        },
+        {
+          "checkpoint": 480,
+          "activeTime": 128.5,
+          "state": "dead",
+          "level": 7,
+          "xp": 39,
+          "xpNext": 55,
+          "totalXpCollected": 227,
+          "hp": 0,
+          "mana": 95,
+          "damage": 3265.6,
+          "dps": 25.41,
+          "incomingHpDamage": 120.54,
+          "manaWaits": 0,
+          "kills": 145,
+          "damageBySkill": {
+            "basic_paladin": 648.6295953999991,
+            "paladin_zeal": 2616.973412758324
+          },
+          "telemetry": {
+            "outgoing": {
+              "effective": 3265.6030081583253,
+              "overkill": 1329.1469918416776,
+              "bySkill": {
+                "basic_paladin": 648.6295953999991,
+                "paladin_zeal": 2616.973412758324
+              }
+            },
+            "incoming": {
+              "attempts": 79,
+              "raw": 661.2539364958291,
+              "invulnerable": 63,
+              "dodges": 0,
+              "armor": 7.69451433424996,
+              "shield": 0,
+              "health": 120.53647160455557
+            },
+            "manaSpent": 0,
+            "lowManaSeconds": 0,
+            "xpCollected": 227,
+            "goldCollected": 211,
+            "healing": 42.53647160455557,
+            "checkpoints": [
+              {
+                "at": 120,
+                "time": 120.04999999999532,
+                "level": 7,
+                "hp": 44.36926261913915,
+                "mana": 95,
+                "kills": 137,
+                "outgoing": 2945.023287458326
+              }
+            ],
+            "peakEnemies": 71,
+            "peakHostileProjectiles": 0,
+            "enemyCapSeconds": 0,
+            "result": "dead",
+            "seed": "duel-1",
+            "classId": "paladin",
+            "act": 1,
+            "time": 128.49999999999497,
+            "level": 7,
+            "heat": {},
+            "casts": {
+              "paladin_zeal": 81
+            },
+            "manaWaits": 0
+          },
+          "unreached": true
+        }
+      ],
+      "final": {
+        "checkpoint": null,
+        "activeTime": 128.5,
+        "state": "dead",
+        "level": 7,
+        "xp": 39,
+        "xpNext": 55,
+        "totalXpCollected": 227,
+        "hp": 0,
+        "mana": 95,
+        "damage": 3265.6,
+        "dps": 25.41,
+        "incomingHpDamage": 120.54,
+        "manaWaits": 0,
+        "kills": 145,
+        "damageBySkill": {
+          "basic_paladin": 648.6295953999991,
+          "paladin_zeal": 2616.973412758324
+        },
+        "telemetry": {
+          "outgoing": {
+            "effective": 3265.6030081583253,
+            "overkill": 1329.1469918416776,
+            "bySkill": {
+              "basic_paladin": 648.6295953999991,
+              "paladin_zeal": 2616.973412758324
+            }
+          },
+          "incoming": {
+            "attempts": 79,
+            "raw": 661.2539364958291,
+            "invulnerable": 63,
+            "dodges": 0,
+            "armor": 7.69451433424996,
+            "shield": 0,
+            "health": 120.53647160455557
+          },
+          "manaSpent": 0,
+          "lowManaSeconds": 0,
+          "xpCollected": 227,
+          "goldCollected": 211,
+          "healing": 42.53647160455557,
+          "checkpoints": [
+            {
+              "at": 120,
+              "time": 120.04999999999532,
+              "level": 7,
+              "hp": 44.36926261913915,
+              "mana": 95,
+              "kills": 137,
+              "outgoing": 2945.023287458326
+            }
+          ],
+          "peakEnemies": 71,
+          "peakHostileProjectiles": 0,
+          "enemyCapSeconds": 0,
+          "result": "dead",
+          "seed": "duel-1",
+          "classId": "paladin",
+          "act": 1,
+          "time": 128.49999999999497,
+          "level": 7,
+          "heat": {},
+          "casts": {
+            "paladin_zeal": 81
+          },
+          "manaWaits": 0
+        }
+      },
+      "rng": {
+        "seed": "duel-1",
+        "current": "combat",
+        "counts": {
+          "waves": 861,
+          "combat": 288,
+          "visual": 5439,
+          "loot": 1533,
+          "offers": 18
+        },
+        "states": {
+          "waves": 2397590284,
+          "combat": 1733363163,
+          "visual": 381617586,
+          "loot": 1649803798,
+          "offers": 1418713854
+        }
+      }
+    },
+    {
+      "class": "barbarian",
+      "seed": "duel-1",
+      "dt": 0.05,
+      "configuration": {
+        "act": 1,
+        "heat": 0,
+        "gear": "naked",
+        "meta": "none",
+        "heatVector": {
+          "hp": 0,
+          "damage": 0,
+          "speed": 0,
+          "elite": 0,
+          "xp": 0,
+          "rate": 0
+        }
+      },
+      "requestedDuration": 480,
+      "simulatedDuration": 251.65,
+      "actions": 64,
+      "checkpoints": [
+        {
+          "checkpoint": 120,
+          "activeTime": 120,
+          "state": "playing",
+          "level": 8,
+          "xp": 21,
+          "xpNext": 61,
+          "totalXpCollected": 264,
+          "hp": 90,
+          "mana": 75,
+          "damage": 3544.32,
+          "dps": 29.54,
+          "incomingHpDamage": 13.15,
+          "manaWaits": 0,
+          "kills": 152,
+          "damageBySkill": {
+            "basic_barbarian": 666.535816033331,
+            "barbarian_swing": 2687.4795372166604,
+            "common_knives": 190.30209589999905
+          },
+          "telemetry": {
+            "outgoing": {
+              "effective": 3544.3174491499913,
+              "overkill": 1606.4825508500119,
+              "bySkill": {
+                "basic_barbarian": 666.535816033331,
+                "barbarian_swing": 2687.4795372166604,
+                "common_knives": 190.30209589999905
+              }
+            },
+            "incoming": {
+              "attempts": 12,
+              "raw": 80.66743292499977,
+              "invulnerable": 10,
+              "dodges": 0,
+              "armor": 0.5477865778333311,
+              "shield": 0,
+              "health": 13.146877867999947
+            },
+            "manaSpent": 0,
+            "lowManaSeconds": 0,
+            "xpCollected": 264,
+            "goldCollected": 363,
+            "healing": 13.146877867999947,
+            "checkpoints": [],
+            "peakEnemies": 48,
+            "peakHostileProjectiles": 0,
+            "enemyCapSeconds": 0,
+            "result": null,
+            "seed": "duel-1",
+            "classId": "barbarian",
+            "act": 1,
+            "time": 119.99999999999532,
+            "level": 8,
+            "heat": {},
+            "casts": {
+              "barbarian_swing": 108,
+              "common_knives": 10
+            },
+            "manaWaits": 0
+          }
+        },
+        {
+          "checkpoint": 240,
+          "activeTime": 240,
+          "state": "playing",
+          "level": 16,
+          "xp": 46,
+          "xpNext": 115,
+          "totalXpCollected": 969,
+          "hp": 55.62,
+          "mana": 6.15,
+          "damage": 14260.29,
+          "dps": 59.42,
+          "incomingHpDamage": 79.93,
+          "manaWaits": 0,
+          "kills": 411,
+          "damageBySkill": {
+            "basic_barbarian": 1511.6731485083362,
+            "barbarian_swing": 7049.668673658364,
+            "common_knives": 2885.752352283352,
+            "barbarian_frenzy": 686.99941711668,
+            "common_seal": 1090.6037751250212,
+            "barbarian_whirl": 8.4,
+            "common_embers": 1027.187644150028
+          },
+          "telemetry": {
+            "outgoing": {
+              "effective": 14260.285010841679,
+              "overkill": 5016.410989158237,
+              "bySkill": {
+                "basic_barbarian": 1511.673148508336,
+                "barbarian_swing": 7049.668673658364,
+                "common_knives": 2885.752352283352,
+                "barbarian_frenzy": 686.99941711668,
+                "common_seal": 1090.6037751250212,
+                "barbarian_whirl": 8.399999999999999,
+                "common_embers": 1027.187644150028
+              }
+            },
+            "incoming": {
+              "attempts": 44,
+              "raw": 472.35604835249853,
+              "invulnerable": 36,
+              "dodges": 0,
+              "armor": 3.3302381126555414,
+              "shield": 0,
+              "health": 79.925714703733
+            },
+            "manaSpent": 363,
+            "lowManaSeconds": 69.3999999999982,
+            "xpCollected": 969,
+            "goldCollected": 2049,
+            "healing": 45.54687786799992,
+            "checkpoints": [
+              {
+                "at": 120,
+                "time": 120.04999999999532,
+                "level": 8,
+                "hp": 90,
+                "mana": 75,
+                "kills": 152,
+                "outgoing": 3544.3174491499913
+              },
+              {
+                "at": 240,
+                "time": 240.00000000002032,
+                "level": 16,
+                "hp": 55.62116316426693,
+                "mana": 6.000000000000064,
+                "kills": 411,
+                "outgoing": 14260.285010841679
+              }
+            ],
+            "peakEnemies": 59,
+            "peakHostileProjectiles": 0,
+            "enemyCapSeconds": 0,
+            "result": null,
+            "seed": "duel-1",
+            "classId": "barbarian",
+            "act": 1,
+            "time": 240.00000000002032,
+            "level": 16,
+            "heat": {},
+            "casts": {
+              "barbarian_swing": 253,
+              "common_knives": 138,
+              "barbarian_frenzy": 39,
+              "common_seal": 55,
+              "common_embers": 66,
+              "barbarian_whirl": 1
+            },
+            "manaWaits": 0
+          }
+        },
+        {
+          "checkpoint": 360,
+          "activeTime": 251.65,
+          "state": "dead",
+          "level": 16,
+          "xp": 85,
+          "xpNext": 115,
+          "totalXpCollected": 1008,
+          "hp": 0,
+          "mana": 5.1,
+          "damage": 15825.41,
+          "dps": 62.89,
+          "incomingHpDamage": 135.55,
+          "manaWaits": 0,
+          "kills": 433,
+          "damageBySkill": {
+            "basic_barbarian": 1610.7984087750058,
+            "barbarian_swing": 7625.181095750056,
+            "common_knives": 3203.1417717416916,
+            "barbarian_frenzy": 804.832493358348,
+            "common_seal": 1291.028555966696,
+            "barbarian_whirl": 8.4,
+            "common_embers": 1282.028353616696
+          },
+          "telemetry": {
+            "outgoing": {
+              "effective": 15825.410679208368,
+              "overkill": 5476.345320791529,
+              "bySkill": {
+                "basic_barbarian": 1610.7984087750056,
+                "barbarian_swing": 7625.181095750056,
+                "common_knives": 3203.1417717416916,
+                "barbarian_frenzy": 804.832493358348,
+                "common_seal": 1291.028555966696,
+                "barbarian_whirl": 8.399999999999999,
+                "common_embers": 1282.028353616696
+              }
+            },
+            "incoming": {
+              "attempts": 63,
+              "raw": 916.1071395802936,
+              "invulnerable": 52,
+              "dodges": 0,
+              "armor": 5.795532799988971,
+              "shield": 0,
+              "health": 135.5468778679999
+            },
+            "manaSpent": 399,
+            "lowManaSeconds": 81.04999999999754,
+            "xpCollected": 1008,
+            "goldCollected": 2098,
+            "healing": 45.54687786799992,
+            "checkpoints": [
+              {
+                "at": 120,
+                "time": 120.04999999999532,
+                "level": 8,
+                "hp": 90,
+                "mana": 75,
+                "kills": 152,
+                "outgoing": 3544.3174491499913
+              },
+              {
+                "at": 240,
+                "time": 240.00000000002032,
+                "level": 16,
+                "hp": 55.62116316426693,
+                "mana": 6.000000000000064,
+                "kills": 411,
+                "outgoing": 14260.285010841679
+              }
+            ],
+            "peakEnemies": 59,
+            "peakHostileProjectiles": 0,
+            "enemyCapSeconds": 0,
+            "result": "dead",
+            "seed": "duel-1",
+            "classId": "barbarian",
+            "act": 1,
+            "time": 251.65000000002297,
+            "level": 16,
+            "heat": {},
+            "casts": {
+              "barbarian_swing": 268,
+              "common_knives": 152,
+              "barbarian_frenzy": 43,
+              "common_seal": 63,
+              "common_embers": 79,
+              "barbarian_whirl": 1
+            },
+            "manaWaits": 0
+          },
+          "unreached": true
+        },
+        {
+          "checkpoint": 480,
+          "activeTime": 251.65,
+          "state": "dead",
+          "level": 16,
+          "xp": 85,
+          "xpNext": 115,
+          "totalXpCollected": 1008,
+          "hp": 0,
+          "mana": 5.1,
+          "damage": 15825.41,
+          "dps": 62.89,
+          "incomingHpDamage": 135.55,
+          "manaWaits": 0,
+          "kills": 433,
+          "damageBySkill": {
+            "basic_barbarian": 1610.7984087750058,
+            "barbarian_swing": 7625.181095750056,
+            "common_knives": 3203.1417717416916,
+            "barbarian_frenzy": 804.832493358348,
+            "common_seal": 1291.028555966696,
+            "barbarian_whirl": 8.4,
+            "common_embers": 1282.028353616696
+          },
+          "telemetry": {
+            "outgoing": {
+              "effective": 15825.410679208368,
+              "overkill": 5476.345320791529,
+              "bySkill": {
+                "basic_barbarian": 1610.7984087750056,
+                "barbarian_swing": 7625.181095750056,
+                "common_knives": 3203.1417717416916,
+                "barbarian_frenzy": 804.832493358348,
+                "common_seal": 1291.028555966696,
+                "barbarian_whirl": 8.399999999999999,
+                "common_embers": 1282.028353616696
+              }
+            },
+            "incoming": {
+              "attempts": 63,
+              "raw": 916.1071395802936,
+              "invulnerable": 52,
+              "dodges": 0,
+              "armor": 5.795532799988971,
+              "shield": 0,
+              "health": 135.5468778679999
+            },
+            "manaSpent": 399,
+            "lowManaSeconds": 81.04999999999754,
+            "xpCollected": 1008,
+            "goldCollected": 2098,
+            "healing": 45.54687786799992,
+            "checkpoints": [
+              {
+                "at": 120,
+                "time": 120.04999999999532,
+                "level": 8,
+                "hp": 90,
+                "mana": 75,
+                "kills": 152,
+                "outgoing": 3544.3174491499913
+              },
+              {
+                "at": 240,
+                "time": 240.00000000002032,
+                "level": 16,
+                "hp": 55.62116316426693,
+                "mana": 6.000000000000064,
+                "kills": 411,
+                "outgoing": 14260.285010841679
+              }
+            ],
+            "peakEnemies": 59,
+            "peakHostileProjectiles": 0,
+            "enemyCapSeconds": 0,
+            "result": "dead",
+            "seed": "duel-1",
+            "classId": "barbarian",
+            "act": 1,
+            "time": 251.65000000002297,
+            "level": 16,
+            "heat": {},
+            "casts": {
+              "barbarian_swing": 268,
+              "common_knives": 152,
+              "barbarian_frenzy": 43,
+              "common_seal": 63,
+              "common_embers": 79,
+              "barbarian_whirl": 1
+            },
+            "manaWaits": 0
+          },
+          "unreached": true
+        }
+      ],
+      "final": {
+        "checkpoint": null,
+        "activeTime": 251.65,
+        "state": "dead",
+        "level": 16,
+        "xp": 85,
+        "xpNext": 115,
+        "totalXpCollected": 1008,
+        "hp": 0,
+        "mana": 5.1,
+        "damage": 15825.41,
+        "dps": 62.89,
+        "incomingHpDamage": 135.55,
+        "manaWaits": 0,
+        "kills": 433,
+        "damageBySkill": {
+          "basic_barbarian": 1610.7984087750058,
+          "barbarian_swing": 7625.181095750056,
+          "common_knives": 3203.1417717416916,
+          "barbarian_frenzy": 804.832493358348,
+          "common_seal": 1291.028555966696,
+          "barbarian_whirl": 8.4,
+          "common_embers": 1282.028353616696
+        },
+        "telemetry": {
+          "outgoing": {
+            "effective": 15825.410679208368,
+            "overkill": 5476.345320791529,
+            "bySkill": {
+              "basic_barbarian": 1610.7984087750056,
+              "barbarian_swing": 7625.181095750056,
+              "common_knives": 3203.1417717416916,
+              "barbarian_frenzy": 804.832493358348,
+              "common_seal": 1291.028555966696,
+              "barbarian_whirl": 8.399999999999999,
+              "common_embers": 1282.028353616696
+            }
+          },
+          "incoming": {
+            "attempts": 63,
+            "raw": 916.1071395802936,
+            "invulnerable": 52,
+            "dodges": 0,
+            "armor": 5.795532799988971,
+            "shield": 0,
+            "health": 135.5468778679999
+          },
+          "manaSpent": 399,
+          "lowManaSeconds": 81.04999999999754,
+          "xpCollected": 1008,
+          "goldCollected": 2098,
+          "healing": 45.54687786799992,
+          "checkpoints": [
+            {
+              "at": 120,
+              "time": 120.04999999999532,
+              "level": 8,
+              "hp": 90,
+              "mana": 75,
+              "kills": 152,
+              "outgoing": 3544.3174491499913
+            },
+            {
+              "at": 240,
+              "time": 240.00000000002032,
+              "level": 16,
+              "hp": 55.62116316426693,
+              "mana": 6.000000000000064,
+              "kills": 411,
+              "outgoing": 14260.285010841679
+            }
+          ],
+          "peakEnemies": 59,
+          "peakHostileProjectiles": 0,
+          "enemyCapSeconds": 0,
+          "result": "dead",
+          "seed": "duel-1",
+          "classId": "barbarian",
+          "act": 1,
+          "time": 251.65000000002297,
+          "level": 16,
+          "heat": {},
+          "casts": {
+            "barbarian_swing": 268,
+            "common_knives": 152,
+            "barbarian_frenzy": 43,
+            "common_seal": 63,
+            "common_embers": 79,
+            "barbarian_whirl": 1
+          },
+          "manaWaits": 0
+        }
+      },
+      "rng": {
+        "seed": "duel-1",
+        "current": "combat",
+        "counts": {
+          "waves": 1938,
+          "combat": 1106,
+          "visual": 15123,
+          "loot": 5314,
+          "offers": 55
+        },
+        "states": {
+          "waves": 3603982021,
+          "combat": 1010611893,
+          "visual": 3344985494,
+          "loot": 3312861599,
+          "offers": 467172199
+        }
+      }
+    },
+    {
+      "class": "amazon",
+      "seed": "duel-1",
+      "dt": 0.05,
+      "configuration": {
+        "act": 1,
+        "heat": 0,
+        "gear": "naked",
+        "meta": "none",
+        "heatVector": {
+          "hp": 0,
+          "damage": 0,
+          "speed": 0,
+          "elite": 0,
+          "xp": 0,
+          "rate": 0
+        }
+      },
+      "requestedDuration": 480,
+      "simulatedDuration": 118.3,
+      "actions": 6,
+      "checkpoints": [
+        {
+          "checkpoint": 120,
+          "activeTime": 118.3,
+          "state": "dead",
+          "level": 6,
+          "xp": 13,
+          "xpNext": 48,
+          "totalXpCollected": 153,
+          "hp": 0,
+          "mana": 105,
+          "damage": 2596.45,
+          "dps": 21.95,
+          "incomingHpDamage": 64.8,
+          "manaWaits": 0,
+          "kills": 105,
+          "damageBySkill": {
+            "amazon_multishot": 2162.121207783326,
+            "basic_amazon": 434.3334112333326
+          },
+          "telemetry": {
+            "outgoing": {
+              "effective": 2596.4546190166584,
+              "overkill": 950.0953809833394,
+              "bySkill": {
+                "amazon_multishot": 2162.121207783326,
+                "basic_amazon": 434.3334112333326
+              }
+            },
+            "incoming": {
+              "attempts": 37,
+              "raw": 292.02126849999917,
+              "invulnerable": 27,
+              "dodges": 1,
+              "armor": 0,
+              "shield": 0,
+              "health": 64.8
+            },
+            "manaSpent": 0,
+            "lowManaSeconds": 0,
+            "xpCollected": 153,
+            "goldCollected": 183,
+            "healing": 4.800000000000001,
+            "checkpoints": [],
+            "peakEnemies": 90,
+            "peakHostileProjectiles": 0,
+            "enemyCapSeconds": 0,
+            "result": "dead",
+            "seed": "duel-1",
+            "classId": "amazon",
+            "act": 1,
+            "time": 118.29999999999542,
+            "level": 6,
+            "heat": {},
+            "casts": {
+              "amazon_multishot": 74
+            },
+            "manaWaits": 0
+          },
+          "unreached": true
+        },
+        {
+          "checkpoint": 240,
+          "activeTime": 118.3,
+          "state": "dead",
+          "level": 6,
+          "xp": 13,
+          "xpNext": 48,
+          "totalXpCollected": 153,
+          "hp": 0,
+          "mana": 105,
+          "damage": 2596.45,
+          "dps": 21.95,
+          "incomingHpDamage": 64.8,
+          "manaWaits": 0,
+          "kills": 105,
+          "damageBySkill": {
+            "amazon_multishot": 2162.121207783326,
+            "basic_amazon": 434.3334112333326
+          },
+          "telemetry": {
+            "outgoing": {
+              "effective": 2596.4546190166584,
+              "overkill": 950.0953809833394,
+              "bySkill": {
+                "amazon_multishot": 2162.121207783326,
+                "basic_amazon": 434.3334112333326
+              }
+            },
+            "incoming": {
+              "attempts": 37,
+              "raw": 292.02126849999917,
+              "invulnerable": 27,
+              "dodges": 1,
+              "armor": 0,
+              "shield": 0,
+              "health": 64.8
+            },
+            "manaSpent": 0,
+            "lowManaSeconds": 0,
+            "xpCollected": 153,
+            "goldCollected": 183,
+            "healing": 4.800000000000001,
+            "checkpoints": [],
+            "peakEnemies": 90,
+            "peakHostileProjectiles": 0,
+            "enemyCapSeconds": 0,
+            "result": "dead",
+            "seed": "duel-1",
+            "classId": "amazon",
+            "act": 1,
+            "time": 118.29999999999542,
+            "level": 6,
+            "heat": {},
+            "casts": {
+              "amazon_multishot": 74
+            },
+            "manaWaits": 0
+          },
+          "unreached": true
+        },
+        {
+          "checkpoint": 360,
+          "activeTime": 118.3,
+          "state": "dead",
+          "level": 6,
+          "xp": 13,
+          "xpNext": 48,
+          "totalXpCollected": 153,
+          "hp": 0,
+          "mana": 105,
+          "damage": 2596.45,
+          "dps": 21.95,
+          "incomingHpDamage": 64.8,
+          "manaWaits": 0,
+          "kills": 105,
+          "damageBySkill": {
+            "amazon_multishot": 2162.121207783326,
+            "basic_amazon": 434.3334112333326
+          },
+          "telemetry": {
+            "outgoing": {
+              "effective": 2596.4546190166584,
+              "overkill": 950.0953809833394,
+              "bySkill": {
+                "amazon_multishot": 2162.121207783326,
+                "basic_amazon": 434.3334112333326
+              }
+            },
+            "incoming": {
+              "attempts": 37,
+              "raw": 292.02126849999917,
+              "invulnerable": 27,
+              "dodges": 1,
+              "armor": 0,
+              "shield": 0,
+              "health": 64.8
+            },
+            "manaSpent": 0,
+            "lowManaSeconds": 0,
+            "xpCollected": 153,
+            "goldCollected": 183,
+            "healing": 4.800000000000001,
+            "checkpoints": [],
+            "peakEnemies": 90,
+            "peakHostileProjectiles": 0,
+            "enemyCapSeconds": 0,
+            "result": "dead",
+            "seed": "duel-1",
+            "classId": "amazon",
+            "act": 1,
+            "time": 118.29999999999542,
+            "level": 6,
+            "heat": {},
+            "casts": {
+              "amazon_multishot": 74
+            },
+            "manaWaits": 0
+          },
+          "unreached": true
+        },
+        {
+          "checkpoint": 480,
+          "activeTime": 118.3,
+          "state": "dead",
+          "level": 6,
+          "xp": 13,
+          "xpNext": 48,
+          "totalXpCollected": 153,
+          "hp": 0,
+          "mana": 105,
+          "damage": 2596.45,
+          "dps": 21.95,
+          "incomingHpDamage": 64.8,
+          "manaWaits": 0,
+          "kills": 105,
+          "damageBySkill": {
+            "amazon_multishot": 2162.121207783326,
+            "basic_amazon": 434.3334112333326
+          },
+          "telemetry": {
+            "outgoing": {
+              "effective": 2596.4546190166584,
+              "overkill": 950.0953809833394,
+              "bySkill": {
+                "amazon_multishot": 2162.121207783326,
+                "basic_amazon": 434.3334112333326
+              }
+            },
+            "incoming": {
+              "attempts": 37,
+              "raw": 292.02126849999917,
+              "invulnerable": 27,
+              "dodges": 1,
+              "armor": 0,
+              "shield": 0,
+              "health": 64.8
+            },
+            "manaSpent": 0,
+            "lowManaSeconds": 0,
+            "xpCollected": 153,
+            "goldCollected": 183,
+            "healing": 4.800000000000001,
+            "checkpoints": [],
+            "peakEnemies": 90,
+            "peakHostileProjectiles": 0,
+            "enemyCapSeconds": 0,
+            "result": "dead",
+            "seed": "duel-1",
+            "classId": "amazon",
+            "act": 1,
+            "time": 118.29999999999542,
+            "level": 6,
+            "heat": {},
+            "casts": {
+              "amazon_multishot": 74
+            },
+            "manaWaits": 0
+          },
+          "unreached": true
+        }
+      ],
+      "final": {
+        "checkpoint": null,
+        "activeTime": 118.3,
+        "state": "dead",
+        "level": 6,
+        "xp": 13,
+        "xpNext": 48,
+        "totalXpCollected": 153,
+        "hp": 0,
+        "mana": 105,
+        "damage": 2596.45,
+        "dps": 21.95,
+        "incomingHpDamage": 64.8,
+        "manaWaits": 0,
+        "kills": 105,
+        "damageBySkill": {
+          "amazon_multishot": 2162.121207783326,
+          "basic_amazon": 434.3334112333326
+        },
+        "telemetry": {
+          "outgoing": {
+            "effective": 2596.4546190166584,
+            "overkill": 950.0953809833394,
+            "bySkill": {
+              "amazon_multishot": 2162.121207783326,
+              "basic_amazon": 434.3334112333326
+            }
+          },
+          "incoming": {
+            "attempts": 37,
+            "raw": 292.02126849999917,
+            "invulnerable": 27,
+            "dodges": 1,
+            "armor": 0,
+            "shield": 0,
+            "health": 64.8
+          },
+          "manaSpent": 0,
+          "lowManaSeconds": 0,
+          "xpCollected": 153,
+          "goldCollected": 183,
+          "healing": 4.800000000000001,
+          "checkpoints": [],
+          "peakEnemies": 90,
+          "peakHostileProjectiles": 0,
+          "enemyCapSeconds": 0,
+          "result": "dead",
+          "seed": "duel-1",
+          "classId": "amazon",
+          "act": 1,
+          "time": 118.29999999999542,
+          "level": 6,
+          "heat": {},
+          "casts": {
+            "amazon_multishot": 74
+          },
+          "manaWaits": 0
+        }
+      },
+      "rng": {
+        "seed": "duel-1",
+        "current": "combat",
+        "counts": {
+          "waves": 780,
+          "combat": 225,
+          "visual": 3849,
+          "loot": 1137,
+          "offers": 15
+        },
+        "states": {
+          "waves": 69647495,
+          "combat": 2308833936,
+          "visual": 179801604,
+          "loot": 2199214874,
+          "offers": 218983711
+        }
+      }
+    },
+    {
+      "class": "necromancer",
+      "seed": "duel-1",
+      "dt": 0.05,
+      "configuration": {
+        "act": 1,
+        "heat": 0,
+        "gear": "naked",
+        "meta": "none",
+        "heatVector": {
+          "hp": 0,
+          "damage": 0,
+          "speed": 0,
+          "elite": 0,
+          "xp": 0,
+          "rate": 0
+        }
+      },
+      "requestedDuration": 480,
+      "simulatedDuration": 90.95,
+      "actions": 2,
+      "checkpoints": [
+        {
+          "checkpoint": 120,
+          "activeTime": 90.95,
+          "state": "dead",
+          "level": 3,
+          "xp": 15,
+          "xpNext": 29,
+          "totalXpCollected": 49,
+          "hp": 0,
+          "mana": 130,
+          "damage": 989.96,
+          "dps": 10.88,
+          "incomingHpDamage": 62.02,
+          "manaWaits": 0,
+          "kills": 41,
+          "damageBySkill": {
+            "basic_necromancer": 329.81058882499997,
+            "necromancer_skeletons": 660.1539884499998
+          },
+          "telemetry": {
+            "outgoing": {
+              "effective": 989.964577275,
+              "overkill": 192.38542272500015,
+              "bySkill": {
+                "basic_necromancer": 329.81058882499997,
+                "necromancer_skeletons": 660.1539884499998
+              }
+            },
+            "incoming": {
+              "attempts": 51,
+              "raw": 439.1998091722211,
+              "invulnerable": 43,
+              "dodges": 0,
+              "armor": 0,
+              "shield": 0,
+              "health": 62.019999999999996
+            },
+            "manaSpent": 0,
+            "lowManaSeconds": 0,
+            "xpCollected": 49,
+            "goldCollected": 20,
+            "healing": 11.020000000000003,
+            "checkpoints": [],
+            "peakEnemies": 102,
+            "peakHostileProjectiles": 0,
+            "enemyCapSeconds": 0,
+            "result": "dead",
+            "seed": "duel-1",
+            "classId": "necromancer",
+            "act": 1,
+            "time": 90.94999999999698,
+            "level": 3,
+            "heat": {},
+            "casts": {},
+            "manaWaits": 0
+          },
+          "unreached": true
+        },
+        {
+          "checkpoint": 240,
+          "activeTime": 90.95,
+          "state": "dead",
+          "level": 3,
+          "xp": 15,
+          "xpNext": 29,
+          "totalXpCollected": 49,
+          "hp": 0,
+          "mana": 130,
+          "damage": 989.96,
+          "dps": 10.88,
+          "incomingHpDamage": 62.02,
+          "manaWaits": 0,
+          "kills": 41,
+          "damageBySkill": {
+            "basic_necromancer": 329.81058882499997,
+            "necromancer_skeletons": 660.1539884499998
+          },
+          "telemetry": {
+            "outgoing": {
+              "effective": 989.964577275,
+              "overkill": 192.38542272500015,
+              "bySkill": {
+                "basic_necromancer": 329.81058882499997,
+                "necromancer_skeletons": 660.1539884499998
+              }
+            },
+            "incoming": {
+              "attempts": 51,
+              "raw": 439.1998091722211,
+              "invulnerable": 43,
+              "dodges": 0,
+              "armor": 0,
+              "shield": 0,
+              "health": 62.019999999999996
+            },
+            "manaSpent": 0,
+            "lowManaSeconds": 0,
+            "xpCollected": 49,
+            "goldCollected": 20,
+            "healing": 11.020000000000003,
+            "checkpoints": [],
+            "peakEnemies": 102,
+            "peakHostileProjectiles": 0,
+            "enemyCapSeconds": 0,
+            "result": "dead",
+            "seed": "duel-1",
+            "classId": "necromancer",
+            "act": 1,
+            "time": 90.94999999999698,
+            "level": 3,
+            "heat": {},
+            "casts": {},
+            "manaWaits": 0
+          },
+          "unreached": true
+        },
+        {
+          "checkpoint": 360,
+          "activeTime": 90.95,
+          "state": "dead",
+          "level": 3,
+          "xp": 15,
+          "xpNext": 29,
+          "totalXpCollected": 49,
+          "hp": 0,
+          "mana": 130,
+          "damage": 989.96,
+          "dps": 10.88,
+          "incomingHpDamage": 62.02,
+          "manaWaits": 0,
+          "kills": 41,
+          "damageBySkill": {
+            "basic_necromancer": 329.81058882499997,
+            "necromancer_skeletons": 660.1539884499998
+          },
+          "telemetry": {
+            "outgoing": {
+              "effective": 989.964577275,
+              "overkill": 192.38542272500015,
+              "bySkill": {
+                "basic_necromancer": 329.81058882499997,
+                "necromancer_skeletons": 660.1539884499998
+              }
+            },
+            "incoming": {
+              "attempts": 51,
+              "raw": 439.1998091722211,
+              "invulnerable": 43,
+              "dodges": 0,
+              "armor": 0,
+              "shield": 0,
+              "health": 62.019999999999996
+            },
+            "manaSpent": 0,
+            "lowManaSeconds": 0,
+            "xpCollected": 49,
+            "goldCollected": 20,
+            "healing": 11.020000000000003,
+            "checkpoints": [],
+            "peakEnemies": 102,
+            "peakHostileProjectiles": 0,
+            "enemyCapSeconds": 0,
+            "result": "dead",
+            "seed": "duel-1",
+            "classId": "necromancer",
+            "act": 1,
+            "time": 90.94999999999698,
+            "level": 3,
+            "heat": {},
+            "casts": {},
+            "manaWaits": 0
+          },
+          "unreached": true
+        },
+        {
+          "checkpoint": 480,
+          "activeTime": 90.95,
+          "state": "dead",
+          "level": 3,
+          "xp": 15,
+          "xpNext": 29,
+          "totalXpCollected": 49,
+          "hp": 0,
+          "mana": 130,
+          "damage": 989.96,
+          "dps": 10.88,
+          "incomingHpDamage": 62.02,
+          "manaWaits": 0,
+          "kills": 41,
+          "damageBySkill": {
+            "basic_necromancer": 329.81058882499997,
+            "necromancer_skeletons": 660.1539884499998
+          },
+          "telemetry": {
+            "outgoing": {
+              "effective": 989.964577275,
+              "overkill": 192.38542272500015,
+              "bySkill": {
+                "basic_necromancer": 329.81058882499997,
+                "necromancer_skeletons": 660.1539884499998
+              }
+            },
+            "incoming": {
+              "attempts": 51,
+              "raw": 439.1998091722211,
+              "invulnerable": 43,
+              "dodges": 0,
+              "armor": 0,
+              "shield": 0,
+              "health": 62.019999999999996
+            },
+            "manaSpent": 0,
+            "lowManaSeconds": 0,
+            "xpCollected": 49,
+            "goldCollected": 20,
+            "healing": 11.020000000000003,
+            "checkpoints": [],
+            "peakEnemies": 102,
+            "peakHostileProjectiles": 0,
+            "enemyCapSeconds": 0,
+            "result": "dead",
+            "seed": "duel-1",
+            "classId": "necromancer",
+            "act": 1,
+            "time": 90.94999999999698,
+            "level": 3,
+            "heat": {},
+            "casts": {},
+            "manaWaits": 0
+          },
+          "unreached": true
+        }
+      ],
+      "final": {
+        "checkpoint": null,
+        "activeTime": 90.95,
+        "state": "dead",
+        "level": 3,
+        "xp": 15,
+        "xpNext": 29,
+        "totalXpCollected": 49,
+        "hp": 0,
+        "mana": 130,
+        "damage": 989.96,
+        "dps": 10.88,
+        "incomingHpDamage": 62.02,
+        "manaWaits": 0,
+        "kills": 41,
+        "damageBySkill": {
+          "basic_necromancer": 329.81058882499997,
+          "necromancer_skeletons": 660.1539884499998
+        },
+        "telemetry": {
+          "outgoing": {
+            "effective": 989.964577275,
+            "overkill": 192.38542272500015,
+            "bySkill": {
+              "basic_necromancer": 329.81058882499997,
+              "necromancer_skeletons": 660.1539884499998
+            }
+          },
+          "incoming": {
+            "attempts": 51,
+            "raw": 439.1998091722211,
+            "invulnerable": 43,
+            "dodges": 0,
+            "armor": 0,
+            "shield": 0,
+            "health": 62.019999999999996
+          },
+          "manaSpent": 0,
+          "lowManaSeconds": 0,
+          "xpCollected": 49,
+          "goldCollected": 20,
+          "healing": 11.020000000000003,
+          "checkpoints": [],
+          "peakEnemies": 102,
+          "peakHostileProjectiles": 0,
+          "enemyCapSeconds": 0,
+          "result": "dead",
+          "seed": "duel-1",
+          "classId": "necromancer",
+          "act": 1,
+          "time": 90.94999999999698,
+          "level": 3,
+          "heat": {},
+          "casts": {},
+          "manaWaits": 0
+        }
+      },
+      "rng": {
+        "seed": "duel-1",
+        "current": "combat",
+        "counts": {
+          "waves": 572,
+          "combat": 142,
+          "visual": 1741,
+          "loot": 421,
+          "offers": 6
+        },
+        "states": {
+          "waves": 1356047735,
+          "combat": 612726817,
+          "visual": 414666904,
+          "loot": 763118046,
+          "offers": 914760578
+        }
+      }
+    }
+  ]
+}

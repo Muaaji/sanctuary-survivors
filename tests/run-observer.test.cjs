@@ -1,0 +1,11 @@
+'use strict';
+const assert=require('node:assert/strict'),{createHarness}=require('./helpers/game-harness.cjs');
+const h=createHarness(),{sandbox:s,player:p,game:g,runtime:R}=h;
+h.run("Game.reset('sorceress');Game.state='playing';Math.random=()=>.99");
+const T=s.SurvivorTelemetry,e=h.run("spawnEnemy('zombie',1050,1024)");e.hp=e.hpMax=10;R.damage(e,20,{id:'test',periodic:true});let a=T.snapshot();assert.equal(a.outgoing.effective,10);assert.equal(a.outgoing.overkill,10);assert.equal(a.outgoing.bySkill.test,10);
+p.hp=p.hpMax=500;p.invuln=0;R.shieldHP=10;const armor=s.SurvivorStats.get().armor*.02;p.takeDamage(20);p.takeDamage(20);a=T.snapshot();assert.equal(a.incoming.attempts,2);assert.equal(a.incoming.invulnerable,1);assert.ok(Math.abs(a.incoming.armor-20*armor)<1e-8);assert.equal(a.incoming.shield,10);assert.ok(Math.abs(a.incoming.health-(20*(1-armor)-10))<1e-8);
+p.invuln=0;p.passives.dodge=1;h.run('Math.random=()=>0');p.takeDamage(20);assert.equal(T.snapshot().incoming.dodges,1);h.run('Math.random=()=>.99');
+p.mana=100;p.skills[0].cd=0;R.activate(0);assert.ok(T.snapshot().manaSpent>0);const xp=p.xp;h.run("collectPickup({type:'big',gemValue:10})");assert.equal(p.xp-xp,10);assert.equal(T.snapshot().xpCollected,10);
+g.state='paused';const before=JSON.stringify(T.snapshot());h.run('updateProgress(20)');assert.equal(JSON.stringify(T.snapshot()),before);
+g.state='playing';h.run('updateProgress(120)');assert.equal(T.snapshot().checkpoints[0].at,120);const ordinary=h.run("spawnEnemy('zombie',1300,1024)");ordinary.hp=100;g.state='playing';h.run('deathSequence()');assert.equal(T.snapshot().result,'dead');h.run("Game.reset('paladin');Game.state='playing'");assert.equal(T.snapshot().outgoing.effective,0);assert.equal(T.snapshot().incoming.attempts,0);
+console.log('PASS telemetry: effective damage, overkill, incoming chain, mana/XP, pauses and reset');

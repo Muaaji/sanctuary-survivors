@@ -18,13 +18,13 @@
   for(const d of Object.values(C.spells)) {
     d.maxLevel=5;
     const recipe=C.recipes[d.id],branch=(C.trees[d.group]||[]).find(b=>b.skills.includes(d.id));
-    ultimates[d.id]={id:d.id,group:d.group,name:recipe?.name||d.name+' — ultime',desc:recipe?.desc||(d.mode==='shield'?'Bouclier +50 %, recharge −20 %.':d.mode==='curse'?'Vulnérabilité doublée, portée +25 %, recharge −20 %.':'Dégâts +50 %, portée +25 %, recharge −20 % ; invocations renforcées.'),passive:recipe?.passive,branch};
+    ultimates[d.id]={id:d.id,group:d.group,name:recipe?.name||d.name+' — ultime',desc:recipe?.desc||(d.mode==='shield'?'Bouclier +50 %, recharge −20 %.':d.mode==='curse'?'Vulnérabilité physique : +40 %, portée +25 %, recharge −20 %.':'Dégâts +50 %, portée +25 %, recharge −20 % ; invocations renforcées.'),passive:recipe?.passive,branch};
   }
   function ultimateEligible(id){const w=R.state(id),u=ultimates[id];return !!(w&&u&&!w.evolved&&w.level>=5&&(u.passive?R.passive(u.passive)>=1:u.branch?.nodes.some(n=>R.talents.has(n.id))));}
   R.ultimateEligible=ultimateEligible;
   const descriptions={projectile:'Salve rapide vers une cible proche.',fan:'Éventail de projectiles vers un groupe.',axe:'Haches à trajectoire courbe et impact physique.',fireball:'Projectile explosif de feu.',orbit:'Lames en orbite autour de vous.',pool:'Flaques persistantes empoisonnant les ennemis.',frost:'Éclats de froid qui ralentissent.',chain:'Éclair sautant entre des cibles différentes.',aura:'Pulsations de dégâts autour de vous.',homing:'Projectiles magiques qui poursuivent une cible.',meteor:'Impacts de feu annoncés au sol.',javelin:'Javelot libérant des traits électriques.',plague:'Javelot traversant et nuage de poison.',companion:'Compagnons permanents, remplacés après leur mort.',orb:'Orbe diffusant des éclats de glace.',blizzard:'Zone de glace frappant et ralentissant un groupe.',turret:'Tourelle temporaire attaquant automatiquement.',spear:'Projectile magique traversant plusieurs ennemis.',nova:'Anneau de poison frappant les ennemis proches.',corpse:'Fait exploser un cadavre proche des ennemis.',curse:'Les ennemis maudits reçoivent davantage de dégâts.',melee:'Frappes rapides dans un cône frontal.',hammer:'Marteaux décrivant une spirale sortante.',heavens:'Frappe sacrée et traits secondaires.',shield:'Barrière absorbant les dégâts reçus.',whirl:'Frappes tournantes pendant vos déplacements.',cry:'Onde de dégâts et bref étourdissement.',frenzy:'Frappes au contact et bonus temporaire de mobilité.',tornado:'Tornade perforante à trajectoire courbe.',hurricane:'Anneau de vent et de froid suivant vos déplacements.',fissure:'Zone de sol brûlant sous les ennemis.',venom:'Vos attaques physiques directes appliquent du poison.'};
   for(const s of Object.values(C.spells)) {
-    s.desc=s.mode==='weapon'||s.id==='necromancer_curse'?s.desc:descriptions[s.mode];s.icon='ss_'+s.id;s.mana=SurvivorStats.manaCost(s);s.lvl=Array.from({length:5},(_,i)=>({dmg:s.dmg*(1+.15*i),cd:s.cd}));
+    s.desc=s.mode==='weapon'||s.id==='necromancer_curse'?s.desc:descriptions[s.mode];s.icon='ss_'+s.id;Object.defineProperties(s,{mana:{configurable:true,enumerable:false,get(){return SurvivorStats.manaCost(R.stats({id:s.id,level:R.state(s.id)?.level||1,evolved:!!R.state(s.id)?.evolved}));}},lvl:{configurable:true,enumerable:false,get(){return Array.from({length:5},(_,i)=>{const stats=R.stats({id:s.id,level:i+1});return {dmg:stats.dmg,cd:stats.cd};});}}});
     if(s.group==='common')WEAPONS[s.id]=s;else SKILLS[s.id]=s;
     const image=new Image();image.src=icon(s.id);s.image=image;
     // Existing art consumers expect a canvas with toDataURL(), not an Image.
@@ -71,19 +71,20 @@
       return {hp:1+.2*(ranks.hp||0),damage:1+.15*(ranks.damage||0),rate:1+.15*(ranks.rate||0),speed:1+.08*(ranks.speed||0),elite:.04*(ranks.elite||0),xp:1-.1*(ranks.xp||0),reward:1+.15*clamp(value,0,30)};}
   };
   for(const c of contracts)Heat.ranks[c.id]=clamp(Math.floor(Number(saved.ranks?.[c.id])||0),0,c.max);Heat.refresh();
-  spawnEnemy=function(type,x,y,opts={}){const e=legacy.spawnEnemy(type,x,y,opts);if(e){const f=Heat.factors();e.hp=e.hpMax*=f.hp;e.dmg*=f.damage;e.speed*=f.speed;SurvivorActWaves.scaleEnemy(e,Acts.elapsed,Acts.index);}return e;};
+  spawnEnemy=function(type,x,y,opts={}){const e=legacy.spawnEnemy(type,x,y,opts);if(e){const f=Heat.factors();e.hp=e.hpMax*=f.hp;e.dmg*=f.damage;e.speed*=f.speed;SurvivorActWaves.scaleEnemy(e,Acts.elapsed,Acts.index);window.SurvivorEnemyRoles?.configure(e,Acts.index,Acts.elapsed);}return e;};
   winSequence=function(){if(Game.state==='win')return;const bonus=Math.floor(5*Heat.factors().reward);Meta.essence+=bonus;Player.essenceRun+=bonus;if(Acts.active>=0)Acts.complete(Acts.active);legacy.win();$('win-screen').querySelector('h2').textContent='Acte '+(Acts.active+1)+' terminé';$('ss-hotter').disabled=Heat.active>=30;renderHeat();toast('Victoire : +'+bonus+' essence · chaleur '+Heat.active);};
   Player.reset=function(cls) {
     this.classId=cls||this.classId;Acts.useClass(this.classId);Heat.active=Acts.unlocked()?Heat.selected:0;Heat.activeRanks=Heat.active?{...Heat.ranks}:{};Acts.active=Acts.selected;Acts.begin();R.reset();const c=CLASSES[this.classId];
     this.x=this.y=1024;this.r=11;this.facing=this.facing8='S';this.attackAnimT=0;
     this.baseHP=Math.round(60*c.hpMul*metaBonus('vital'));R.flatHP=0;
     this.hpMax=this.hp=this.baseHP;const attributes=SurvivorStats.get(this.classId,true);this.manaMax=this.mana=attributes.manaMax;this.manaRegen=attributes.manaRegen;
-    this.speed=105*c.speedMul*metaBonus('swift');this.level=1;this.xp=0;this.xpNext=12;
+    this.speed=105*c.speedMul*metaBonus('swift');this.level=1;this.xp=0;this.xpNext=SurvivorRunEconomy.xpToLevel(1);
     this.gold=0;this.gems=0;this.essenceRun=0;this.kills=0;this.invuln=0;
     this.weapons={};this.passives={};this.skills=[];this.shopPurchases={};
     for(const key of ['slowAuraT','boneArmorHP','boneArmorT','buffDmgT','buffHPT','buffManaT','whirlwindT','firestormT'])this[key]=0;
     this.buffDmgMul=1;this.lastKillPos=null;
     this.gainClassSkill(c.skills[0]);
+    if(this.classId==='necromancer'){const w=this.skills[0],stats=R.stats(w);w.initialized=true;R.allies.push({id:w.id,x:this.x+25,y:this.y+15,hp:stats.allyHP,hpMax:stats.allyHP,cd:.2,dead:false,hits:0});}
   };
   Player.gainClassSkill=function(id) {
     const def=C.spells[id];if(!def||def.group!==this.classId)return false;
@@ -151,22 +152,22 @@
     return b;
   };
   const oldDropLoot=dropLoot;
-  dropLoot=function(e){const start=pickups.length;oldDropLoot(e);for(let i=pickups.length-1;i>=start;i--){const p=pickups[i];if(['heart','flaskHP'].includes(p.type)&&(!e.boss&&Math.random()<.82||e.boss&&p.type==='flaskHP'))pickups.splice(i,1);}};
+  dropLoot=function(e){const start=pickups.length;oldDropLoot(e);for(let i=pickups.length-1;i>=start;i--){const p=pickups[i];if(['heart','flaskHP'].includes(p.type)&&(!e.boss&&(window.SurvivorRunRng?SurvivorRunRng.random('loot'):Math.random())<.82||e.boss&&p.type==='flaskHP'))pickups.splice(i,1);}};
   collectPickup=function(p) {
     if(['small','mid','big','giant'].includes(p.type)){Player.xp+=(p.gemValue||{small:1,mid:3,big:10,giant:60}[p.type])*Heat.factors().xp;Player.gems++;Sound.play('gem');return;}
     if(p.type==='heart'){Player.heal(Math.max(4,Math.round(Player.hpMax*.1)));Sound.play('heal');return;}
     if(p.type==='flaskHP'){Player.heal(Math.round(Player.hpMax*.2));Sound.play('heal');return;}
     if(p.type==='flaskMP'){Game.rerollsLeft++;toast('Rune de refonte : +1 relance');return;}
-    if(p.type==='chest'){Player.gold+=50;Run.goldEarned+=50;R.pendingChests++;Sound.play('chest');processRewards();return;}
+    if(p.type==='chest'){Player.gold+=SurvivorRunEconomy.chestGold;Run.goldEarned+=SurvivorRunEconomy.chestGold;R.pendingChests++;Sound.play('chest');processRewards();return;}
     legacy.collectPickup(p);
   };
   checkLevelUp=function() {
     if(Game.state!=='playing')return;
     let count=0;
-    while(Player.level<40&&Player.xp>=Player.xpNext) {
+    while(Player.level<SurvivorRunEconomy.levelCap&&Player.xp>=Player.xpNext) {
       Player.xp-=Player.xpNext;Player.level++;R.pendingLevels++;count++;
       if(Player.level%5===0)R.talentPoints++;
-      Player.xpNext=Math.round(10+Player.level*4.5+Math.pow(Player.level,1.12)*1.5);
+      Player.xpNext=SurvivorRunEconomy.xpToLevel(Player.level);
       Player.heal(Player.hpMax*.02);
     }
     if(count){Game.showLevelUp();Sound.play('levelup');}
@@ -181,8 +182,8 @@
   };
   Wave.update=function(dt){
     if(Game.state!=='playing')return;
-    SurvivorActWaves.update(dt,Acts.elapsed);
-    const cfg=SurvivorActWaves.config(Acts.index,Acts.elapsed),rate=Math.min(8,cfg.rate*Heat.factors().rate);
+    SurvivorActWaves.update(dt,Acts.elapsed);window.SurvivorEnemyRoles?.update(dt,Acts.elapsed);
+    const baseCfg=SurvivorActWaves.config(Acts.index,Acts.elapsed),cfg=window.SurvivorWaveDirector?SurvivorWaveDirector.config(Acts.index,Acts.elapsed,baseCfg):baseCfg;window.SurvivorWaveDirector?.update(Acts.elapsed);const rate=Math.min(8,cfg.rate*Heat.factors().rate);
     const interval=1/rate;
     this.timer+=Math.min(1,Math.max(0,Number(dt)||0));
     while(this.timer>=interval){this.timer-=interval;this.spawnOne(cfg);}
@@ -197,7 +198,7 @@
       if(world){x=clamp(x,30,world.w-30);y=clamp(y,30,world.h-30);}
       if(dist2(x,y,Player.x,Player.y)>160*160&&(Math.abs(x-CAM.x)>VW/(2*CAM.zoom)+16||Math.abs(y-CAM.y)>VH/(2*CAM.zoom)+16)){valid=true;break;}
     }
-    if(valid)spawnEnemy(pick(cfg.types),x,y,{elite:chance((cfg.elite||0)+Heat.factors().elite)});
+    if(valid){const type=window.SurvivorWaveDirector?SurvivorWaveDirector.choose(cfg,enemies,()=>SurvivorRunRng.random('waves')):pick(cfg.types);if(!type)return;const e=spawnEnemy(type,x,y,{elite:chance((cfg.elite||0)+Heat.factors().elite)});if(e&&cfg.names?.[type])e.name=cfg.names[type]+(e.elite?' élite':'');}
   };
 
   // Preserve the supplied frame unchanged; the SVG viewport removes its empty margins.
@@ -212,6 +213,7 @@
   $('game-container').appendChild(evolution);
   const ribbon=document.createElement('div');ribbon.id='ss-build-ribbon';ribbon.innerHTML='<span id="ss-run-level"></span><div id="ss-passives"></div><button id="ss-talents-button" class="btn small">Talents <span id="ss-talent-count">0</span></button>';
   $('hud').appendChild(ribbon);
+  const comboBadge=document.createElement('span');comboBadge.id='ss-combo-status';comboBadge.style.cssText='color:#d7c28d;font:11px/1.2 sans-serif;max-width:300px;white-space:normal';ribbon.appendChild(comboBadge);
   const bossTimer=document.createElement('div');bossTimer.id='ss-boss-timer';bossTimer.className='hidden';bossTimer.setAttribute('role','timer');bossTimer.setAttribute('aria-label','Prochaine rencontre et pression de l’acte');$('hud').appendChild(bossTimer);
   $('ss-talents-button').onclick=()=>openTalents(false);
   $('ss-talents-close').onclick=()=>closeTalents();
@@ -264,20 +266,23 @@
   $('retry-btn').textContent='Recommencer (Entrée)';$('retry-btn2').textContent='Recommencer (Entrée)';
   $('retry-btn').onclick=$('retry-btn2').onclick=()=>startRun(Player.classId);
   const library=document.createElement('div');library.id='knowledge-overlay';library.className='overlay hidden';
-  library.innerHTML='<div class="ss-library-panel"><h2>Bibliothèque de savoir</h2><p>Inconnu : ? · Aperçu : grisé · Acquis : révélé. Les découvertes restent entre les parties.</p><p id="ss-library-count"></p><div id="ss-library-items"></div><button class="btn small" id="ss-library-close">Retour</button></div>';$('game-container').appendChild(library);
+  library.innerHTML='<div class="ss-library-panel"><h2>Bibliothèque de savoir</h2><p>Inconnu : ? · Aperçu : grisé · Acquis : révélé. Bestiaire : inconnu → rencontré → vaincu. Les découvertes restent entre les parties.</p><label>Afficher <select id="ss-library-filter" aria-label="Contenu de la bibliothèque"><option value="all">Tout le savoir</option><option value="spells">Sorts et ultimes</option><option value="abilities">Capacités et talents</option><option value="combos">Combos</option><option value="bestiary">Bestiaire</option></select></label><p id="ss-library-count"></p><div id="ss-library-items"></div><button class="btn small" id="ss-library-close">Retour</button></div>';$('game-container').appendChild(library);
   let libraryResume='title';
-  function renderLibrary(){const items=[];
+  function renderLibrary(){let items=[];
     for(const d of Object.values(C.spells)){const family=d.group==='common'?'Armes communes':'Sorts de classe · '+CLASSES[d.group].name;items.push({key:d.id,name:d.name,desc:d.desc,icon:d.id,family});const u=ultimates[d.id];items.push({key:'ultimate:'+d.id,name:u.name,desc:u.desc,icon:d.id,family:'Ultimes · '+(d.group==='common'?'armes communes':CLASSES[d.group].name)});}
     for(const p of Object.values(C.passives))items.push({key:p.id,name:p.name,desc:p.desc,icon:p.id,family:'Capacités standards'});
     for(const [cls,tree] of Object.entries(C.trees))for(const branch of tree)for(const node of branch.nodes)items.push({key:'talent:'+node.id,name:node.name,desc:node.desc,family:'Capacités de classe · '+CLASSES[cls].name});
-    $('ss-library-count').textContent=items.filter(i=>Knowledge.status(i.key)>0).length+' / '+items.length+' découvertes · '+items.filter(i=>Knowledge.status(i.key)===2).length+' acquises';
+    for(const entry of window.SurvivorBestiary?.entries()||[])items.push({...entry,bestiary:true});
+    for(const cls of Object.keys(C.trees))for(const combo of window.SurvivorBuildCombos?.list(cls)||[])items.push({key:'combo:'+combo.id,name:combo.name,desc:SurvivorBuildCombos.preview(combo.id),family:'Combos · '+CLASSES[cls].name,combo:true});
+    const filter=$('ss-library-filter').value||'all';if(filter!=='all')items=items.filter(i=>filter==='bestiary'?i.bestiary:filter==='combos'?i.combo:filter==='spells'?i.icon&&!!C.spells[i.icon]:!i.bestiary&&!i.combo&&!(i.icon&&C.spells[i.icon]));
+    $('ss-library-count').textContent=items.filter(i=>Knowledge.status(i.key)>0).length+' / '+items.length+' découvertes · '+items.filter(i=>Knowledge.status(i.key)===2).length+' acquises / vaincues';
     const box=$('ss-library-items');box.innerHTML='';
     for(const family of [...new Set(items.map(i=>i.family))]){const section=document.createElement('section');section.className='ss-library-section';const heading=document.createElement('h3');heading.textContent=family;section.appendChild(heading);const grid=document.createElement('div');grid.className='ss-library-grid';
-      for(const i of items.filter(i=>i.family===family)){const state=Knowledge.status(i.key),entry=document.createElement('article');entry.className='ss-library-entry '+(state===0?'unknown':state===1?'seen':'acquired');entry.innerHTML=state===0?'<strong class="ss-unknown">?</strong><b>Non découvert</b>':(i.icon?'<img src="'+icon(i.icon)+'" alt="">':'')+'<b>'+escape(i.name)+'</b><p>'+escape(i.desc)+'</p><small>'+(state===1?'Aperçu · jamais acquis':'Acquis')+'</small>';grid.appendChild(entry);}section.appendChild(grid);box.appendChild(section);}
+      for(const i of items.filter(i=>i.family===family)){const state=Knowledge.status(i.key),entry=document.createElement('article');entry.className='ss-library-entry '+(state===0?'unknown':state===1?'seen':'acquired');entry.innerHTML=state===0?'<strong class="ss-unknown">?</strong><b>Non découvert</b>':(i.imagePath?'<img src="'+escape(i.imagePath)+'" alt="">':i.icon?'<img src="'+icon(i.icon)+'" alt="">':'')+'<b>'+escape(i.name)+'</b><p>'+escape(i.desc)+'</p><small>'+(i.bestiary?(state===1?'Rencontré · jamais vaincu':'Vaincu'):i.combo?(state===1?'Prêt · jamais déclenché':'Déclenché'):(state===1?'Aperçu · jamais acquis':'Acquis'))+'</small>';grid.appendChild(entry);}section.appendChild(grid);box.appendChild(section);}
   }
   function openLibrary(){libraryResume=Game.state;Game.state='knowledge';renderLibrary();library.classList.remove('hidden');}
   function closeLibrary(){library.classList.add('hidden');Game.state=libraryResume;}
-  Knowledge.open=openLibrary;Knowledge.render=renderLibrary;
+  Knowledge.open=openLibrary;Knowledge.render=renderLibrary;$('ss-library-filter').onchange=renderLibrary;
   $('ss-library-close').onclick=closeLibrary;
   for(const target of [titleActions,$('pause-overlay')]){const button=document.createElement('button');button.className='btn small';button.textContent='Bibliothèque de savoir';button.onclick=openLibrary;target.appendChild(button);}
   addEventListener('keydown',e=>{if(e.code==='Escape'&&Game.state==='knowledge'){closeLibrary();e.preventDefault();}});
@@ -311,7 +316,7 @@
     else if(opt.kind==='passive')success=Player.gainPassive(opt.id);
     if(success){if(opt.kind==='class'&&!alreadyOwned&&SurvivorStats.activation(C.spells[opt.id])!=='passive')R.pendingBindings.push(opt.id);Sound.play('select');renderWeaponSlots();}return success;
   };
-  weaponLvlDesc=opt=>opt.def.desc+' '+(opt.level>1?'Dégâts et comportement améliorés.':'');
+  weaponLvlDesc=opt=>opt.def.desc+' '+SurvivorUpgradePreview.describe(opt);
   function card(opt,onClick) {
     const el=document.createElement('button');el.className='card ss-card '+(C.spells[opt.id]?.group!=='common'&&opt.kind!=='passive'?'ss-class-choice':'ss-standard-choice')+(opt.kind==='ultimate'?' ss-ultimate-choice':'');el.type='button';
     el.innerHTML='<img src="'+icon(opt.id)+'" alt=""><h3>'+escape(opt.label)+'</h3><p>'+escape(opt.def.desc)+'</p><span class="lvl-ind">'+(opt.kind==='passive'?'STANDARD · Capacité passive':(C.spells[opt.id]?.group==='common'?'STANDARD':'CLASSE · '+CLASSES[C.spells[opt.id]?.group]?.name)+' · '+(opt.kind==='ultimate'?'ULTIME':'Sort'))+'</span>';
@@ -320,7 +325,8 @@
     }
     if(opt.kind==='passive'){const recipes=Object.values(C.recipes).filter(r=>r.passive===opt.id);if(recipes.length){const detail=document.createElement('small');detail.textContent='Ultimes : '+recipes.map(recipe=>C.spells[recipe.weapon].name+' → '+recipe.name).join(' · ');el.appendChild(detail);}}
     if(opt.kind==='class'){const links=(C.synergies||[]).filter(link=>link.to===opt.id||link.from===opt.id);if(links.length){const sy=document.createElement('small');sy.textContent='Synergie : '+[...new Set(links.map(link=>C.spells[link.to===opt.id?link.from:link.to].name))].join(' · ');el.appendChild(sy);}const u=ultimates[opt.id];const detail=document.createElement('small');detail.textContent='Ultime : rang 5 + 1 talent de la branche '+(u.branch?.name||'associée');el.appendChild(detail);}
-    el.onclick=onClick;return el;
+    for(const combo of window.SurvivorBuildCombos?.list(Player.classId)||[])if([combo.source,combo.target].includes(opt.id)){const detail=document.createElement('small');detail.textContent=SurvivorBuildCombos.preview(combo.id);el.appendChild(detail);}
+    const preview=document.createElement('small');preview.className='ss-upgrade-values';preview.textContent=SurvivorUpgradePreview.describe(opt);el.appendChild(preview);el.onclick=onClick;return el;
   }
   drawUpgradeCards=function(container) {
     const picked=SurvivorUltimateOffers.pick(buildUpgradeOptions(),3);
@@ -362,7 +368,7 @@
     if(R.pendingChests>0) {
       R.pendingChests--;
       if(Player.level>=40&&buildUpgradeOptions().some(o=>o.kind==='ultimate')){R.pendingLevels++;Game.showLevelUp();return;}
-      const choices=buildUpgradeOptions().filter(o=>o.kind!=='ultimate');if(choices.length)applyUpgrade(pick(choices));else Player.gold+=100;
+      const choices=buildUpgradeOptions().filter(o=>o.kind!=='ultimate');if(choices.length)applyUpgrade(window.SurvivorRunRng?SurvivorRunRng.withStream('offers',()=>pick(choices)):pick(choices));else Player.gold+=SurvivorRunEconomy.maxedChestGold;
       toast('Coffre : amélioration et 50 or');processRewards();return;
     }
     if(R.talentPoints>0&&!R.deferredTalents){openTalents(true);return;}
@@ -449,14 +455,14 @@
   };
   renderWeaponSlots=()=>renderSkillBar();
   refreshSkillCooldowns=function(){for(const el of document.querySelectorAll('[data-ability]')){const w=R.state(el.dataset.ability);if(!w)continue;const stats=R.stats(w),cd=stats.cd;el.classList.toggle('mana-starved',SurvivorStats.manaCost(stats)>Player.mana&&w.cd<=0);el.classList.toggle('aura-enabled',!!w.enabled);el.querySelector('.skill-cooldown').style.transform='scaleY('+Math.min(1,(w.cd||0)/Math.max(.1,cd))+')';}};
-  updateHUD=function(){legacy.updateHUD();const next=SurvivorEncounters.nextEncounter;bossTimer.classList.remove('hidden');bossTimer.classList.remove('urgent');
+  updateHUD=function(){legacy.updateHUD();const combo=window.SurvivorBuildCombos?.active()[0];comboBadge.textContent=combo?combo.name+' · '+(combo.active?'actif '+combo.remaining.toFixed(1)+' s':combo.readyIn>0?'prêt dans '+Math.ceil(combo.readyIn)+' s':'prêt'):'';const next=SurvivorEncounters.nextEncounter;bossTimer.classList.remove('hidden');bossTimer.classList.remove('urgent');
     if(next){const seconds=Math.max(0,Math.ceil(next.at-Acts.elapsed));bossTimer.textContent='Acte '+(Acts.index+1)+' · '+(next.final?'Boss final':'Boss intermédiaire')+' dans '+Math.floor(seconds/60)+':'+String(seconds%60).padStart(2,'0');}
     else bossTimer.textContent='Boss final · pression ×'+SurvivorActWaves.factors(Acts.elapsed).damage.toFixed(1);
     $('ss-run-level').textContent='Niveau '+Player.level+' · Acte '+(Acts.index+1)+' · Chaleur '+Heat.active+' · ✓ '+Acts.cleared.filter(h=>h>=0).length+'/5';$('ss-talent-count').textContent=R.talentPoints;$('hp-label').textContent=Math.ceil(Player.hp)+' / '+Player.hpMax;$('mp-label').textContent=Math.ceil(Player.mana)+' / '+Player.manaMax;$('mp-fill').style.height=(Player.mana/Player.manaMax)*100+'%';};
   // Shops use the same caps and inventory APIs as level-up rewards.
   const manaPotion=SHOP_POOL.find(it=>it.id==='potionMP');if(manaPotion){manaPotion.name='Rune de refonte';manaPotion.desc='+1 relance de choix de progression.';}
-  const shopRules={potionHP:[160,2],potionMP:[180,1],weaponUp:[360,2],armorUp:[270,2],reroll:[220,1],magnetNow:[120,2],maxHP:[520,1],essenceDust:[600,1]};
-  for(const it of SHOP_POOL){const rule=shopRules[it.id];if(rule){it.cost=rule[0];it.limit=rule[1];}}
+  const shopRules=SurvivorRunEconomy.shopRules;
+  for(const it of SHOP_POOL){const rule=shopRules[it.id];if(rule){it.cost=rule.cost;it.limit=rule.limit;}}
   buyShopItem=function(it) {
     it=SHOP_POOL.find(article=>article.id===it?.id);if(!it)return;
     const purchased=Player.shopPurchases||(Player.shopPurchases={});
@@ -509,7 +515,7 @@
       let sprite,frame,width,height;
       if(item.kind==='merchant'){ctx.save();ctx.fillStyle='rgba(9,7,5,.5)';ctx.beginPath();ctx.ellipse(x,y+4,15,5,0,0,TAU);ctx.fill();if(merchantSprite.complete&&merchantSprite.naturalWidth){ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(merchantSprite,x-24,y-52,48,60);}ctx.restore();continue;}
       if(item.kind==='player'){sprite=Sprites.playerSprite(Player.classId,Player.facing,Player.attackAnimT>0)||ART.player[Player.classId]?.S||ART.player.paladin.S;width=48;height=48;if(Player.invuln>0&&Math.floor(R.now*15)%2)ctx.globalAlpha=.5;}
-      else if(item.kind==='enemy'){frame=body.ssChampion?Sprites.monsterSprite(body.sprite,'idle',R.now):body.boss?Sprites.bossSprite(body.sprite,body.bossBossAttackT>0?'attack':'idle',R.now*(body.bossTempo||1.2)):Sprites.monsterSprite(body.sprite,'idle',R.now);if(body.ssChampionImage?.complete&&body.ssChampionImage.naturalWidth)frame={img:body.ssChampionImage,sx:0,sw:body.ssChampionImage.width};sprite=frame?.img||ART[body.sprite]||ART.fallen;width=body.spriteSize||(body.boss?64:32);height=width;}
+      else if(item.kind==='enemy'){frame=body.ssChampion?Sprites.monsterSprite(body.sprite,'idle',R.now):body.boss?Sprites.bossSprite(body.sprite,body.bossBossAttackT>0?'attack':'idle',R.now*(body.bossTempo||1.2)):Sprites.monsterSprite(body.sprite,'idle',R.now);const championImage=body.ssChampion&&(SurvivorEncounters.image(body.ssChampionSprite)||body.ssChampionImage);if(championImage?.width&&(championImage.complete===undefined||championImage.complete&&championImage.naturalWidth))frame={img:championImage,sx:0,sw:championImage.width};sprite=frame?.img||ART[body.sprite]||ART.fallen;width=body.spriteSize||(body.boss?64:32);height=width;}
       else {
         const key=body.id.split('_')[1];
         if(key==='skeletons')frame=Sprites.monsterSprite('skeleton','idle',R.now);
@@ -540,6 +546,7 @@
     ctx.globalAlpha=1;
     drawShopLocator(w2s);
     const objective=Acts.boss;if(objective&&!objective.dead)drawMapLocator(w2s,objective.x,objective.y,objective.name||'Boss','#c58a78');
+    window.SurvivorEnemyRoles?.draw(ctx,w2s);
     const bosses=enemies.filter(e=>e.boss&&!e.dead);if(bosses.length){const boss=Acts.boss&&!Acts.boss.dead?Acts.boss:bosses[bosses.length-1],w=Math.min(480,VW*.55);ctx.fillStyle='#170e12';ctx.fillRect((VW-w)/2,55,w,9);ctx.fillStyle='#b14e45';ctx.fillRect((VW-w)/2,55,w*Math.max(0,boss.hp/boss.hpMax),9);ctx.font='14px serif';ctx.textAlign='center';ctx.fillStyle='#dfc7a1';ctx.fillText(boss.name,VW/2,48);}
   };
   function mapLabel(text,x,y,color='#ffe092') {
