@@ -104,6 +104,19 @@ test('shop prices and per-run stock prevent repeated permanent stat purchases',(
  reset();assert.deepEqual(Object.keys(player.shopPurchases),[]);player.gold=10000;run('buyShopItem')(item);assert.equal(player.shopPurchases.maxHP,1);
  const armor=run("SHOP_POOL.find(it=>it.id==='armorUp')");for(let n=0;n<3;n++)run('buyShopItem')(armor);assert.equal(player.passives.armor,2);assert.equal(player.shopPurchases.armorUp,2);
 });
+test('shop smoke: eight services apply effects, reject insufficient gold and reset stock',()=>{
+ const items=run('SHOP_POOL');
+ for(const item of items){reset();player.gold=item.cost-1;const gold=player.gold;run('buyShopItem')(item);assert.equal(player.gold,gold,item.id);assert.equal(player.shopPurchases[item.id],undefined,item.id);}
+ reset();player.gold=10000;player.hp=1;player.gainWeapon('common_knives');
+ const buy=id=>run('buyShopItem')(items.find(i=>i.id===id));
+ buy('potionHP');assert.equal(player.hp,player.hpMax);
+ let rerolls=game.rerollsLeft;buy('potionMP');assert.equal(game.rerollsLeft,rerolls+1);buy('reroll');assert.equal(game.rerollsLeft,rerolls+2);
+ const weapon=player.weapons.common_knives;buy('weaponUp');assert.equal(weapon.level,2);buy('armorUp');assert.equal(player.passives.armor,1);
+ const hp=player.hpMax;buy('maxHP');assert.equal(player.hpMax,hp+20);
+ const essence=run('Meta.essence');buy('essenceDust');assert.equal(run('Meta.essence'),essence+1);buy('magnetNow');assert.equal(player.shopPurchases.magnetNow,1);
+ reset();player.gold=10000;const gold=player.gold;buy('weaponUp');assert.equal(player.gold,gold);assert.equal(player.shopPurchases.weaponUp,undefined);
+ player.gainWeapon('common_knives');player.weapons.common_knives.level=5;buy('weaponUp');assert.equal(player.gold,gold);
+});
 test('camera covers every map edge and also handles viewports bigger than a map',()=>{
  reset();run("Sprites.maps=[{file:'test',suggested_world_size:[2048,2048]}]");
  for(const [x,y] of [[24,24],[2024,24],[24,2024],[2024,2024]]){player.x=x;player.y=y;run('SurvivorIntegration.updateCamera()');const cam=run('CAM'),vw=run('VW'),vh=run('VH');assert.ok(cam.x-vw/(2*cam.zoom)>=-1e-6);assert.ok(cam.y-vh/(2*cam.zoom)>=-1e-6);assert.ok(cam.x+vw/(2*cam.zoom)<=2048+1e-6);assert.ok(cam.y+vh/(2*cam.zoom)<=2048+1e-6);}
@@ -280,6 +293,11 @@ test('equipment: full stash keeps ground drops, and victory collects gear before
 test('equipment: merchant stock purchases once, checks gold/capacity, then allows sale',()=>{
  cleanEquipment();reset();game.state='shop';player.gold=10000;run('renderShop()');const rows=document.getElementById('shop-items').children.slice(-6);const buy=rows[0].children[0],gold=player.gold;buy.onclick();assert.ok(player.gold<gold);assert.equal(E.state.stash.filter(Boolean).length,1);const after=player.gold;buy.onclick();assert.equal(player.gold,after);
  E.open();assert.equal(game.state,'equipment');assert.ok(document.getElementById('eq-hero').disabled);document.getElementById('eq-grid').children[0].onclick();const detail=document.getElementById('eq-detail'),sell=detail.children.find(el=>el.textContent?.startsWith('Vendre'));assert.ok(sell);sell.onclick();assert.ok(player.gold>after);assert.equal(E.state.stash.filter(Boolean).length,0);E.close();assert.equal(game.state,'shop');cleanEquipment();reset();
+});
+test('merchant rejects gear without gold or space and preserves stock across reopenings',()=>{
+ cleanEquipment();reset();game.state='shop';player.gold=0;run('renderShop()');let row=document.getElementById('shop-items').children.slice(-6)[0],buy=row.children[0];assert.equal(buy.disabled,true);buy.onclick();assert.equal(player.gold,0);assert.equal(E.state.stash.filter(Boolean).length,0);
+ player.gold=10000;while(E.state.stash.includes(null))store(gear('cap',0));run('renderShop()');row=document.getElementById('shop-items').children.slice(-6)[0];buy=row.children[0];assert.equal(buy.disabled,true);const before=JSON.stringify(E.state),gold=player.gold;buy.onclick();assert.equal(player.gold,gold);assert.equal(JSON.stringify(E.state),before);
+ E.sell(0);run('renderShop()');row=document.getElementById('shop-items').children.slice(-6)[0];row.children[0].onclick();assert.ok(player.gold<gold);const after=player.gold;run('closeShop();openShop()');row=document.getElementById('shop-items').children.slice(-6)[0];assert.equal(row.children[0].disabled,true);row.children[0].onclick();assert.equal(player.gold,after);cleanEquipment();reset();
 });
 test('equipment: menu pauses and restores preparation and play; I is reserved from spell bindings',()=>{
  cleanEquipment();game.state='setup';sandbox.SurvivorActs.useClass('amazon');E.open();assert.equal(game.state,'equipment');assert.equal(document.getElementById('eq-hero').value,'amazon');E.close();assert.equal(game.state,'setup');reset();E.open();E.close();assert.equal(game.state,'playing');

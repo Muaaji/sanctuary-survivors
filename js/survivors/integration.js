@@ -463,7 +463,7 @@
     if((purchased[it.id]||0)>=it.limit){Sound.play('deny');toast('Stock épuisé pour cette descente.');return;}
     if(Player.gold<it.cost){Sound.play('deny');return;}
     let success=true;
-    if(it.id==='weaponUp'){const ws=R.owned().filter(w=>w.level<5&&!w.evolved);if(!ws.length)success=false;else {const w=pick(ws);w.level++;}}
+    if(it.id==='weaponUp'){const ws=Object.values(Player.weapons).filter(w=>w.level<5&&!w.evolved);if(!ws.length)success=false;else {const w=pick(ws);w.level++;}}
     else if(it.id==='armorUp')success=Player.gainPassive('armor');
     else if(it.id==='potionMP'||it.id==='reroll')Game.rerollsLeft++;
     else if(it.id==='potionHP')Player.heal(Player.hpMax);
