@@ -212,7 +212,7 @@
   // Preserve the supplied frame unchanged; the SVG viewport removes its empty margins.
   const hudFrame=document.getElementById('hud-frame-img');hudFrame.src='assets/ui/hud-frame-user.svg';document.getElementById('hud-bottom').appendChild(hudFrame);
   // User interface: ordinary choices, evolution choices and linked class talent trees.
-  const style=document.createElement('link');style.rel='stylesheet';style.href='css/survivors.css';document.head.appendChild(style);
+  const style=document.createElement('link');style.rel='stylesheet';style.href='css/survivors.css?v=gothic1';document.head.appendChild(style);
   const panel=document.createElement('div');panel.id='talents-overlay';panel.className='overlay hidden';
   panel.innerHTML='<div class="ss-talent-panel"><h2>Capacités de classe — Talents</h2><p id="ss-talent-summary"></p><div id="ss-talent-tree"></div><button class="btn small" id="ss-talents-close">Revenir au combat</button></div>';
   $('game-container').appendChild(panel);
